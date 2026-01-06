@@ -1,0 +1,20 @@
+[project]
+name = "youtube-agent"
+version = "1.0.0"
+description = "YouTube research micro-agent - find outliers, analyze competitors, get transcripts"
+requires-python = ">=3.12"
+dependencies = [
+    "google-api-python-client>=2.150.0",
+    "google-auth-oauthlib>=1.0.0",
+    "youtube-transcript-api>=0.6.0",
+    "pyyaml>=6.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

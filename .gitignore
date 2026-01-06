@@ -1,0 +1,28 @@
+# Only tutorials/ is public - everything else is gitignored
+
+# Ignore everything by default
+/*
+
+# Allow these to be tracked
+!tutorials/
+!README.md
+!.gitignore
+
+# Private working folders (explicit for clarity)
+scripts/
+projects/
+output/
+transcripts/
+videos/
+.claude/
+
+# Python
+__pycache__/
+*.py[oc]
+.venv/
+
+# Environment
+.env
+
+# OS
+.DS_Store
