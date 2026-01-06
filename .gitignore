@@ -8,13 +8,13 @@
 !README.md
 !.gitignore
 
-# Private working folders (explicit for clarity)
-scripts/
-projects/
-output/
-transcripts/
-videos/
-.claude/
+# Private working folders (root-level only)
+/scripts/
+/projects/
+/output/
+/transcripts/
+/videos/
+/.claude/
 
 # Python
 __pycache__/
