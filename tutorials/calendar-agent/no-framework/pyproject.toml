@@ -1,0 +1,11 @@
+[project]
+name = "calendar-agent-no-framework"
+version = "0.1.0"
+description = "Calendar agent using just the OpenAI API - no frameworks"
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=1.0.0",
+    "google-api-python-client>=2.0.0",
+    "google-auth-oauthlib>=1.0.0",
+    "pydantic>=2.0.0",
+]
