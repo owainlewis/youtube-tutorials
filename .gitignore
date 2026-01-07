@@ -19,7 +19,7 @@
 # Credentials and secrets
 credentials.json
 client_secrets.json
-token.json
+**/token.json
 .env
 .env.*
 *.pem
