@@ -333,8 +333,8 @@ User: Research what's working for AI agent content on YouTube
 Agent: I'll search for AI agent videos and analyze top channels.
 
 [Runs: search_videos "AI agents tutorial" --max 25 --json]
-[Runs: get_channel_videos @daveebbelaar --days 90 --json]
-[Runs: get_channel_videos @AIJasonZ --days 90 --json]
+[Runs: get_channel_videos @XXX --days 90 --json]
+[Runs: get_channel_videos @XXX --days 90 --json]
 
 Found 3 outlier videos worth studying:
 1. "Build AI Agents with Just Two Files" — 4.2x average
