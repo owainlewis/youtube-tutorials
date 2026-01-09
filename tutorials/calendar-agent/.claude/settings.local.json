@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv sync:*)",
+      "Bash(uv run python:*)"
+    ]
+  }
+}

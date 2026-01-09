@@ -1,0 +1,17 @@
+[project]
+name = "micro-agents-demo"
+version = "0.1.0"
+description = "A YouTube research agent built with the Micro Agent pattern"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-api-python-client>=2.0.0",
+    "youtube-transcript-api>=0.6.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ipykernel",
+]
