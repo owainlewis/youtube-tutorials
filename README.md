@@ -4,18 +4,7 @@ Code and examples from my YouTube channel tutorials.
 
 ## Tutorials
 
-| Tutorial | Description |
-|----------|-------------|
-| [youtube-agent](./tutorials/youtube-agent/) | Build an AI agent to manage your YouTube channel |
-
-## How to Use
-
-Each tutorial is self-contained. Navigate to the tutorial folder and follow its README.
-
-```bash
-cd tutorials/youtube-agent
-# Follow the tutorial README
-```
+Browse the [tutorials](./tutorials/) folder. Each tutorial is self-contained with its own README.
 
 ## About
 
