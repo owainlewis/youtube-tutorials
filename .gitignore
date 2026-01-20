@@ -9,6 +9,7 @@
 !.gitignore
 
 # Private working folders (root-level only)
+/staging/
 /scripts/
 /projects/
 /output/

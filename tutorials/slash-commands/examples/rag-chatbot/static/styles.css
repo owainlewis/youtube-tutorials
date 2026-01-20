@@ -1,0 +1,73 @@
+/* Custom styles for the RAG chatbot */
+
+/* Prose styling for markdown */
+.prose {
+    line-height: 1.6;
+}
+
+.prose p {
+    margin-bottom: 0.5rem;
+}
+
+.prose p:last-child {
+    margin-bottom: 0;
+}
+
+.prose ul, .prose ol {
+    margin-left: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.prose li {
+    margin-bottom: 0.25rem;
+}
+
+.prose code {
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+.prose pre {
+    background-color: #1f2937;
+    color: #e5e7eb;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+}
+
+.prose pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Animation for loading dots */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
