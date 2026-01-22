@@ -1,41 +1,38 @@
-# Implement Task
+# Task
 
-Implement a specific task from a feature's tasks.md file.
+Execute a single task from a spec file.
 
-## Task
+## Input
 
-$ARGUMENTS
+$ARGUMENTS should be: `path/to/spec.md TN`
 
-## Instructions
+Examples:
+- `/task .ai/specs/auth.md T1`
+- `/task .ai/specs/rate-limiting.md T3`
 
-1. Read CLAUDE.md for project patterns
-2. Read the feature's `plan.md` for context
-3. Read the feature's `tasks.md` for the full task list
-4. Implement the specified task
-5. Mark the task as complete in tasks.md: `- [ ]` → `- [x]`
+## Process
 
-## Guidelines
+1. Read the spec file
+2. Find the specified task (T1, T2, etc.)
+3. Read the Why, What, and Constraints sections for context
+4. Read the Current State section to understand existing code
+5. Implement EXACTLY what the task describes—nothing more
+6. Run the Verify step to confirm it worked
 
-- Focus on just this task — don't scope creep into other tasks
-- Follow patterns established in plan.md and CLAUDE.md
-- If the task is ambiguous, ask for clarification
-- Run any verification commands if specified
-- Keep changes minimal and focused
+## Rules
 
-## Example Usage
+- Implement only this task—ignore other tasks in the spec
+- Follow constraints strictly—they exist to prevent over-engineering
+- Write tests if specified in the task
+- Do NOT refactor unrelated code
+- Do NOT add features not in the task
+- Touch only the files listed in the task
 
-```
-/task .ai/features/note-deletion "Add deleteNote function"
-```
+## After Completion
 
-This will:
-1. Read the note-deletion plan and tasks
-2. Implement the deleteNote function
-3. Mark that task complete in tasks.md
+Report:
+- What was implemented
+- Verification result (pass/fail)
+- Any issues or blockers for next task
 
-## Output
-
-After implementation:
-- Show what was changed
-- Show the updated tasks.md with checkbox marked
-- Note any follow-up tasks that are now unblocked
+Suggest: `/task path/to/spec.md TN+1` for the next task

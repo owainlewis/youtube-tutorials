@@ -177,52 +177,59 @@ Don't add complexity before you need it. The frameworks will still be there.
 ## The Spec Template
 
 ```markdown
-# Feature: [Name]
-Status: [Not started | In progress | Done]
+# Feature Name
 
 ## Why
-[Problem. Who has it. What happens if unsolved. 1-2 sentences.]
+
+[1-2 sentences: What problem this solves. Why it matters now.]
 
 ## What
-[Concrete deliverable. Specific enough to know when it's done.]
+
+[Concrete deliverable. Specific enough to verify when done.]
+
+- Bullet list of what will be added/modified
+- Each item should be observable or testable
 
 ## Constraints
-- Must: [Non-negotiables — tech, patterns, performance]
-- Must not: [Forbidden approaches — no new deps, don't touch X]
-- Out of scope: [Adjacent things explicitly excluded]
 
-## Current state
-[What exists. Key files. Patterns to follow. Entry points.]
+### Must
+- [Required patterns, libraries, conventions]
+- [Use existing X from Y]
+
+### Must Not
+- [No new dependencies unless specified]
+- [Don't modify unrelated code]
+
+### Out of Scope
+- [Adjacent features we're explicitly not building]
+- [Future enhancements to ignore]
+
+## Current State
+
+[What exists now. Saves agent from exploring.]
+
+- Relevant files: `path/to/file.ts`
+- Existing patterns to follow
+- Related code locations
 
 ## Tasks
 
-### Task 1: [Name]
-What: [Action to take]
-Files: [Paths to create or modify]
-Tests: [Tests to write or update]
-Verify: [Command or check to confirm it works]
-Context: [Relevant info from previous tasks]
+### T1: [Title]
+**What:** [What to build]
+**Files:** `path/to/file`, `path/to/test`
+**Tests:** Write test first, then implement
+**Verify:** `command to run` or manual check
 
-### Task 2: [Name]
-What: [Action to take]
-Files: [Paths to create or modify]
-Tests: [Tests to write or update]
-Verify: [Command or check to confirm it works]
-Context: [Relevant info from previous tasks]
-
-## Decisions
-- [Date] [Choice]: [Rationale]
-
-## Notes
-[Open questions, links, failed attempts]
+### T2: [Title]
+**What:** ...
+**Files:** ...
+**Tests:** ...
+**Verify:** ...
 ```
 
 ---
 
 ## Template Sections Explained
-
-### Status
-Quick reference for where things stand. Update as you progress.
 
 ### Why
 The problem you're solving. Keeps you (and the agent) focused on outcomes, not just outputs. Helps make tradeoff decisions.
@@ -237,16 +244,16 @@ Bad: "Add user management"
 Good: "Users can register, log in, and reset password. JWT auth with 1hr access tokens and 7d refresh tokens."
 
 ### Constraints
-Boundaries that prevent the agent from going off-track.
+Boundaries that prevent the agent from going off-track. This section is the secret weapon.
 
-- Must: Tech choices, patterns to follow, performance requirements
-- Must not: Things to avoid — don't add dependencies, don't refactor unrelated code
-- Out of scope: Adjacent features that are explicitly not part of this work
+- **Must:** Tech choices, patterns to follow, performance requirements
+- **Must Not:** Things to avoid — don't add dependencies, don't refactor unrelated code
+- **Out of Scope:** Adjacent features that are explicitly not part of this work
 
-This section is the secret weapon. Without it, agents over-engineer, add unwanted libraries, and "improve" code you didn't ask them to touch.
+Without constraints, agents over-engineer, add unwanted libraries, and "improve" code you didn't ask them to touch.
 
-### Current state
-What exists now. Key files, existing patterns, entry points. Saves the agent from exploring your codebase (costs tokens, risks hallucination).
+### Current State
+What exists now. Saves the agent from exploring your codebase (costs tokens, risks hallucination).
 
 Include:
 - Relevant file paths
@@ -270,17 +277,6 @@ Task structure:
 | Files | Exact paths to create/modify |
 | Tests | Tests to write or update |
 | Verify | How to confirm it works |
-| Context | Info from previous tasks needed here |
-
-The Context field matters because each task should run in a fresh context window. Previous conversation doesn't carry over, so anything the agent needs to know must be stated explicitly.
-
-### Decisions
-Log choices as you make them. Date, what you decided, why.
-
-Prevents re-litigating. Your future self (and teammates) will thank you.
-
-### Notes
-Everything else: open questions, links, approaches that didn't work.
 
 ---
 
@@ -324,89 +320,90 @@ Include test expectations in the task, either:
 ## Example Spec
 
 ```markdown
-# Feature: JWT Authentication
-Status: In progress
+# JWT Authentication
 
 ## Why
+
 Users currently share a single demo account. We need individual accounts to track usage per user for billing and to enable personal settings.
 
 ## What
+
 Users can register, log in, and refresh tokens. JWT-based auth with 1hr access tokens and 7d refresh tokens. Protected routes return 401 without valid token.
 
-## Constraints
-- Must: Use existing Express app structure
-- Must: Use jsonwebtoken library (already in package.json)
-- Must: Store users in existing Postgres via Prisma
-- Must: Follow error handling pattern in src/lib/errors.ts
-- Must not: Add new dependencies
-- Must not: Modify existing user-facing routes
-- Out of scope: Password reset, email verification, OAuth
+- POST /auth/register — create account, return tokens
+- POST /auth/login — validate credentials, return tokens
+- POST /auth/refresh — exchange refresh token for new access token
+- GET /auth/me — return current user (protected)
 
-## Current state
-- Server: Express in src/server.ts
-- Routes: src/routes/index.ts exports router, individual routes in src/routes/*.ts
-- DB: Prisma with schema in prisma/schema.prisma
-- Errors: Pattern in src/lib/errors.ts (throw AppError, caught by error middleware)
+## Constraints
+
+### Must
+- Use existing Express app structure in `src/server.ts`
+- Use jsonwebtoken library (already in package.json)
+- Store users in existing Postgres via Prisma
+- Follow error handling pattern in `src/lib/errors.ts`
+
+### Must Not
+- Add new dependencies
+- Modify existing user-facing routes
+- Store tokens in database (stateless JWT)
+
+### Out of Scope
+- Password reset flow
+- Email verification
+- OAuth / social login
+
+## Current State
+
+- Server: Express in `src/server.ts`
+- Routes: `src/routes/index.ts` exports router, individual routes in `src/routes/*.ts`
+- DB: Prisma with schema in `prisma/schema.prisma`
+- Errors: Pattern in `src/lib/errors.ts` (throw AppError, caught by error middleware)
 - Auth: None yet
 
 ## Tasks
 
-### Task 1: Add User model
-What: Add User model to Prisma schema with id, email, passwordHash, createdAt. Run migration.
-Files: prisma/schema.prisma (modify)
-Tests: None
-Verify: npx prisma migrate dev succeeds, User table exists
-Context: None
+### T1: Add User model
+**What:** Add User model to Prisma schema with id, email, passwordHash, createdAt. Run migration.
+**Files:** `prisma/schema.prisma`
+**Tests:** None
+**Verify:** `npx prisma migrate dev` succeeds, User table exists
 
-### Task 2: Create auth utilities
-What: Create JWT sign/verify functions. signAccessToken (1hr), signRefreshToken (7d), verifyToken.
-Files: src/lib/jwt.ts (create)
-Tests: src/lib/jwt.test.ts — test sign and verify for valid tokens, expired tokens, invalid tokens
-Verify: npm test passes
-Context: Use jsonwebtoken library
+### T2: Create auth utilities
+**What:** Create JWT sign/verify functions. signAccessToken (1hr), signRefreshToken (7d), verifyToken.
+**Files:** `src/lib/jwt.ts`, `src/lib/jwt.test.ts`
+**Tests:** Test sign and verify for valid tokens, expired tokens, invalid tokens
+**Verify:** `npm test` passes
 
-### Task 3: Create register endpoint
-What: POST /auth/register accepts email/password, hashes password, creates user, returns tokens
-Files: src/routes/auth.ts (create), src/routes/index.ts (add auth routes)
-Tests: src/routes/auth.test.ts — test successful registration, duplicate email, invalid input
-Verify: npm test passes, curl test returns 201 with tokens
-Context: Use bcrypt for password hashing (already in package.json), jwt utils from Task 2
+### T3: Create register endpoint
+**What:** POST /auth/register accepts email/password, hashes password, creates user, returns tokens.
+**Files:** `src/routes/auth.ts` (create), `src/routes/index.ts` (add auth routes)
+**Tests:** `src/routes/auth.test.ts` — successful registration, duplicate email, invalid input
+**Verify:** `npm test` passes, `curl` returns 201 with tokens
 
-### Task 4: Create login endpoint
-What: POST /auth/login accepts email/password, validates credentials, returns tokens
-Files: src/routes/auth.ts (modify)
-Tests: src/routes/auth.test.ts — test successful login, wrong password, nonexistent user
-Verify: npm test passes, curl test returns 200 with tokens or 401
-Context: Uses same file as Task 3, jwt utils from Task 2
+### T4: Create login endpoint
+**What:** POST /auth/login accepts email/password, validates credentials, returns tokens.
+**Files:** `src/routes/auth.ts`
+**Tests:** `src/routes/auth.test.ts` — successful login, wrong password, nonexistent user
+**Verify:** `npm test` passes, `curl` returns 200 with tokens or 401
 
-### Task 5: Create refresh endpoint
-What: POST /auth/refresh accepts refresh token, returns new access token
-Files: src/routes/auth.ts (modify)
-Tests: src/routes/auth.test.ts — test valid refresh, expired refresh, invalid refresh
-Verify: npm test passes, curl test works
-Context: jwt utils from Task 2
+### T5: Create refresh endpoint
+**What:** POST /auth/refresh accepts refresh token, returns new access token.
+**Files:** `src/routes/auth.ts`
+**Tests:** `src/routes/auth.test.ts` — valid refresh, expired refresh, invalid refresh
+**Verify:** `npm test` passes
 
-### Task 6: Create auth middleware
-What: Middleware that validates access token from Authorization header, attaches user to request
-Files: src/middleware/auth.ts (create), src/types/index.ts (extend Request type)
-Tests: src/middleware/auth.test.ts — test valid token, missing token, expired token, malformed token
-Verify: npm test passes
-Context: jwt utils from Task 2
+### T6: Create auth middleware
+**What:** Middleware that validates access token from Authorization header, attaches user to request.
+**Files:** `src/middleware/auth.ts` (create), `src/types/index.ts` (extend Request type)
+**Tests:** `src/middleware/auth.test.ts` — valid token, missing token, expired token, malformed token
+**Verify:** `npm test` passes
 
-### Task 7: Protect a test route
-What: Add GET /auth/me that requires auth and returns current user
-Files: src/routes/auth.ts (modify)
-Tests: src/routes/auth.test.ts — test with valid token returns user, without token returns 401
-Verify: npm test passes, full flow works: register → login → access /me with token
-Context: Uses middleware from Task 6
-
-## Decisions
-- 2024-01-15 JWT over sessions: Stateless, simpler for API, no session store needed
-- 2024-01-15 1hr/7d token expiry: Balance security (short access) with UX (long refresh)
-
-## Notes
-- Consider rate limiting on auth endpoints (future task)
-- Password reset will be separate feature
+### T7: Protect test route
+**What:** Add GET /auth/me that requires auth and returns current user.
+**Files:** `src/routes/auth.ts`
+**Tests:** `src/routes/auth.test.ts` — with valid token returns user, without token returns 401
+**Verify:** Full flow works: register → login → access /me with token
 ```
 
 ---
@@ -417,43 +414,11 @@ Context: Uses middleware from Task 6
 
 ```
 /spec [description]
-
-Read my description and create a spec using this structure:
-
-# Feature: [Name]
-Status: Not started
-
-## Why
-[Problem, who has it, what if unsolved]
-
-## What
-[Concrete deliverable, verifiable]
-
-## Constraints
-- Must: [X]
-- Must not: [Y]
-- Out of scope: [Z]
-
-## Current state
-[Leave blank for me to fill, or ask]
-
-## Tasks
-
-### Task 1: [Name]
-What: [Action]
-Files: [Paths]
-Tests: [Tests to write]
-Verify: [How to confirm]
-Context: [Prior task info if needed]
-
-## Decisions
-[Empty]
-
-## Notes
-[Empty]
-
-Before generating, ask 2-3 clarifying questions about scope, constraints, or current state.
 ```
+
+Generates a spec file at `.ai/specs/<feature-slug>.md` with:
+- Why, What, Constraints, Current State, Tasks
+- Asks clarifying questions before generating if anything is ambiguous
 
 Usage:
 ```
@@ -463,52 +428,33 @@ Usage:
 ### /task — Execute a single task
 
 ```
-/task [number]
-
-Read spec.md and execute Task [number].
-
-Follow these steps:
-1. Read the task's What, Files, Tests, Verify, and Context
-2. Implement the change
-3. Write the tests specified
-4. Run verification to confirm it works
-5. Report what was done and any issues
-
-Do not modify files outside those listed.
-Do not move to other tasks.
+/task .ai/specs/<spec>.md T<number>
 ```
+
+Executes a specific task from a spec file:
+1. Reads the spec for context (Why, What, Constraints, Current State)
+2. Implements exactly what the task describes
+3. Runs the Verify step
+4. Reports what was done and any issues
 
 Usage:
 ```
-/task 3
+/task .ai/specs/auth.md T3
 ```
 
-### /status — Get current status
+### /tasks — Show task status
 
 ```
-/status
-
-Read spec.md and report:
-1. Current status
-2. Completed tasks (checked)
-3. Next task to execute
-4. Any blockers or open questions from Notes
-
-Keep it brief.
+/tasks .ai/specs/<spec>.md
 ```
 
-### /update — Update spec after work
+Shows progress on a spec:
+- Lists all tasks with completion status
+- Shows next actionable task
 
+Usage:
 ```
-/update
-
-Based on our session, propose updates to spec.md:
-1. Check off completed tasks
-2. Add any decisions we made with rationale
-3. Update current state if it changed
-4. Add any new notes or discovered tasks
-
-Show the changes, don't apply them yet.
+/tasks .ai/specs/auth.md
 ```
 
 ---
@@ -517,38 +463,36 @@ Show the changes, don't apply them yet.
 
 ### Starting a project
 
-1. Write description of what you want to build
-2. Use /spec to generate initial spec
-3. Review and refine — especially Constraints and Current state
-4. Save to spec.md in your repo
+1. Describe what you want to build
+2. Use `/spec` to generate initial spec
+3. Review and refine — especially Constraints and Current State
+4. Spec is saved to `.ai/specs/<feature>.md`
 
 ### Working through tasks
 
 For each task:
 1. Start fresh chat/session
-2. Paste spec.md (or have agent read it)
-3. Use /task N to execute
+2. Use `/task .ai/specs/<feature>.md T1` to execute
+3. Agent reads spec, implements task, runs verification
 4. Review the work
-5. Commit with message "Task N: [name]"
-6. Use /update to get spec changes
-7. Apply updates to spec.md
-8. Repeat with next task
+5. Commit with message "T1: [name]"
+6. Continue with next task: `/task .ai/specs/<feature>.md T2`
 
 ### Resuming later
 
 1. Start fresh chat
-2. Use /status to orient
-3. Continue with /task N
+2. Use `/tasks .ai/specs/<feature>.md` to see progress
+3. Continue with the next incomplete task
 
 ### Key habits
 
 | Moment | Action |
 |--------|--------|
 | Start of session | Agent reads full spec |
-| During task | Reference constraints when making decisions |
-| End of task | Agent proposes spec updates |
+| During task | Follow constraints strictly |
+| End of task | Run verification step |
 | Before commit | Verify step passes |
-| After commit | Update spec.md, check off task |
+| After commit | Move to next task |
 
 ---
 
@@ -578,31 +522,28 @@ Start with single file. Add tooling when you feel the pain of not having it.
 
 ### Spec structure
 ```
-Feature name + Status
-Why (problem)
-What (deliverable)
-Constraints (must/must not/out of scope)
-Current state (what exists)
-Tasks (what/files/tests/verify/context)
-Decisions (choice + rationale)
-Notes (questions, links, failures)
+# Feature Name
+## Why (problem)
+## What (deliverable)
+## Constraints (Must / Must Not / Out of Scope)
+## Current State (what exists)
+## Tasks (T1, T2, T3...)
 ```
 
 ### Task structure
 ```
-What: Action to take
-Files: Paths to create or modify
-Tests: Tests to write
-Verify: How to confirm it works
-Context: Info from previous tasks
+### T1: Title
+**What:** Action to take
+**Files:** Paths to create or modify
+**Tests:** Tests to write
+**Verify:** How to confirm it works
 ```
 
 ### Commands
 ```
-/spec [description] — Generate new spec
-/task [number] — Execute single task
-/status — Check progress
-/update — Propose spec updates
+/spec [description]           — Generate new spec
+/task .ai/specs/X.md T1       — Execute single task
+/tasks .ai/specs/X.md         — Check progress
 ```
 
 ### Principles

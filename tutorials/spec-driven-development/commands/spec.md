@@ -1,6 +1,6 @@
-# Write Feature Spec
+# Spec
 
-Create a plan and task list for AI-assisted implementation. Two files: `plan.md` (the thinking) and `tasks.md` (the checklist).
+Generate a specification for AI-assisted implementation.
 
 ## Feature
 
@@ -8,85 +8,89 @@ $ARGUMENTS
 
 ## Instructions
 
-**Phase 1: Clarify**
+**Phase 1: Understand**
 
-Before writing, understand:
+Before writing, read CLAUDE.md for project patterns. Then understand:
 - What problem are we solving?
-- What's the scope?
+- What exists now that's relevant?
 - Any constraints or patterns to follow?
 
-Read CLAUDE.md first for project patterns. Ask clarifying questions if needed.
+Ask clarifying questions if anything is ambiguous. Don't guess.
 
-**Phase 2: Write the Plan**
+**Phase 2: Write the Spec**
 
-Create `.ai/features/{feature-slug}/plan.md`:
+Create `.ai/specs/<feature-slug>.md`:
 
 ```markdown
-# {Feature Name}
+# Feature Name
 
 ## Why
 
-[1-2 sentences: What problem this solves. Why it matters.]
+[1-2 sentences: What problem this solves. Why it matters now.]
 
-## What Changes
+## What
 
-[Bullet list of what will be added/modified]
-- Add X to Y
-- Update Z to handle W
-- Create new component for Q
+[Concrete deliverable. Specific enough to verify when done.]
 
-## How
+- Bullet list of what will be added/modified
+- Each item should be observable or testable
 
-[Technical approach, constraints, patterns to follow]
-- Use existing pattern from X
-- No new dependencies
-- Follow convention Y
+## Constraints
 
-## Files Affected
+### Must
+- [Required patterns, libraries, conventions]
+- [Use existing X from Y]
 
-[Specific file paths and what changes]
-- `path/to/file.ts` - what changes
-- `path/to/new.ts` - new file
+### Must Not
+- [No new dependencies unless specified]
+- [Don't modify unrelated code]
+
+### Out of Scope
+- [Adjacent features we're explicitly not building]
+- [Future enhancements to ignore]
+
+## Current State
+
+[What exists now. Saves agent from exploring.]
+
+- Relevant files: `path/to/file.ts`
+- Existing patterns to follow
+- Related code locations
+
+## Tasks
+
+### T1: [Title]
+**What:** [What to build]
+**Files:** `path/to/file`, `path/to/test`
+**Tests:** Write test first, then implement
+**Verify:** `command to run` or manual check
+
+### T2: [Title]
+**What:** ...
+**Files:** ...
+**Tests:** ...
+**Verify:** ...
 ```
 
-**Phase 3: Write the Tasks**
+## Task Design Principles
 
-Create `.ai/features/{feature-slug}/tasks.md`:
-
-```markdown
-# Tasks: {Feature Name}
-
-## Data Layer
-- [ ] Task 1
-- [ ] Task 2
-
-## UI / API
-- [ ] Task 3
-- [ ] Task 4
-
-## Integration
-- [ ] Task 5
-
-## Verification
-- [ ] Task 6
-- [ ] Task 7
-```
-
-Group tasks by layer: Data → UI/API → Integration → Verification.
+- Each task runs in a fresh agent session
+- Touch 1-3 files maximum per task
+- Include all context needed—no external references
+- Every task needs a way to verify it worked
+- If a task feels big, break it down
 
 ## Guidelines
 
-- plan.md should be 15-30 lines. If longer, split the feature.
-- tasks.md checkboxes will be updated during execution.
-- File paths must be specific — constrains AI to your architecture.
-- The "Why" section is documentation for future you.
-- Each task should be completable in one focused session.
+- The Why is documentation for future you
+- Constraints prevent over-engineering—be explicit
+- Current State saves the agent from exploring your codebase
+- Keep the whole spec under 50 lines if possible
 
 ## Output
 
-Create folder `.ai/features/{feature-slug}/` with both files.
+Create `.ai/specs/<feature-slug>.md`
 
 After writing:
-- "Plan saved to `.ai/features/{slug}/plan.md`"
-- "Tasks saved to `.ai/features/{slug}/tasks.md`"
-- "To implement: `read .ai/features/{slug} and implement, updating checkboxes as you go`"
+- "Spec saved to `.ai/specs/<slug>.md`"
+- "To implement: `/task .ai/specs/<slug>.md T1`"
