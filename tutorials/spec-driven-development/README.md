@@ -6,7 +6,7 @@ A practical guide to writing specifications that help AI coding agents build wha
 
 ## What is Spec-Driven Development?
 
-Spec-driven development (SDD) is writing a specification before writing code. The spec becomes the source of truth that guides implementation.
+Spec-driven development (SDD) is writing a specification (plan) before writing code. The spec becomes the source of truth that guides implementation.
 
 With AI agents, this matters more than ever. Without a spec, you're "vibe coding" — describing something vaguely and hoping the agent figures it out. Sometimes it works. Often it doesn't.
 
