@@ -8,89 +8,56 @@ $ARGUMENTS
 
 ## Instructions
 
-**Phase 1: Understand**
-
-Before writing, read CLAUDE.md for project patterns. Then understand:
-- What problem are we solving?
-- What exists now that's relevant?
-- Any constraints or patterns to follow?
-
-Ask clarifying questions if anything is ambiguous. Don't guess.
-
-**Phase 2: Write the Spec**
+Read CLAUDE.md first. Ask only if blocked.
 
 Create `.ai/specs/<feature-slug>.md`:
-
 ```markdown
 # Feature Name
 
+Status: 0/N complete
+
 ## Why
 
-[1-2 sentences: What problem this solves. Why it matters now.]
-
 ## What
-
-[Concrete deliverable. Specific enough to verify when done.]
-
-- Bullet list of what will be added/modified
-- Each item should be observable or testable
+-
+-
 
 ## Constraints
-
-### Must
-- [Required patterns, libraries, conventions]
-- [Use existing X from Y]
-
-### Must Not
-- [No new dependencies unless specified]
-- [Don't modify unrelated code]
-
-### Out of Scope
-- [Adjacent features we're explicitly not building]
-- [Future enhancements to ignore]
+-
+-
 
 ## Current State
-
-[What exists now. Saves agent from exploring.]
-
-- Relevant files: `path/to/file.ts`
-- Existing patterns to follow
-- Related code locations
+- `path/to/file.ts` — description
+-
 
 ## Tasks
 
-### T1: [Title]
-**What:** [What to build]
-**Files:** `path/to/file`, `path/to/test`
-**Tests:** Write test first, then implement
-**Verify:** `command to run` or manual check
+- [ ] T1: Title
+  What:
+  Files:
+  Verify:
 
-### T2: [Title]
-**What:** ...
-**Files:** ...
-**Tests:** ...
-**Verify:** ...
+- [ ] T2: Title
+  Depends: T1
+  What:
+  Files:
+  Verify:
 ```
-
-## Task Design Principles
-
-- Each task runs in a fresh agent session
-- Touch 1-3 files maximum per task
-- Include all context needed—no external references
-- Every task needs a way to verify it worked
-- If a task feels big, break it down
 
 ## Guidelines
 
-- The Why is documentation for future you
-- Constraints prevent over-engineering—be explicit
-- Current State saves the agent from exploring your codebase
-- Keep the whole spec under 50 lines if possible
+- One logical change per task, even if multiple files
+- Each task runs in a fresh session — include all context needed
+- Every task needs a verify step
+- Keep spec under 50 lines; split if longer
 
 ## Output
 
-Create `.ai/specs/<feature-slug>.md`
-
 After writing:
-- "Spec saved to `.ai/specs/<slug>.md`"
-- "To implement: `/task .ai/specs/<slug>.md T1`"
+- Spec saved to `.ai/specs/<slug>.md`
+- To implement: `/task .ai/specs/<slug>.md T1`
+
+After completing a task:
+1. Run verify command
+2. Mark task `- [x]`
+3. Commit: `feat(<feature>): T1 - title`
