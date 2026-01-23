@@ -4,35 +4,33 @@ Execute a single task from a spec file.
 
 ## Input
 
-$ARGUMENTS should be: `path/to/spec.md TN`
-
-Examples:
-- `/task .ai/specs/auth.md T1`
-- `/task .ai/specs/rate-limiting.md T3`
+$ARGUMENTS: `path/to/spec.md TN`
 
 ## Process
 
 1. Read the spec file
-2. Find the specified task (T1, T2, etc.)
-3. Read the Why, What, and Constraints sections for context
-4. Read the Current State section to understand existing code
-5. Implement EXACTLY what the task describes—nothing more
-6. Run the Verify step to confirm it worked
+2. Find the specified task
+3. Review Why, What, Constraints, and Current State for context
+4. Implement exactly what the task describes — nothing more
+5. Run the Verify step
 
 ## Rules
 
-- Implement only this task—ignore other tasks in the spec
-- Follow constraints strictly—they exist to prevent over-engineering
-- Write tests if specified in the task
-- Do NOT refactor unrelated code
-- Do NOT add features not in the task
-- Touch only the files listed in the task
+- Only this task — ignore others in the spec
+- Only files listed in the task
+- No drive-by refactors or additions
+- Follow constraints strictly
+- Write tests if specified
 
 ## After Completion
 
+Update spec:
+- Mark task `- [x]`
+- Update status count
+
 Report:
 - What was implemented
-- Verification result (pass/fail)
-- Any issues or blockers for next task
+- Verification result
+- Blockers for next task (if any)
 
-Suggest: `/task path/to/spec.md TN+1` for the next task
+Suggest next: `/task path/to/spec.md TN+1`
