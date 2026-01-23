@@ -19,16 +19,10 @@ Status: 0/N complete
 ## Why
 
 ## What
--
--
 
 ## Constraints
--
--
 
 ## Current State
-- `path/to/file.ts` — description
--
 
 ## Tasks
 
