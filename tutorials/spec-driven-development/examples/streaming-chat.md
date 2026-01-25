@@ -74,3 +74,14 @@ A chat endpoint with Server-Sent Events (SSE) for real-time token streaming.
 **Files:** `src/services/chat.py`
 **Tests:** `src/services/chat_test.py` — test retry behavior, test error responses
 **Verify:** Invalid API key returns 401, rate limit triggers retry
+
+## Validation
+
+After all tasks complete, verify the full chat flow:
+
+- `uv run pytest` — all tests pass
+- Manual flow test:
+  1. Non-streaming: `curl -X POST localhost:8000/chat -d '{"messages":[{"role":"user","content":"Say hello"}],"stream":false}' -H "Content-Type: application/json"` — returns complete JSON response
+  2. Streaming: `curl -N -X POST localhost:8000/chat -d '{"messages":[{"role":"user","content":"Count to 5"}],"stream":true}' -H "Content-Type: application/json"` — returns SSE events with tokens, ends with `[DONE]`
+  3. Verify conversation history works by passing multiple messages
+  4. Verify error handling with invalid API key returns 401

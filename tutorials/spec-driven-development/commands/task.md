@@ -21,16 +21,16 @@ $ARGUMENTS: `path/to/spec.md TN`
 - No drive-by refactors or additions
 - Follow constraints strictly
 - Write tests if specified
+- Do NOT add dependencies unless specified in Constraints
 
 ## After Completion
 
-Update spec:
-- Mark task `- [x]`
-- Update status count
-
 Report:
 - What was implemented
-- Verification result
-- Blockers for next task (if any)
+- Files created or modified
+- Verification result (pass/fail)
+- Any issues or blockers
 
-Suggest next: `/task path/to/spec.md TN+1`
+Suggest next step:
+- If more tasks remain: `Read spec and implement TN+1`
+- If all tasks complete: Run Validation section commands

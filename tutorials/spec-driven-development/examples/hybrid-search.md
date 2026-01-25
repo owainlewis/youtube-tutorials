@@ -82,3 +82,14 @@ A search endpoint that combines vector similarity (semantic) with full-text sear
 **Files:** `src/api/routes/search.py`, `src/api/schemas/search.py`
 **Tests:** `src/api/routes/search_test.py` — end-to-end tests
 **Verify:** `curl` tests return expected results, latency < 100ms
+
+## Validation
+
+After all tasks complete, verify the full search flow:
+
+- `uv run pytest` — all tests pass
+- Manual flow test:
+  1. `curl -X POST localhost:8000/documents -d '{"content":"FastAPI is a modern Python web framework"}' -H "Content-Type: application/json"` — returns document ID
+  2. `curl -X POST localhost:8000/documents -d '{"content":"Django is a batteries-included Python framework"}' -H "Content-Type: application/json"` — returns document ID
+  3. `curl -X POST localhost:8000/search -d '{"query":"modern web framework","mode":"hybrid"}' -H "Content-Type: application/json"` — returns ranked results with FastAPI first
+  4. Verify latency < 100ms for typical queries
