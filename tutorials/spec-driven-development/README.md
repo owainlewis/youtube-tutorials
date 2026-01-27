@@ -1,59 +1,138 @@
-# Spec-Driven Development for AI Agents
+# Spec-Driven Development
 
-A practical guide to writing specifications that help AI coding agents build what you actually want.
+> Plan your work before you write code. But rather than writing plans for humans, we're writing plans and tasks for agents.
 
----
-
-## The Simple Truth
-
-Spec-driven development sounds complicated. PRDs, design docs, RFCs, Gherkin scenarios, OpenSpec, SpecKit — what should be a simple topic has been overcomplicated.
-
-Here's the truth: **it's a plan and a checklist.** That's it.
-
-This is the same workflow Big Tech has used for decades. Problem → Plan → Tasks → Code. No engineer at Google just opens their editor and starts coding. They write a design doc first.
-
-AI doesn't replace this workflow. **AI accelerates the execution step.**
+**Just like you'd give a Jira ticket to someone on your team.**
 
 ---
 
-## Why Specs Matter for AI
+## The Problem
 
-AI agents fail in predictable ways when you skip the spec:
+You tell an AI agent "add authentication." A minute later, you've got code.
 
-**Agents need clarity.** When you say "add authentication," the agent has to guess everything. Passwords or OAuth? JWT or sessions? What library? Where do files go? A spec answers these questions upfront.
+But it's not what you wanted.
 
-**Context windows get polluted.** Long conversations accumulate noise — old errors, dead ends, abandoned approaches. The agent loses focus. Fresh context per task means cleaner execution.
+- Wrong approach (OAuth when you needed email/password)
+- Wrong libraries (ones you've never heard of)
+- Files in weird places
+- Features you didn't ask for (password reset, email verification)
 
-**No constraints means chaos.** Without boundaries, agents over-engineer. They add libraries you didn't ask for. They "improve" code you didn't want touched.
+So you fix it. Something else breaks. An hour later you're still untangling **decisions you never made**.
 
-Without a spec, you're vibe coding — describing something vaguely and hoping the agent figures it out.
+That's what happens when the AI is guessing at what you wanted.
 
 ---
 
-## The Key Insight: Specs for Agents, Not Humans
+## What is Spec-Driven Development?
 
-Most spec frameworks were designed for humans, not agents.
+Instead of telling the AI "add authentication," you write a **spec** first—a short document that defines:
 
-- User stories? That's for stakeholder alignment.
-- Phased implementation plans? That's for team coordination.
-- Gherkin scenarios? That's for QA communication.
+- What you're building
+- The constraints
+- The key decisions
 
-Agents don't need that scaffolding. They need something different:
+So the AI doesn't have to guess.
 
-| Humans Need | Agents Need |
-|-------------|-------------|
-| User stories | Clear deliverables |
-| Phased plans | Ordered tasks |
-| Context (they assume) | Explicit constraints |
-| Flexibility | File paths |
+### Before (Vague Prompt)
 
-You're writing for an agent, not a product manager. Skip the user stories. Add the constraints.
+```
+Add authentication to the app
+```
+
+### After (Spec)
+
+```
+Email and password auth using the existing user table.
+JWT tokens stored in httpOnly cookies.
+Login and signup pages only.
+No password reset for v1.
+Don't add OAuth.
+Don't install new dependencies.
+```
+
+Now the AI knows exactly what to build—and what **not** to build.
+
+---
+
+## Why Specs Matter
+
+When you build something yourself, you don't need to write this down. The decisions are in your head. But the AI can't read your head.
+
+**You have to externalize your thinking.**
+
+Specs also help with longer work. Real features take hours, sometimes days. You want to:
+
+- Pause mid-feature to review
+- Have someone code review the work mid-flow
+- Commit each task independently
+
+This is how software engineering typically works. We break features into tasks and commit each one independently.
+
+**It's easier to review in small chunks than to rewrite everything at the end.**
+
+---
+
+## This Isn't a PRD
+
+Different documents serve different audiences:
+
+```
+┌─────────────────┬─────────────────────────┬─────────────────────────────────┐
+│ Document        │ Audience                │ Purpose                         │
+├─────────────────┼─────────────────────────┼─────────────────────────────────┤
+│ PRD             │ PMs / Stakeholders      │ Define the business value       │
+│ Design Doc      │ Engineers               │ Define the architecture         │
+│ AI Spec         │ Agents                  │ Define exact boundaries & tasks │
+└─────────────────┴─────────────────────────┴─────────────────────────────────┘
+```
+
+The spec includes *some* why and how—just enough context for the agent to make good decisions. But it's not a debate. **It's an action plan.**
+
+If you're writing a "PRD" for an AI agent, you're probably writing a spec. Just call it a spec.
+
+---
+
+## The Workflow
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│    ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐              │
+│    │         │     │         │     │         │     │         │              │
+│    │ Generate│────▶│ Review  │────▶│  Task   │────▶│ Commit  │───┐         │
+│    │  Spec   │     │ & Refine│     │   N     │     │         │   │         │
+│    │         │     │         │     │         │     │         │   │         │
+│    └─────────┘     └─────────┘     └─────────┘     └─────────┘   │         │
+│         │                               ▲                         │         │
+│         │                               │                         │         │
+│         │                               └─────────────────────────┘         │
+│         │                                    Repeat for each task           │
+│         ▼                                                                    │
+│    ┌─────────────────────────────────────────────────────────────┐          │
+│    │                         SPEC FILE                           │          │
+│    │  • Why: Problem being solved                                │          │
+│    │  • What: Concrete deliverable                               │          │
+│    │  • Constraints: Must / Must Not / Out of Scope              │          │
+│    │  • Current State: Existing code & patterns                  │          │
+│    │  • Tasks: Small, verifiable implementation steps            │          │
+│    └─────────────────────────────────────────────────────────────┘          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+### The 5 Steps
+
+1. **Use AI to generate an initial spec from a template** (metaprompting)
+2. **Review it. Refine it.** Make sure the decisions are yours.
+3. **The spec breaks the work into small tasks.** Pick the first one.
+4. **Run that task in a fresh session.** Review. Iterate. Commit.
+5. **Repeat for each task until done.**
+
+**Spec → Task → Review → Commit. Clean context every session.**
 
 ---
 
 ## The Template
-
-One file. That's what you need.
 
 ```markdown
 # Feature Name
@@ -66,14 +145,10 @@ One file. That's what you need.
 
 [Concrete deliverable. Specific enough to verify when done.]
 
-- Bullet list of what will be added/modified
-- Each item should be observable or testable
-
 ## Constraints
 
 ### Must
 - [Required patterns, libraries, conventions]
-- [Use existing X from Y]
 
 ### Must Not
 - [No new dependencies unless specified]
@@ -81,7 +156,6 @@ One file. That's what you need.
 
 ### Out of Scope
 - [Adjacent features we're explicitly not building]
-- [Future enhancements to ignore]
 
 ## Current State
 
@@ -89,7 +163,6 @@ One file. That's what you need.
 
 - Relevant files: `path/to/file.ts`
 - Existing patterns to follow
-- Related code locations
 
 ## Tasks
 
@@ -114,232 +187,269 @@ One file. That's what you need.
 
 ---
 
-## Template Sections Explained
-
-### Why
-The problem you're solving. Keeps you (and the agent) focused on outcomes, not just outputs.
-
-Bad: "We need authentication"
-Good: "Users currently share one account. We need individual accounts to track usage per user."
-
-### What
-The concrete deliverable. Should be verifiable — you know when it's done.
-
-Bad: "Add user management"
-Good: "Users can register, log in, and reset password. JWT auth with 1hr access tokens."
-
-### Constraints
-Boundaries that prevent the agent from going off-track. **This is your secret weapon.**
-
-- **Must:** Tech choices, patterns to follow
-- **Must Not:** Don't add dependencies, don't refactor unrelated code
-- **Out of Scope:** Adjacent features explicitly not part of this work
-
-Without constraints, agents over-engineer.
-
-### Current State
-What exists now. Saves the agent from exploring your codebase (costs tokens, risks hallucination).
-
-Include:
-- Relevant file paths
-- Patterns to follow
-- Tech already in use
-
-### Tasks
-The implementation breakdown. Each task should be:
-
-- **Small:** One concern per task
-- **Scoped:** 1-3 files maximum
-- **Verifiable:** Clear way to confirm it works
-
-Task structure:
-
-| Field | Purpose |
-|-------|---------|
-| What | Action to take, no ambiguity |
-| Files | Exact paths to create/modify |
-| Verify | How to confirm it works |
-
-### Validation
-End-to-end verification that the entire feature works. Run this after all tasks complete.
-
----
-
-## The Workflow
-
-### 1. Create the spec
-
-```bash
-/spec user authentication with JWT
-```
-
-Or write it manually. The spec is saved to `.ai/specs/feature-name.md`.
-
-### 2. Start fresh, execute task
-
-Start a **fresh Claude session**. Clean context.
-
-```
-Read .ai/specs/auth.md and implement T1
-```
-
-The agent reads the full spec (gets context), then executes just that task.
-
-### 3. Commit and continue
-
-```bash
-git commit -m "T1: Add User model"
-```
-
-Fresh session. Same spec. Next task.
-
-```
-Read .ai/specs/auth.md and implement T2
-```
-
-### 4. Validate
-
-After all tasks complete, run the Validation commands to verify the entire feature works end-to-end.
-
----
-
 ## Task Design Principles
 
-### Fresh context per task
-Each task runs in a new session. Context windows get polluted with old errors and dead ends. Fresh start = cleaner execution.
+### Fresh Context Per Task
 
-This means every task must be self-contained. The agent can't rely on "what we just discussed."
+Each task runs in a new session. This avoids **context rot**—where the conversation gets so long the AI starts losing focus.
 
-### Small tasks stay on track
-If a task touches more than 3 files, break it down.
+### Small Tasks Stay on Track
 
-Signs a task is too big:
-- Contains "and" (that's two tasks)
-- No single verification step
-- Requires decisions mid-execution
+If it touches more than 3 files or takes more than 30 minutes, break it down further.
 
-### Verification is mandatory
-Every task needs a way to confirm it worked. Otherwise the agent decides when it's "done."
+### Verification is Mandatory
 
-Good verifications:
-- `npm test` passes
-- `curl` returns expected response
-- File exists with specific content
+Every task needs a way to confirm it worked:
 
-### Files are explicit
-Don't make the agent guess where code goes. List exact paths.
+- A command to run
+- A test to pass
+- Something concrete
 
-Bad: "Add auth middleware"
-Good: "Files: `src/middleware/auth.ts` (create), `src/types/request.ts` (extend)"
+Without this, you get slop.
 
 ---
 
-## Common Objections
+## Example Spec
 
-### "Claude Code has planning mode. Why do I need files?"
+```markdown
+# JWT Authentication
 
-Planning mode is ephemeral. When your session ends, that plan disappears.
+## Why
 
-A spec file persists. It lives in your repo. You can version it, share it, review it. Six months from now, someone can read the spec and understand why the feature exists.
+Users currently share a demo account. We need individual accounts for billing.
 
-Planning mode is thinking out loud. A spec file is documentation.
+## What
+
+Register, login, and refresh token endpoints with JWT authentication.
+
+## Constraints
+
+### Must
+- Use existing Express structure
+- Use jsonwebtoken library
+- Store tokens in httpOnly cookies
+
+### Must Not
+- Don't add new dependencies
+- Don't modify existing routes
+- Don't add OAuth
+
+### Out of Scope
+- Password reset
+- Email verification
+- Social login
+
+## Current State
+
+- Express app in `src/server/`
+- User model exists in `src/models/user.ts`
+- Using existing middleware pattern in `src/middleware/`
+
+## Tasks
+
+### T1: Create auth middleware
+**What:** JWT verification middleware
+**Files:** `src/middleware/auth.ts`, `src/middleware/auth.test.ts`
+**Verify:** `npm test -- auth.test.ts`
+
+### T2: Create register endpoint
+**What:** POST /api/auth/register - create user, return JWT
+**Files:** `src/routes/auth.ts`, `src/routes/auth.test.ts`
+**Verify:** `npm test -- auth.test.ts`
+
+### T3: Create login endpoint
+**What:** POST /api/auth/login - verify credentials, return JWT
+**Files:** `src/routes/auth.ts`
+**Verify:** `npm test -- auth.test.ts`
+
+### T4: Create refresh endpoint
+**What:** POST /api/auth/refresh - refresh JWT token
+**Files:** `src/routes/auth.ts`
+**Verify:** `npm test -- auth.test.ts`
+
+### T5: Add auth to existing routes
+**What:** Protect /api/projects/* with auth middleware
+**Files:** `src/routes/projects.ts`
+**Verify:** `curl` without token returns 401
+
+### T6: Update API documentation
+**What:** Add auth endpoints to OpenAPI spec
+**Files:** `docs/api.yaml`
+**Verify:** Manual review
+
+### T7: Integration test
+**What:** Full auth flow test
+**Files:** `src/tests/auth.integration.test.ts`
+**Verify:** `npm test -- auth.integration`
+
+## Validation
+
+- All tests pass: `npm test`
+- Manual: Register → Login → Access protected route → Refresh token
+```
+
+---
+
+## SDLC Comparison
+
+Traditional software development has always followed this pattern:
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│                     TRADITIONAL SDLC                                       │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│   Requirements ──▶ Design ──▶ Tasks ──▶ Implement ──▶ Review ──▶ Merge    │
+│       │              │          │           │            │          │      │
+│       ▼              ▼          ▼           ▼            ▼          ▼      │
+│      PRD        Design Doc   Tickets      Code          PR       Main     │
+│                                                                            │
+│   (for humans)  (for humans) (for humans) (by humans)                      │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│                     SPEC-DRIVEN DEVELOPMENT                                │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│   Spec (Why/What/Constraints) ──▶ Tasks ──▶ Execute ──▶ Review ──▶ Commit │
+│              │                       │          │          │          │    │
+│              ▼                       ▼          ▼          ▼          ▼    │
+│         spec.md                   T1, T2...   Agent     Human      Git    │
+│                                                                            │
+│        (for agents)              (for agents) (agent)  (human)             │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+The process is the same. The audience is different.
+
+---
+
+## FAQs
+
+### "Claude Code already has planning mode. Why do I need files?"
+
+Planning mode is great for thinking through a problem. But that plan lives inside your conversation session.
+
+Yes, you can resume sessions. But sessions get long. Context rots. And if you want to share the plan with a teammate, or reference it six months later, you're digging through conversation history.
+
+A spec file is:
+
+- **Separate** — not tied to one session
+- **Clean** — no conversation noise
+- **Versionable** — lives in your repo
+- **Shareable** — hand it to any agent in any tool
+
+**Use planning mode to think. Use spec files to execute.**
 
 ### "This sounds like waterfall."
 
-No. Waterfall is months of planning. This is five minutes.
+No. Waterfall is months of planning before you write any code.
 
-The spec is 15-30 lines. The tasks are checkboxes. You're not writing a 50-page PRD.
+This is **five minutes**. Maybe fifteen lines. Just enough to give the AI direction.
 
-Think of it as a sketch, not a blueprint. You can change it. You probably will. But starting with a sketch beats starting with nothing.
+Think of it as a **sketch, not a blueprint**.
 
 ---
 
 ## When You Need More
 
-Tools like OpenSpec and SpecKit solve real problems:
+Tools like OpenSpec, SpecKit, and Kiro exist. They add:
 
-**Spec deltas** — tracking what changed. Important for teams, for compliance.
+- **Spec deltas** — tracking what changed when requirements evolve
+- **Compliance** — traceability for regulated industries
+- **Multi-tool workflows** — teams switching between Cursor, Claude Code, and Copilot
 
-**Formal requirements** — Gherkin, audit trails. Healthcare, finance, government need this.
+My honest take: for most use cases, they're overkill. A markdown file in your repo does the job.
 
-**Multi-tool workflows** — cross-tool compatibility when your team uses different AI tools.
+That said, they do standardise things, which is good. Worth checking out for yourself.
 
-### When to graduate
-
-| Pain | Solution |
-|------|----------|
-| Team needs coordination | Add shared tooling |
-| Compliance requires audit trails | Add formal process |
-| Context exceeds token limits | Split strategically |
-| 20 people writing specs differently | Enforce framework |
-
-Start simple. Graduate when you feel pain.
+**Start with a file. Add complexity when you hit a wall—not before.**
 
 ---
 
-## Slash Commands
+## Quick Start
 
-Copy the files in `/commands` to your project's `.claude/commands/` folder.
+### 1. Create a spec template
 
-### /spec — Generate a new spec
+Save this as `.ai/templates/spec.md` in your repo:
 
-```
-/spec user authentication with JWT and refresh tokens
-```
-
-Generates `.ai/specs/<feature-slug>.md` with Why, What, Constraints, Current State, Tasks, Validation.
-
-### /task — Execute a single task
-
-```
-/task .ai/specs/auth.md T1
-```
-
-Reads the spec for context, implements exactly what the task describes, runs verification.
-
-### /tasks — Show task status
-
-```
-/tasks .ai/specs/auth.md
-```
-
-Lists all tasks with completion status, shows next actionable task.
-
----
-
-## Quick Reference
-
-### Spec structure
-```
+```markdown
 # Feature Name
-## Why (problem)
-## What (deliverable)
-## Constraints (Must / Must Not / Out of Scope)
-## Current State (what exists)
-## Tasks (T1, T2, T3...)
-## Validation (end-to-end check)
+
+## Why
+[Problem being solved]
+
+## What
+[Concrete deliverable]
+
+## Constraints
+### Must
+- 
+### Must Not
+- 
+### Out of Scope
+- 
+
+## Current State
+- Relevant files:
+- Existing patterns:
+
+## Tasks
+### T1: [Title]
+**What:** 
+**Files:** 
+**Verify:** 
 ```
 
-### Task structure
+### 2. Generate a spec
+
 ```
-### T1: Title
-**What:** Action to take
-**Files:** Paths to create or modify
-**Verify:** How to confirm it works
+Read .ai/templates/spec.md and generate a spec for: [describe your feature]
+Save it to .ai/specs/[feature-name].md
 ```
 
-### Workflow
+### 3. Review and refine
+
+Open the generated spec. Make sure the decisions are yours.
+
+### 4. Execute tasks
+
 ```
-1. /spec [description]                           — Generate spec
-2. Fresh session: "Read spec and implement T1"   — Execute task
-3. git commit -m "T1: [name]"                    — Commit
-4. Repeat for T2, T3...                          — Continue
-5. Run Validation commands                       — Verify feature
+Read .ai/specs/[feature-name].md and implement T1
 ```
 
-### Principles
-1. Fresh context per task
-2. Small tasks (1-3 files max)
-3. Explicit file paths
-4. Verification per task
-5. Constraints prevent chaos
+### 5. Review, iterate, commit
+
+Check the code. Fix any issues. Commit when it's right.
+
+### 6. Repeat
+
+Start a fresh session for T2. Clean context every time.
+
+---
+
+## Summary
+
+Spec-driven development is simpler than people make it sound.
+
+1. Write a spec
+2. Run each task with a fresh agent
+3. Review and commit as you go
+
+**One file. That's the whole system.**
+
+---
+
+## Resources
+
+- [Example specs repository](#)
+- [Spec template](#)
+- [Video walkthrough](#)
+
+---
+
+## License
+
+MIT
