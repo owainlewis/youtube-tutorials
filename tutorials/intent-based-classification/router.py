@@ -10,7 +10,7 @@ This is the core pattern that separates demo RAG from production RAG.
 """
 
 from dataclasses import dataclass
-import anthropic
+from openai import OpenAI
 
 from intent_classifier import Intent, classify_intent, classify_intent_simple
 from retrieval import (
@@ -35,7 +35,7 @@ class RoutedResponse:
 
 def route_query(
     query: str,
-    client: anthropic.Anthropic | None = None,
+    client: OpenAI | None = None,
     generate_answer: bool = False
 ) -> RoutedResponse:
     """
@@ -47,11 +47,11 @@ def route_query(
 
     Args:
         query: The user's question
-        client: Anthropic client for classification (and answer generation)
+        client: OpenAI client for classification (and answer generation)
         generate_answer: Whether to generate an LLM answer from retrieved context
     """
     if client is None:
-        client = anthropic.Anthropic()
+        client = OpenAI()
 
     # Step 1: Classify intent
     intent = classify_intent_simple(query, client)
@@ -104,7 +104,7 @@ def route_to_retrieval(intent: Intent, query: str) -> RetrievalResult:
 def generate_rag_answer(
     query: str,
     context_chunks: list[str],
-    client: anthropic.Anthropic
+    client: OpenAI
 ) -> str:
     """
     Generate an answer using retrieved context.
@@ -114,13 +114,9 @@ def generate_rag_answer(
     """
     context = "\n\n---\n\n".join(context_chunks)
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1024,
-        messages=[
-            {
-                "role": "user",
-                "content": f"""Answer the user's question based on the provided context.
+    response = client.responses.create(
+        model="gpt-4o-mini",
+        input=f"""Answer the user's question based on the provided context.
 Be concise and direct. If the context doesn't contain the answer, say so.
 
 CONTEXT:
@@ -128,12 +124,10 @@ CONTEXT:
 
 QUESTION: {query}
 
-ANSWER:"""
-            }
-        ]
+ANSWER:""",
     )
 
-    return response.content[0].text
+    return response.output_text
 
 
 # =============================================================================

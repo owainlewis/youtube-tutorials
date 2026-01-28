@@ -93,4 +93,4 @@ You're not adding latency. You're adding a cheap check that skips expensive oper
 ## Requirements
 
 - Python 3.11+
-- Anthropic API key (set `ANTHROPIC_API_KEY` environment variable)
+- OpenAI API key (set `OPENAI_API_KEY` environment variable)

@@ -7,7 +7,7 @@ before routing them to the appropriate retrieval strategy.
 
 from enum import Enum
 from pydantic import BaseModel
-import anthropic
+from openai import OpenAI
 
 
 class Intent(str, Enum):
@@ -56,7 +56,7 @@ Respond with a JSON object containing:
 User query: {query}"""
 
 
-def classify_intent(query: str, client: anthropic.Anthropic | None = None) -> ClassificationResult:
+def classify_intent(query: str, client: OpenAI | None = None) -> ClassificationResult:
     """
     Classify a user query into one of the predefined intents.
 
@@ -65,28 +65,22 @@ def classify_intent(query: str, client: anthropic.Anthropic | None = None) -> Cl
 
     Args:
         query: The user's question
-        client: Anthropic client (creates one if not provided)
+        client: OpenAI client (creates one if not provided)
 
     Returns:
         ClassificationResult with intent, confidence, and reasoning
     """
     if client is None:
-        client = anthropic.Anthropic()
+        client = OpenAI()
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",  # Fast and cheap for classification
-        max_tokens=256,
-        messages=[
-            {
-                "role": "user",
-                "content": CLASSIFICATION_PROMPT.format(query=query)
-            }
-        ]
+    response = client.responses.create(
+        model="gpt-4o-mini",  # Fast and cheap for classification
+        input=CLASSIFICATION_PROMPT.format(query=query),
     )
 
     # Parse the response
     import json
-    content = response.content[0].text
+    content = response.output_text
 
     # Handle potential JSON in markdown code blocks
     if "```json" in content:
@@ -103,7 +97,7 @@ def classify_intent(query: str, client: anthropic.Anthropic | None = None) -> Cl
     )
 
 
-def classify_intent_simple(query: str, client: anthropic.Anthropic | None = None) -> Intent:
+def classify_intent_simple(query: str, client: OpenAI | None = None) -> Intent:
     """
     Simplified classification that just returns the intent.
 
@@ -111,7 +105,7 @@ def classify_intent_simple(query: str, client: anthropic.Anthropic | None = None
     Use this when you don't need confidence scores or reasoning.
     """
     if client is None:
-        client = anthropic.Anthropic()
+        client = OpenAI()
 
     simple_prompt = """Classify this query into exactly ONE category.
 
@@ -126,16 +120,10 @@ Respond with ONLY the category name in uppercase. Nothing else.
 
 Query: {query}"""
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=32,
-        messages=[
-            {
-                "role": "user",
-                "content": simple_prompt.format(query=query)
-            }
-        ]
+    response = client.responses.create(
+        model="gpt-4o-mini",
+        input=simple_prompt.format(query=query),
     )
 
-    intent_str = response.content[0].text.strip().lower()
+    intent_str = response.output_text.strip().lower()
     return Intent(intent_str)

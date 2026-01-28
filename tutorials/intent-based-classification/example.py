@@ -9,7 +9,7 @@ Or run with a specific query:
 """
 
 import sys
-import anthropic
+from openai import OpenAI
 
 from intent_classifier import classify_intent, classify_intent_simple, Intent
 from retrieval import (
@@ -36,7 +36,7 @@ def route_and_retrieve(intent: Intent, query: str):
             return early_exit(query)
 
 
-def process_query(query: str, client: anthropic.Anthropic):
+def process_query(query: str, client: OpenAI):
     """Complete pipeline: classify → route → retrieve."""
     print(f"\n{'='*60}")
     print(f"QUERY: {query}")
@@ -65,7 +65,7 @@ def process_query(query: str, client: anthropic.Anthropic):
 
 
 def main():
-    client = anthropic.Anthropic()
+    client = OpenAI()
 
     if len(sys.argv) > 1:
         # Process command-line query
