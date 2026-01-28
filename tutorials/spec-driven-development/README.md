@@ -2,7 +2,9 @@
 
 > Plan your work before you write code. But rather than writing plans for humans, we're writing plans and tasks for agents.
 
-**Just like you'd give a Jira ticket to someone on your team.**
+What is spec driven development? 
+
+> Instead of prompting first and figuring it out as you go, you start with a spec. It's a short document that defines what you're building, the constraints, and the key decisions—a contract for how your code should behave. The spec becomes the source of truth the agent uses to generate code. Less guesswork. Fewer surprises.
 
 ---
 
