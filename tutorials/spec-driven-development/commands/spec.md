@@ -11,68 +11,103 @@ $ARGUMENTS
 Read CLAUDE.md first. Ask only if blocked.
 
 Create `.ai/specs/<feature-slug>.md`:
+
 ```markdown
 # Feature Name
 
 ## Why
 
-[1-2 sentences: What problem this solves. Why it matters now.]
+[1-2 sentences: Problem solved. Why now.]
 
 ## What
 
-[Concrete deliverable. Specific enough to verify when done.]
+[Concrete deliverable. How you'll know it's done.]
+
+## Context
+
+**Relevant files:**
+- `path/to/file.ts` — [what it does]
+- `path/to/other.ts` — [why it matters]
+
+**Patterns to follow:**
+- [Existing convention to match, with example file]
+
+**Key decisions already made:**
+- [Tech choices, libraries, approaches locked in]
 
 ## Constraints
 
-### Must
-- [Required patterns, libraries, conventions]
+**Must:**
+- [Required patterns/conventions]
 
-### Must Not
+**Must not:**
 - [No new dependencies unless specified]
 - [Don't modify unrelated code]
+- [Don't refactor existing code]
 
-### Out of Scope
-- [Adjacent features we're explicitly not building]
-
-## Current State
-
-[What exists now. Saves agent from exploring.]
-
-- Relevant files: `path/to/file.ts`
-- Existing patterns to follow
+**Out of scope:**
+- [Adjacent features explicitly not included]
 
 ## Tasks
 
-### T1: [Title]
-**What:** [What to build]
+Break into tasks that:
+- Can each be completed in one session
+- Have a clear verify step
+- Are safe to commit independently
+
+### T1: [Noun phrase — what gets built]
+
+**Do:** [Specific changes]
+
 **Files:** `path/to/file`, `path/to/test`
-**Verify:** `command to run` or manual check
+
+**Verify:** `command` or "Manual: [check]"
 
 ### T2: [Title]
-**What:** ...
-**Files:** ...
-**Verify:** ...
+...
 
-## Validation
+## Done
 
-[End-to-end verification after all tasks complete]
+[End-to-end verification after all tasks]
 
-- `command to verify entire feature works`
-- `npm test` or equivalent
-- Manual check: [what to verify in UI/API]
+- [ ] `build/test command passes`
+- [ ] Manual: [what to verify in UI/API]
+- [ ] No regressions in [related area]
 ```
 
 ## Guidelines
 
-- Each task runs in a fresh session — include all context needed
-- Every task needs a verify step
-- Constraints prevent over-engineering — be explicit about what NOT to do
-- Current State saves the agent from exploring your codebase
-- Keep the whole spec under 50 lines if possible
+**Sizing tasks:**
+- Group changes that must ship together (schema + types + migration = 1 task)
+- Split at natural commit boundaries
+- If a task might hit context limits, it's too big
+
+**Writing good verify steps:**
+- Prefer commands over manual checks
+- Manual checks should be specific: "Click X, see Y" not "verify it works"
+- Include the unhappy path when relevant
+
+**Context section tips:**
+- List only files the agent will actually touch or need to reference
+- "Patterns to follow" with a concrete example file beats abstract description
+- Capture decisions so the agent doesn't re-litigate them
+
+**When to skip sections:**
+- Trivial features (< 3 files): inline everything, skip Context
+- Bug fixes: Why + What + single Task may suffice
+- Spikes/exploration: just Why + What + time box
+
+## Scaling
+
+**Small (1-3 files):** Abbreviated spec, 1-2 tasks, ~20 lines
+**Medium (4-10 files):** Full spec, 2-4 tasks, ~40 lines  
+**Large (10+ files):** Consider splitting into multiple specs
 
 ## Output
 
 After writing:
-- Spec saved to `.ai/specs/<slug>.md`
-- To implement: start a fresh session and run `read .ai/specs/<slug>.md and implement T1`
-- After each task: commit with `T1: [task name]`
+1. Spec saved to `.ai/specs/<slug>.md`
+2. Review for completeness — could a new agent implement T1 with no other context?
+3. To implement: fresh session → `read .ai/specs/<slug>.md and implement T1`
+4. After each task: `git commit -m "T1: [task name]"`
+```
