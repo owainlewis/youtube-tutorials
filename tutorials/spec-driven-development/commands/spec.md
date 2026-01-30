@@ -110,4 +110,3 @@ After writing:
 2. Review for completeness — could a new agent implement T1 with no other context?
 3. To implement: fresh session → `read .ai/specs/<slug>.md and implement T1`
 4. After each task: `git commit -m "T1: [task name]"`
-```
