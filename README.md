@@ -6,6 +6,8 @@ Code and examples from my YouTube channel tutorials.
 
 Browse the [tutorials](./tutorials/) folder. Each tutorial is self-contained with its own README.
 
+- [My Autonomous AI Coding Workflow](./tutorials/autonomous-ai-coding-workflow/)
+
 ## About
 
 These tutorials demonstrate practical AI automation patterns. Each one is a complete, working example you can use and adapt.
