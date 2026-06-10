@@ -1,10 +1,10 @@
 # Loop Engineering: A Practical Example
 
-Right now, while you're reading this, there are AI agents working inside my project. They're reviewing the backlog, writing tickets, and deciding what's safe to work on — and then picking up issues, fixing them, and opening pull requests. 24/7. Unattended. I wake up to work that's already been done.
+Right now, while you're reading this, there are AI agents working inside my project. They're reviewing the backlog, writing tickets, and deciding what's safe to work on, and then picking up issues, fixing them, and opening pull requests. 24/7. Unattended. I wake up to work that's already been done.
 
-I know how that sounds. There's a lot of hype around "loop engineering" and autonomous agents right now, and most of it doesn't survive contact with reality. The dream is real — agents running in the background, doing the painful, tedious work, saving us time. But these systems are much more complicated than they sound, and very few people show you how to actually build one. The most common question I hear about tools like Hermes is simply: *what do I actually do with this thing?*
+I know how that sounds. There's a lot of hype around "loop engineering" and autonomous agents right now, and most of it doesn't survive contact with reality. The dream is real, agents running in the background, doing the painful, tedious work, saving us time. But these systems are much more complicated than they sound, and very few people show you how to actually build one. The most common question I hear about tools like Hermes is simply: *what do I actually do with this thing?*
 
-So this is the full, working example: how the system works, why it works, and all of the engineering thinking that goes into it. And here's the spoiler — the secret isn't smarter agents. It's that we're *not* letting agents take over everything. We're giving them very defined roles and letting them act autonomously within boundaries. That, more than anything else, is what makes all of this work.
+So this is the full, working example: how the system works, why it works, and all of the engineering thinking that goes into it. And here's the spoiler, the secret isn't smarter agents. It's that we're *not* letting agents take over everything. We're giving them very defined roles and letting them act autonomously within boundaries. That, more than anything else, is what makes all of this work.
 
 ---
 
@@ -12,7 +12,15 @@ So this is the full, working example: how the system works, why it works, and al
 
 A loop is a system that prompts the agent so you don't have to.
 
-Peter Steinberger put it well: *"You shouldn't be prompting coding agents anymore. You should be designing loops that prompt your agents."* In practice, a loop has four parts:
+The people building these tools have landed in the same place. Boris Cherny, the creator of Claude Code:
+
+> "I don't prompt Claude anymore. I write loops — and the loops do the work. My job is to write loops."
+
+And [Peter Steinberger](https://x.com/steipete/status/2063697162748260627):
+
+> "Here's your monthly reminder that you shouldn't be prompting coding agents anymore. You should be designing loops that prompt your agents."
+
+In practice, a loop has four parts:
 
 ```
 ┌─────────────────────────────────────┐
@@ -25,7 +33,7 @@ Peter Steinberger put it well: *"You shouldn't be prompting coding agents anymor
 └─────────────────────────────────────┘
 ```
 
-And here's the shape of one cycle — this is what "loop" literally means:
+And here's the shape of one cycle, this is what "loop" literally means:
 
 ```mermaid
 graph LR
@@ -41,7 +49,7 @@ graph LR
     class B,C,D step
 ```
 
-The key piece is **state**. In my system that's GitHub Issues — and calling it "memory" undersells it. It's the **agent control plane**: the shared surface the loops coordinate through. The two loops never talk to each other. One writes labels; the other queries them. Memory is part of what it does — the agent forgets everything between runs, the repo doesn't — but its real job is coordination.
+The key piece is **state**. In my system that's GitHub Issues, and calling it "memory" undersells it. It's the **agent control plane**: the shared surface the loops coordinate through. The two loops never talk to each other. One writes labels; the other queries them. Memory is part of what it does, the agent forgets everything between runs, the repo doesn't, but its real job is coordination.
 
 ```mermaid
 graph LR
@@ -62,29 +70,29 @@ A loop is something you **design** once and **review**.
 
 **Is a loop the same as an "autonomous system"?**
 
-Almost. An autonomous system is anything that acts without you in the moment. A loop is the *recurring* kind — an autonomous system with a heartbeat and memory. Running a one-shot goal ("keep going until the tests pass") is autonomous, but it isn't a loop until it runs on a schedule and remembers between runs.
+Almost. An autonomous system is anything that acts without you in the moment. A loop is the *recurring* kind, an autonomous system with a heartbeat and memory. Running a one-shot goal ("keep going until the tests pass") is autonomous, but it isn't a loop until it runs on a schedule and remembers between runs.
 
-The way I think about these systems is as **advanced automations**. The agents inside them are genuinely intelligent, and they can do an enormous amount of work very quickly — but they aren't people. They don't have creative taste. The mistake is forgetting that, and treating them like team members instead of what they are: intelligent automations that should work within bounded contexts, with fixed guardrails, and a clear way to evaluate the quality of their work.
+The way I think about these systems is as **advanced automations**. The agents inside them are genuinely intelligent, and they can do an enormous amount of work very quickly, but they aren't people. They don't have creative taste. The mistake is forgetting that, and treating them like team members instead of what they are: intelligent automations that should work within bounded contexts, with fixed guardrails, and a clear way to evaluate the quality of their work.
 
-And here's the part the hype skips: **most of a good loop isn't AI.** Mine is mostly ordinary software — a schedule, labels, branches, tests, review gates. The LLM makes exactly two kinds of judgement in the whole system: classifying tickets and writing code. Everything else is deterministic. That's where the reliability comes from.
+And here's the part the hype skips: **most of a good loop isn't AI.** Mine is mostly ordinary software, a schedule, labels, branches, tests, review gates. The LLM makes exactly two kinds of judgement in the whole system: classifying tickets and writing code. Everything else is deterministic. That's where the reliability comes from.
 
 ---
 
 ## 2. Why care?
 
-I used to do this job as a human. Part of being an engineering manager or tech lead is keeping the backlog organised so your team can pick up work — labelling tickets, setting priorities, deciding what's ready and who it's for. The work genuinely matters. It's also mechanical, laborious, and time-consuming — which is exactly the profile of work agents are good at.
+I used to do this job as a human. Part of being an engineering manager or tech lead is keeping the backlog organised so your team can pick up work, labelling tickets, setting priorities, deciding what's ready and who it's for. The work genuinely matters. It's also mechanical, laborious, and time-consuming, which is exactly the profile of work agents are good at.
 
-So the first thing I built wasn't a coding agent. It was an agent that does the **management** job. And after installing it, my backlog was tidier than it had ever been — and for the first time it was obvious which work I could safely hand off.
+So the first thing I built wasn't a coding agent. It was an agent that does the **management** job. And after installing it, my backlog was tidier than it had ever been, and for the first time it was obvious which work I could safely hand off.
 
-That's the hard problem in autonomous coding, by the way. It isn't getting agents to write code — they can already do that. It's: **which work is safe to hand over?** Most people answer that manually, ticket by ticket, forever. I built a loop that answers it for me.
+That's the hard problem in autonomous coding, by the way. It isn't getting agents to write code, they can already do that. It's: **which work is safe to hand over?** Most people answer that manually, ticket by ticket, forever. I built a loop that answers it for me.
 
-The second loop solves the other problem every engineer recognises: there's always work you want done but are too busy to do. Doc fixes, small bugs, pipeline drift. Those tickets now turn into pull requests — *pull requests, not merges*. I'm still in the loop. I still review everything that ships.
+The second loop solves the other problem every engineer recognises: there's always work you want done but are too busy to do. Doc fixes, small bugs, pipeline drift. Those tickets now turn into pull requests, *pull requests, not merges*. I'm still in the loop. I still review everything that ships.
 
 The honest pitch:
 
 - This won't build your app.
 - It won't replace your judgement.
-- It **will** turn the boring 20% of your backlog — doc fixes, small bugs, test gaps — into pull requests while you sleep.
+- It **will** turn the boring 20% of your backlog, doc fixes, small bugs, test gaps, into pull requests while you sleep.
 
 That 20% is pure recovered time.
 
@@ -94,7 +102,7 @@ That 20% is pure recovered time.
 
 Let's be honest about why "just let the agent run" doesn't work.
 
-The clearest example is letting an agent build an entire application from scratch. It will absolutely build you *something*. But unless you're making throwaway prototypes, the quality will usually disappoint — because building good software involves hundreds of product, UX, architecture, and security decisions, and that's just not how high-quality product development works. You need human judgement and instinct for those things.
+The clearest example is letting an agent build an entire application from scratch. It will absolutely build you *something*. But unless you're making throwaway prototypes, the quality will usually disappoint, because building good software involves hundreds of product, UX, architecture, and security decisions, and that's just not how high-quality product development works. You need human judgement and instinct for those things.
 
 Hand full control to an agent and the failures are predictable:
 
@@ -114,11 +122,11 @@ A stale board can't be a control surface for agents. Fixing that is a job in its
 
 ## 4. Principles
 
-Anyone can type a goal command and walk away. That part takes ten seconds. Making the system *reliable* is everything you build around the LLM call — and almost all of it is ordinary software engineering.
+Anyone can type a goal command and walk away. That part takes ten seconds. Making the system *reliable* is everything you build around the LLM call, and almost all of it is ordinary software engineering.
 
 ### 4.1 Jobs to be done: start with the job, not the tool
 
-When people pick up a tool like Hermes, the first question is usually "what can this thing do?" — and the answer tends to be trivial demos. AI news summaries. Daily digests. They look great in a video and provide almost no practical value.
+When people pick up a tool like Hermes, the first question is usually "what can this thing do?", and the answer tends to be trivial demos. AI news summaries. Daily digests. They look great in a video and provide almost no practical value.
 
 The better question is: **what job should this agent own?** That's the jobs-to-be-done framing, and it forces clarity on the three things that actually matter: what the job is, where the boundaries are, and how you'll know whether it's being done well.
 
@@ -133,11 +141,11 @@ OUTPUT:     what exists after a good run?
 EVALUATION: how do I know it did well?
 ```
 
-The forbidden list is the most important part. And the evaluation line is the one people skip — if you can't answer "how would I know the agent did this job well?", you're not ready to run it autonomously.
+The forbidden list is the most important part. And the evaluation line is the one people skip, if you can't answer "how would I know the agent did this job well?", you're not ready to run it autonomously.
 
-There's an even simpler way to put all of this: **a good automation has a clear input and a clear output.** If you can write the function signature — *this goes in, that comes out* — you can evaluate it, because the output is the thing you grade. If you can't write the signature, the job isn't defined yet. This is just systems thinking, and it's why "act as my assistant" fails as a job: there's no input, no output, no boundary, nothing to check.
+There's an even simpler way to put all of this: **a good automation has a clear input and a clear output.** If you can write the function signature, *this goes in, that comes out*, you can evaluate it, because the output is the thing you grade. If you can't write the signature, the job isn't defined yet. This is just systems thinking, and it's why "act as my assistant" fails as a job: there's no input, no output, no boundary, nothing to check.
 
-To make that concrete, here are some autonomous systems that pass the bar — each one is a clean signature:
+To make that concrete, here are some autonomous systems that pass the bar, each one is a clean signature:
 
 ```
 backlog        →  manager loop  →  labelled, routed queue
@@ -163,7 +171,7 @@ LOW-JUDGEMENT  no product / architecture decisions
 - README fix → passes all four → loop it.
 - Auth change → fails two → human keeps it.
 
-A quick mental shortcut: **mechanical vs taste.** Documentation updates, bug fixes, release fixes, infrastructure and pipeline drift — mechanical work, perfect loop targets. UI design, product decisions, anything that needs iteration and aesthetic judgement — taste work, poor targets. The question isn't "can the agent do it?" It's "does it need a human's taste?"
+A quick mental shortcut: **mechanical vs taste.** Documentation updates, bug fixes, release fixes, infrastructure and pipeline drift, mechanical work, perfect loop targets. UI design, product decisions, anything that needs iteration and aesthetic judgement, taste work, poor targets. The question isn't "can the agent do it?" It's "does it need a human's taste?"
 
 It's never "loops or no loops". It's: which of your work passes the test? Most won't. That's fine.
 
@@ -195,11 +203,11 @@ graph LR
 
 ### 4.5 Delegate implementation, never accountability
 
-This is management, just with agents. You delegate the implementation. You let an agent coordinate the work. But you stay accountable for the quality of everything that ships — the system opens pull requests, it never merges them.
+This is management, just with agents. You delegate the implementation. You let an agent coordinate the work. But you stay accountable for the quality of everything that ships, the system opens pull requests, it never merges them.
 
 Building autonomous systems doesn't mean stepping out of the loop. It means choosing your level of risk and staying in the loop where quality matters.
 
-That's also why the system can't go faster than I can review pull requests. It's not a limitation — it's the governor that keeps quality from collapsing.
+That's also why the system can't go faster than I can review pull requests. It's not a limitation, it's the governor that keeps quality from collapsing.
 
 ---
 
@@ -209,8 +217,8 @@ At the highest level, this is a two-stage system. System 1 manages the work and 
 
 ```mermaid
 graph LR
-    S1[SYSTEM 1 — MANAGE<br/>organise the backlog,<br/>decide what agents may work on] --> Q[(The queue<br/>risk:low + agent:ready)]
-    Q --> S2[SYSTEM 2 — EXECUTE<br/>pull a task,<br/>do the work]
+    S1[SYSTEM 1, MANAGE<br/>organise the backlog,<br/>decide what agents may work on] --> Q[(The queue<br/>risk:low + agent:ready)]
+    Q --> S2[SYSTEM 2, EXECUTE<br/>pull a task,<br/>do the work]
     S2 --> PR[Pull requests]
     PR --> H[Human<br/>review + merge]
 
@@ -228,13 +236,13 @@ And here's the full picture with the actual tools in place:
 
 ```mermaid
 graph TB
-    subgraph OUTER["SYSTEM 1 — Hermes, the manager loop (every 12 hours)"]
+    subgraph OUTER["SYSTEM 1, Hermes, the manager loop (every 12 hours)"]
         A[Inspect issues,<br/>board, linked PRs] --> B[Classify<br/>risk + type]
         B --> C[Safe work → agent:ready<br/>Judgement → needs:human]
     end
     C --> GH[(GitHub Issues<br/>the control plane)]
     GH --> D
-    subgraph INNER["SYSTEM 2 — Codex, the worker loop"]
+    subgraph INNER["SYSTEM 2, Codex, the worker loop"]
         D[Pick one agent-ready ticket<br/>one thread, one branch,<br/>one worktree] --> E[Implement →<br/>subagent review → tests]
         E --> F[Open a pull request]
     end
@@ -255,8 +263,8 @@ graph TB
 
 The separation is the design:
 
-- **Hermes never writes code.** It only touches metadata — labels, comments, board state. Everything it does is reversible.
-- **Codex never chooses its own work.** It only picks up tickets that are `risk:low` + `agent:ready`. One issue, one thread, one branch, one worktree — failure stays disposable.
+- **Hermes never writes code.** It only touches metadata, labels, comments, board state. Everything it does is reversible.
+- **Codex never chooses its own work.** It only picks up tickets that are `risk:low` + `agent:ready`. One issue, one thread, one branch, one worktree, failure stays disposable.
 - **The loops never talk to each other.** They coordinate entirely through GitHub Issues. Labels are the protocol; the issue tracker is the control plane. That's why either loop can be swapped out without touching the other.
 - **Layer 1 is valuable on its own.** Even if no agent ever writes code, a self-maintaining, risk-classified backlog is worth running.
 - **Cheap loop qualifies work for the expensive loop.** Triage is cheap tokens. Coding is expensive tokens. Only pre-screened work gets the expensive ones.
@@ -274,19 +282,19 @@ pull request        →  me      →  merged code
 
 Two things jump out when you write it like this.
 
-First, Hermes is actually **two functions** sharing one skill: a classifier (tickets in, labelled tickets out) and a discoverer (codebase in, tickets out — the drift sweep that finds broken links, stale commands, skipped tests). The second one is the loop feeding itself: it turns code problems into tickets that humans or agents can then pick up.
+First, Hermes is actually **two functions** sharing one skill: a classifier (tickets in, labelled tickets out) and a discoverer (codebase in, tickets out, the drift sweep that finds broken links, stale commands, skipped tests). The second one is the loop feeding itself: it turns code problems into tickets that humans or agents can then pick up.
 
-Second, every arrow is a **boundary where evaluation happens**. Labelled tickets can be audited. Pull requests can be reviewed. Each stage produces something inspectable before the next stage consumes it — nothing flows through the system unobserved. That's what makes the pipeline safe, and it's why the last function is me.
+Second, every arrow is a **boundary where evaluation happens**. Labelled tickets can be audited. Pull requests can be reviewed. Each stage produces something inspectable before the next stage consumes it, nothing flows through the system unobserved. That's what makes the pipeline safe, and it's why the last function is me.
 
 ### What Hermes actually does: jobs to be done
 
-The skill defines one job — *engineering backlog manager* — broken into three phases per run:
+The skill defines one job, *engineering backlog manager*, broken into three phases per run:
 
 ```mermaid
 graph TB
-    W([Wake on schedule]) --> P1["1 — TRIAGE THE BACKLOG<br/>open issues · current labels ·<br/>stale board state · linked PRs"]
-    P1 --> P2["2 — PREPARE THE QUEUE<br/>classify risk + type<br/>safe work → agent:ready<br/>judgement → needs:human<br/>write Agent Assessments"]
-    P2 --> P3["3 — MAINTAIN + REPORT<br/>close issues with merged-PR evidence<br/>sweep the repo for drift<br/>propose evidence-backed tickets<br/>report branch-cleanup candidates"]
+    W([Wake on schedule]) --> P1["1, TRIAGE THE BACKLOG<br/>open issues · current labels ·<br/>stale board state · linked PRs"]
+    P1 --> P2["2, PREPARE THE QUEUE<br/>classify risk + type<br/>safe work → agent:ready<br/>judgement → needs:human<br/>write Agent Assessments"]
+    P2 --> P3["3, MAINTAIN + REPORT<br/>close issues with merged-PR evidence<br/>sweep the repo for drift<br/>propose evidence-backed tickets<br/>report branch-cleanup candidates"]
     P3 --> R[Verify, then report<br/>the next human decision]
     R --> S([Sleep until next run])
 
@@ -298,11 +306,11 @@ graph TB
     class R report
 ```
 
-That drift sweep in phase 3 is worth pausing on — it looks for concrete, evidence-backed problems: broken doc links, README commands that don't exist anymore, accidentally skipped tests, TODO comments describing clear bounded work. This is the loop feeding itself: code problems become tickets that humans or agents can then pick up.
+That drift sweep in phase 3 is worth pausing on, it looks for concrete, evidence-backed problems: broken doc links, README commands that don't exist anymore, accidentally skipped tests, TODO comments describing clear bounded work. This is the loop feeding itself: code problems become tickets that humans or agents can then pick up.
 
 Concrete examples of work it marks `agent:ready`: broken doc links, stale README commands, lint fixes, simple test additions, patch dependency upgrades with passing tests.
 
-And `agent:ready` has a strict checklist — *all* must be true: risk is low, scope is clear, it fits in one pull request, the expected output is known, verification is known, no product / UX / security / data / auth / deployment judgement is needed, and nobody is already working on it.
+And `agent:ready` has a strict checklist, *all* must be true: risk is low, scope is clear, it fits in one pull request, the expected output is known, verification is known, no product / UX / security / data / auth / deployment judgement is needed, and nobody is already working on it.
 
 ### The label system
 
@@ -313,9 +321,9 @@ ROUTING   agent:ready    ← permission to pick up
           needs:human    ← "this needs Owain"
 ```
 
-Deliberately small. There's no `agent:complete` or `agent:blocked` — completion and review state already live in GitHub's issue and PR state, so labels don't duplicate them. If an issue can't be safely progressed, the loop removes `agent:ready` and adds `needs:human` with a specific question.
+Deliberately small. There's no `agent:complete` or `agent:blocked`, completion and review state already live in GitHub's issue and PR state, so labels don't duplicate them. If an issue can't be safely progressed, the loop removes `agent:ready` and adds `needs:human` with a specific question.
 
-The risk labels are a **dial, not a verdict**. By default only `risk:low` work routes to agents. If I want medium-risk work in the queue, that's a policy I change explicitly — the system never widens its own permissions.
+The risk labels are a **dial, not a verdict**. By default only `risk:low` work routes to agents. If I want medium-risk work in the queue, that's a policy I change explicitly, the system never widens its own permissions.
 
 `agent:ready` is not a tag. It's a **permission grant**. The whole system is an access-control layer expressed as labels.
 
@@ -339,7 +347,7 @@ Suggested plan:
 3. Check rendered README links
 ```
 
-This makes the decision **inspectable** — and the plan gives the inner loop a head start. I can read it, disagree, flip the label. The next loop inherits the context.
+This makes the decision **inspectable**, and the plan gives the inner loop a head start. I can read it, disagree, flip the label. The next loop inherits the context.
 
 ### Where the AI actually is
 
@@ -351,11 +359,11 @@ Strip away the hype and most of this system is software you already know:
 | Labels | access control |
 | Worktrees | process isolation |
 | Dry run | a staging environment |
-| GitHub Issues | the control plane — a shared database both loops read and write |
+| GitHub Issues | the control plane, a shared database both loops read and write |
 | Agent Assessment | an audit log |
 | PR review | the approval gate |
 
-The AI sits in exactly two places: Hermes's classification judgement and Codex's code. Everything else is deterministic. **That ratio — mostly software, a little judgement — is the design.**
+The AI sits in exactly two places: Hermes's classification judgement and Codex's code. Everything else is deterministic. **That ratio, mostly software, a little judgement, is the design.**
 
 ---
 
@@ -380,7 +388,7 @@ graph LR
     class R report
 ```
 
-### Dry run first — always
+### Dry run first, always
 
 I always check the loop's judgement before letting it change anything. With the skill installed, the invocation is one line:
 
@@ -388,7 +396,7 @@ I always check the loop's judgement before letting it change anything. With the 
 $backlog-manager dry-run backlog for GitHub repo owainlewis/neo
 ```
 
-The skill carries the job, the rules, and the quality bar — the prompt just points it at a repo and sets the mode. Expanded, what it's being asked is:
+The skill carries the job, the rules, and the quality bar, the prompt just points it at a repo and sets the mode. Expanded, what it's being asked is:
 
 ```
 Use the backlog-manager skill in DRY-RUN mode.
@@ -467,6 +475,71 @@ Pick up issue #110 (risk:low, agent:ready).
 7. Open a PR, comment back on the issue
 ```
 
+### The Codex automation prompt
+
+For the full worker loop, I want Codex to fetch the ready tickets itself and coordinate the work across separate threads.
+
+This is the prompt:
+
+```
+Use GitHub to fetch open issues for this repository.
+
+You are coordinating the work of multiple worker threads inside Codex.
+
+Run this coordinator from the primary repository checkout, not from a long-lived feature worktree.
+
+Before creating worker threads:
+
+1. Switch to the main branch.
+2. Fetch origin.
+3. Pull the latest origin/main.
+4. Confirm the coordinator working tree is clean.
+5. If the coordinator working tree is dirty, pause and report the dirty files. Do not stash, overwrite, or discard coordinator changes.
+
+Find all open issues with both labels:
+- agent:ready
+- risk:low
+
+Ignore issues that are closed, already linked to an open pull request, already assigned to an active worker thread, or marked needs:human.
+
+For each eligible issue, run this workflow in linear order:
+
+1. Create a new Codex thread for the issue.
+2. In that worker thread, start from the latest origin/main.
+3. Create a fresh branch and worktree for the issue.
+4. Read the ticket, its comments, and any Agent Assessment. Make a short implementation plan.
+5. Write the code.
+6. Ensure there is good test coverage for the change.
+7. Run the relevant tests and any existing lint or type checks.
+8. Use a subagent to review the diff against the issue and the plan.
+9. Fix valid review findings, then rerun the relevant tests.
+10. Open a pull request.
+11. Move the pull request to Ready For Review.
+12. Comment on the original issue with the PR link and a short summary of what changed.
+
+Rules:
+- One issue per Codex thread.
+- One fresh branch and worktree per issue.
+- Do not combine unrelated tickets.
+- Do not merge pull requests.
+- Do not widen scope beyond the issue.
+- Do not implement changes in the coordinator checkout.
+- Do not work on issues that are missing either agent:ready or risk:low.
+- Do not work on issues marked needs:human.
+- If the issue requires product judgement, architecture judgement, security judgement, credentials, secrets, paid services, or any decision that is not already answered in the ticket, pause that worker thread and report the question. Do not continue.
+- If tests fail for reasons unrelated to the change, pause and report the failure instead of hiding it.
+- If a worker branch or worktree cannot be created cleanly from latest origin/main, pause that worker and report why.
+
+End with a coordinator report:
+- issues considered
+- issues skipped, with reasons
+- worker threads created
+- branches and worktrees created
+- PRs opened
+- tests run
+- human decisions needed
+```
+
 ---
 
 ## 7. Where it breaks (and why that's okay)
@@ -481,7 +554,7 @@ Pick up issue #110 (risk:low, agent:ready).
 
 So that's the system. Two loops, one control plane, and a human who still reviews everything that ships.
 
-I want to end on a pragmatic but genuinely optimistic note. There's a lot of hype around autonomous agents, and the practical realities are more complicated than the demos suggest. You have to think clearly. You have to apply real engineering judgement. But when you do — when you give agents defined jobs, clear boundaries, and a way to check their work — these systems are incredibly powerful.
+I want to end on a pragmatic but genuinely optimistic note. There's a lot of hype around autonomous agents, and the practical realities are more complicated than the demos suggest. You have to think clearly. You have to apply real engineering judgement. But when you do, when you give agents defined jobs, clear boundaries, and a way to check their work, these systems are incredibly powerful.
 
 I think we're still figuring out the best use cases for autonomous agents, and over the next few years more and more teams will quietly adopt systems like this for the mechanical work inside their businesses. What I don't think they'll ever do is replace human judgement. What they let us do is better: higher-quality work, faster than ever before.
 
@@ -491,4 +564,4 @@ Hermes can't write code. Codex can't choose its work. Nothing merges without me.
 
 I've delegated the implementation. I haven't delegated the accountability.
 
-That's what makes it boring enough to run while I sleep — and boring is the goal.
+That's what makes it boring enough to run while I sleep, and boring is the goal.
