@@ -34,6 +34,11 @@ graph LR
     C --> D[Write state<br/>+ report]
     D --> E([Sleep])
     E --> A
+
+    classDef trigger fill:#7c3aed,stroke:#c4b5fd,color:#ffffff
+    classDef step fill:#1d4ed8,stroke:#93c5fd,color:#ffffff
+    class A,E trigger
+    class B,C,D step
 ```
 
 The key piece is **state**. In my system that's GitHub Issues — and calling it "memory" undersells it. It's the **agent control plane**: the shared surface the loops coordinate through. The two loops never talk to each other. One writes labels; the other queries them. Memory is part of what it does — the agent forgets everything between runs, the repo doesn't — but its real job is coordination.
@@ -43,6 +48,13 @@ graph LR
     H[Hermes<br/>the manager loop] -->|writes labels| S[(GitHub Issues<br/>the control plane)]
     C[Codex<br/>the worker loop] -->|queries labels| S
     H -.never talk directly.- C
+
+    classDef manager fill:#1d4ed8,stroke:#93c5fd,color:#ffffff
+    classDef worker fill:#0f766e,stroke:#5eead4,color:#ffffff
+    classDef state fill:#b45309,stroke:#fcd34d,color:#ffffff
+    class H manager
+    class C worker
+    class S state
 ```
 
 A prompt is something you write once and supervise.
@@ -172,6 +184,13 @@ The agent that wrote the code must not be the only one judging it. A separate re
 ```mermaid
 graph LR
     M[Maker agent<br/>writes the change] --> C[Checker agent<br/>reviews the diff] --> H[Human<br/>approves the PR]
+
+    classDef maker fill:#1d4ed8,stroke:#93c5fd,color:#ffffff
+    classDef checker fill:#0f766e,stroke:#5eead4,color:#ffffff
+    classDef human fill:#be123c,stroke:#fda4af,color:#ffffff
+    class M maker
+    class C checker
+    class H human
 ```
 
 ### 4.5 Delegate implementation, never accountability
@@ -194,6 +213,15 @@ graph LR
     Q --> S2[SYSTEM 2 — EXECUTE<br/>pull a task,<br/>do the work]
     S2 --> PR[Pull requests]
     PR --> H[Human<br/>review + merge]
+
+    classDef manager fill:#1d4ed8,stroke:#93c5fd,color:#ffffff
+    classDef worker fill:#0f766e,stroke:#5eead4,color:#ffffff
+    classDef state fill:#b45309,stroke:#fcd34d,color:#ffffff
+    classDef human fill:#be123c,stroke:#fda4af,color:#ffffff
+    class S1 manager
+    class S2 worker
+    class Q,PR state
+    class H human
 ```
 
 And here's the full picture with the actual tools in place:
@@ -212,6 +240,17 @@ graph TB
     end
     F --> ME[ME<br/>review PRs, own the judgement]
     ME -.overrule labels when wrong.-> GH
+
+    classDef manager fill:#1d4ed8,stroke:#93c5fd,color:#ffffff
+    classDef worker fill:#0f766e,stroke:#5eead4,color:#ffffff
+    classDef state fill:#b45309,stroke:#fcd34d,color:#ffffff
+    classDef human fill:#be123c,stroke:#fda4af,color:#ffffff
+    class A,B,C manager
+    class D,E,F worker
+    class GH state
+    class ME human
+    style OUTER fill:none,stroke:#93c5fd
+    style INNER fill:none,stroke:#5eead4
 ```
 
 The separation is the design:
@@ -250,6 +289,13 @@ graph TB
     P2 --> P3["3 — MAINTAIN + REPORT<br/>close issues with merged-PR evidence<br/>sweep the repo for drift<br/>propose evidence-backed tickets<br/>report branch-cleanup candidates"]
     P3 --> R[Verify, then report<br/>the next human decision]
     R --> S([Sleep until next run])
+
+    classDef trigger fill:#7c3aed,stroke:#c4b5fd,color:#ffffff
+    classDef phase fill:#1d4ed8,stroke:#93c5fd,color:#ffffff
+    classDef report fill:#b45309,stroke:#fcd34d,color:#ffffff
+    class W,S trigger
+    class P1,P2,P3 phase
+    class R report
 ```
 
 That drift sweep in phase 3 is worth pausing on — it looks for concrete, evidence-backed problems: broken doc links, README commands that don't exist anymore, accidentally skipped tests, TODO comments describing clear bounded work. This is the loop feeding itself: code problems become tickets that humans or agents can then pick up.
@@ -323,6 +369,15 @@ graph LR
     R --> G{Human:<br/>is the judgement sound?}
     G -->|yes| A[APPLY<br/>scoped mutations only]
     G -->|no| F[Adjust the skill<br/>or the labels] --> D
+
+    classDef inspect fill:#1d4ed8,stroke:#93c5fd,color:#ffffff
+    classDef gate fill:#be123c,stroke:#fda4af,color:#ffffff
+    classDef apply fill:#0f766e,stroke:#5eead4,color:#ffffff
+    classDef report fill:#b45309,stroke:#fcd34d,color:#ffffff
+    class D,F inspect
+    class G gate
+    class A apply
+    class R report
 ```
 
 ### Dry run first — always
@@ -389,6 +444,13 @@ graph TB
     F --> G{Valid findings?}
     G -->|yes| H[Fix them] --> E
     G -->|no| I[Open PR,<br/>comment on the issue]
+
+    classDef worker fill:#0f766e,stroke:#5eead4,color:#ffffff
+    classDef gate fill:#be123c,stroke:#fda4af,color:#ffffff
+    classDef output fill:#b45309,stroke:#fcd34d,color:#ffffff
+    class A,B,C,D,E,F,H worker
+    class G gate
+    class I output
 ```
 
 As a prompt, that's:
