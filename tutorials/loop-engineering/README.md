@@ -477,7 +477,7 @@ Pick up issue #110 (risk:low, agent:ready).
 
 ### The Codex automation prompt
 
-For the full worker loop, I want Codex to fetch the ready tickets itself and coordinate the work across separate threads.
+For the full worker loop, I want Codex to fetch the ready tickets itself and coordinate the work one ticket at a time.
 
 This is the prompt:
 
@@ -502,7 +502,15 @@ Find all open issues with both labels:
 
 Ignore issues that are closed, already linked to an open pull request, already assigned to an active worker thread, or marked needs:human.
 
-For each eligible issue, run this workflow in linear order:
+Select at most three eligible issues for this run.
+
+Work sequentially.
+
+Do not run multiple worker threads in parallel.
+
+Finish or pause the current issue before starting the next issue.
+
+For each selected issue, run this workflow in linear order:
 
 1. Create a new Codex thread for the issue.
 2. In that worker thread, start from the latest origin/main.
@@ -516,11 +524,15 @@ For each eligible issue, run this workflow in linear order:
 10. Open a pull request.
 11. Move the pull request to Ready For Review.
 12. Comment on the original issue with the PR link and a short summary of what changed.
+13. Only after the pull request is open, or the worker is paused because human input is needed, continue to the next selected issue.
 
 Rules:
+- Process a maximum of three issues per automation run.
+- Work on one issue at a time.
 - One issue per Codex thread.
 - One fresh branch and worktree per issue.
 - Do not combine unrelated tickets.
+- Do not start the next issue until the current issue has an open pull request or is explicitly paused.
 - Do not merge pull requests.
 - Do not widen scope beyond the issue.
 - Do not implement changes in the coordinator checkout.
@@ -532,6 +544,7 @@ Rules:
 
 End with a coordinator report:
 - issues considered
+- issues selected for this run
 - issues skipped, with reasons
 - worker threads created
 - branches and worktrees created
