@@ -68,9 +68,17 @@ graph LR
 A prompt is something you write once and supervise.
 A loop is something you **design** once and **review**.
 
-**Is a loop the same as an "autonomous system"?**
+**Are autonomous agents and loop engineering the same thing?**
 
-Almost. An autonomous system is anything that acts without you in the moment. A loop is the *recurring* kind, an autonomous system with a heartbeat and memory. Running a one-shot goal ("keep going until the tests pass") is autonomous, but it isn't a loop until it runs on a schedule and remembers between runs.
+No, and the distinction is worth being precise about, because the terms get used interchangeably and they aren't.
+
+An **autonomous agent** is an agent that acts without you in the moment: you give it a goal and it decides how to get there. That's a property of a single run. "Keep going until the tests pass" is an autonomous run, but it isn't a loop, because nothing wakes it up tomorrow and it remembers nothing between runs.
+
+A **loop** is the *recurring* kind of autonomous system: an agent plus a job, permissions, a schedule, and shared state. An autonomous system with a heartbeat and memory.
+
+**Loop engineering** is the design work around the agents, not the agents themselves: the job, the boundaries, the schedule, the control plane, the review gates. Autonomous agents are what run inside the loop. Loop engineering is why the loop doesn't make a mess.
+
+In my system: Hermes and Codex doing unattended runs are the autonomous agents. The scheduled backlog manager and the scheduled worker are the loops. The labels, the `agent:ready` contract, the dry-run gate, and the PR review boundary are the loop engineering.
 
 The way I think about these systems is as **advanced automations**. The agents inside them are genuinely intelligent, and they can do an enormous amount of work very quickly, but they aren't people. They don't have creative taste. The mistake is forgetting that, and treating them like team members instead of what they are: intelligent automations that should work within bounded contexts, with fixed guardrails, and a clear way to evaluate the quality of their work.
 
