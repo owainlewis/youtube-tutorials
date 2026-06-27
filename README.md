@@ -44,6 +44,18 @@ Use [tutorials/TUTORIAL-STANDARD.md](./tutorials/TUTORIAL-STANDARD.md) when turn
 
 Use [tutorials/_templates](./tutorials/_templates/) for reusable lesson and slide templates.
 
+Create a new tutorial with:
+
+```bash
+just new-tutorial my-topic "My Tutorial Title"
+```
+
+Run repository checks with:
+
+```bash
+just check
+```
+
 ## About
 
 These tutorials demonstrate practical AI automation patterns. Each one is a complete, working example you can use and adapt.

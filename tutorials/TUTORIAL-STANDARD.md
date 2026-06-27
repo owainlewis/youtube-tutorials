@@ -48,6 +48,14 @@ Keep the old files only when they are useful references.
 
 ## Required Folder Shape
 
+Create new tutorials with:
+
+```bash
+just new-tutorial my-topic "My Tutorial Title"
+```
+
+This keeps new lessons consistent from the start.
+
 ```text
 tutorials/<slug>/
   README.md
@@ -56,6 +64,7 @@ tutorials/<slug>/
     .gitkeep
   resources/
     .gitkeep
+    prompts.md
     slides/
       .gitkeep
 ```
@@ -66,6 +75,7 @@ This is the standard shape:
 - `README.md` explains what the lesson is and what is inside.
 - `code/` holds runnable code, sample apps, fixtures, `.env.example`, and setup files.
 - `resources/` holds reference material, files, images, prompts, checklists, configs, and loose assets.
+- `resources/prompts.md` holds reusable prompts when the tutorial has them.
 - `resources/slides/` holds polished slide decks and visual explainers.
 
 Keep the folders even when they are empty.
