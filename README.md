@@ -4,7 +4,12 @@ Code and examples from my YouTube channel tutorials.
 
 ## Tutorials
 
-Each tutorial has a short README and a `lesson.md` teaching document.
+Each tutorial uses the same public shape:
+
+- `README.md` - what the tutorial is and where to start.
+- `LESSON.md` - the main teaching document.
+- `code/` - runnable code, sample apps, fixtures, or setup files.
+- `resources/` - prompts, slides, configs, references, images, and other loose assets.
 
 - [6 Types of RAG, Clearly Explained](./tutorials/6-types-of-rag/)
 - [Claude Code Agent Teams](./tutorials/agent-teams/)

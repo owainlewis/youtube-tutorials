@@ -237,7 +237,7 @@ Prompt: "Write a test that recruiter A cannot see recruiter B's candidates."
 ```
 testing-ai-generated-code/
 ├── README.md              # This file
-├── SLIDES.html            # Branded slide deck for the video
+├── resources/slides/slides.html # Branded slide deck for the video
 ├── prompts/
 │   ├── test-first.md      # Prompt 1: Write the test (with wrong vs right examples)
 │   ├── make-it-pass.md    # Prompt 2: Make it pass

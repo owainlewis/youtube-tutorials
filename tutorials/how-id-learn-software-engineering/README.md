@@ -4,16 +4,16 @@ Companion repo for the video. The complete roadmap as a reference you can actual
 
 ## Start Here
 
-- Read the lesson: [lesson.md](./lesson.md)
+- Read the lesson: [LESSON.md](./LESSON.md)
 - Browse chapter folders: [ai-tools](./ai-tools/), [core-fundamentals](./core-fundamentals/), [development-process](./development-process/), [system-design](./system-design/)
 
 ## What's Inside
 
-- `lesson.md` - the main teaching document.
+- `LESSON.md` - the main teaching document.
 - Chapter folders - deeper steps or course-style sections that support the main lesson.
-- Supporting files - [`mindmap.html`](./mindmap.html).
+- Supporting files - [`resources/slides/mindmap.html`](./resources/slides/mindmap.html).
 
 ## Notes
 
-This folder has been normalized so the README is the front door and `lesson.md` is the source teaching document.
+This folder has been normalized so the README is the front door and `LESSON.md` is the source teaching document.
 Some older material may still be WIP and can be curated manually.

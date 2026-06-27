@@ -129,7 +129,9 @@ Minimum monitoring stack:
 
 ## The Presentation
 
-The `presentation.html` file is the slide deck used in the video. Open it in any browser - it's a self-contained HTML file with keyboard navigation.
+The slide deck lives at `resources/slides/presentation.html`.
+Open it in any browser.
+It is a self-contained HTML file with keyboard navigation.
 
 **Controls:**
 - Arrow keys or click to navigate between slides
