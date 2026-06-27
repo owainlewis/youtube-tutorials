@@ -42,7 +42,7 @@ Each tutorial uses the same public shape:
 
 Use [tutorials/TUTORIAL-STANDARD.md](./tutorials/TUTORIAL-STANDARD.md) when turning video material into consistent public lessons and code samples.
 
-Use [tutorials/templates](./tutorials/templates/) for reusable lesson and slide templates.
+Use [tutorials/_templates](./tutorials/_templates/) for reusable lesson and slide templates.
 
 ## About
 

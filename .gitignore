@@ -21,8 +21,11 @@
 credentials.json
 client_secrets.json
 **/token.json
-.env
-.env.*
+**/.env
+**/.env.*
+**/.env-sample
+**/.env.sample
+# Add env templates intentionally with `git add -f` when they are part of a code sample.
 *.pem
 *.key
 
@@ -72,12 +75,13 @@ dmypy.json
 .pyre/
 .pytype/
 cython_debug/
-.venv/
-venv/
-ENV/
-env/
-.uv/
-uv.lock
+**/.venv/
+**/venv/
+**/ENV/
+**/env/
+**/.uv/
+**/uv.lock
+**/.ipynb_checkpoints/
 
 # Java
 *.class
@@ -109,8 +113,12 @@ out/
 !**/src/test/**/out/
 
 # IDE and editors
-.vscode/
-.idea/
+**/.vscode/
+**/.idea/
+**/.claude/settings.local.json
+**/.lsp/
+**/.clj-kondo/
+**/.git/
 *.swp
 *.swo
 *~

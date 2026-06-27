@@ -285,7 +285,7 @@ For most lessons, prefer this order:
 
 3. A polished HTML slide deck under `resources/slides/`.
 
-Use the templates in `tutorials/templates/resources/slides/` as the starting point.
+Use the templates in `tutorials/_templates/resources/slides/` as the starting point.
 
 The slide style is based on the Agentic Engineer course decks.
 
