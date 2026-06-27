@@ -10,11 +10,41 @@ These are teaching documents.
 
 Clarity matters more than completeness.
 
+The goal is one tutorial that can become a newsletter issue and a YouTube video.
+
+It should feel like one thing.
+
+Not a folder of notes.
+
 Diagrams, slides, tables, and code samples are there to make the idea easier to understand.
 
 `video.md` is the internal recording doc pattern.
 
 For this repo, use `LESSON.md` as the public lesson and keep `README.md` as a short entry point.
+
+## Core Principle
+
+Every tutorial has one main teaching document.
+
+That document is `LESSON.md`.
+
+If a reader only opens `LESSON.md`, they should be able to understand the idea, follow the argument, and know what to try next.
+
+Everything else is supporting material.
+
+```text
+LESSON.md  -> the teaching
+code/      -> things to run
+resources/ -> things to reference, copy, show, or reuse
+```
+
+Do not spread the lesson across several Markdown files.
+
+Do not make the reader assemble the teaching sequence from multiple docs.
+
+If an older tutorial has content split across chapter docs, fold the teaching into `LESSON.md` during the cleanup pass.
+
+Keep the old files only when they are useful references.
 
 ## Required Folder Shape
 
@@ -35,7 +65,7 @@ This is the standard shape:
 - `LESSON.md` is the one lesson.
 - `README.md` explains what the lesson is and what is inside.
 - `code/` holds runnable code, sample apps, fixtures, `.env.example`, and setup files.
-- `resources/` holds docs, files, images, prompts, references, configs, and loose assets.
+- `resources/` holds reference material, files, images, prompts, checklists, configs, and loose assets.
 - `resources/slides/` holds polished slide decks and visual explainers.
 
 Keep the folders even when they are empty.
@@ -48,11 +78,34 @@ Use `resources/` for anything someone reads, copies, opens, or reuses.
 
 Be loose with `resources/`.
 
-It is fine for resources to contain prompts, skills, configs, diagrams, slides, reference files, images, and docs that support the lesson.
+It is fine for resources to contain prompts, skills, configs, diagrams, slides, reference files, images, checklists, and docs that support the lesson.
 
-Avoid extra Markdown files unless the tutorial is genuinely a course.
+Avoid extra Markdown files at the tutorial root.
 
-When extra Markdown is needed, link it from `LESSON.md` and make its role obvious.
+When extra Markdown is needed, put it under `resources/` and make its role obvious.
+
+Reference files should support the lesson.
+
+They should not contain essential teaching that is missing from `LESSON.md`.
+
+## Lesson Vs Reference
+
+Use this rule when cleaning older tutorials.
+
+| Material | Where It Goes | Why |
+| --- | --- | --- |
+| Main explanation | `LESSON.md` | This is the source of truth. |
+| Newsletter-style argument | `LESSON.md` | The lesson should repurpose cleanly. |
+| YouTube opening or talk track | `LESSON.md` | The video should come from the same document. |
+| Mental model diagrams | `LESSON.md` first | Keep the core idea in the lesson. |
+| Polished slide deck | `resources/slides/` | Slides support the lesson. |
+| Prompts | `resources/prompts.md` | Prompts are reusable reference material. |
+| Checklists | `resources/checklist.md` | Checklists support action after the lesson. |
+| Images | `resources/images/` | Images support the lesson or slides. |
+| External links | `resources/references.md` | Links are reference material. |
+| Runnable examples | `code/` | Code is there to prove or practice the lesson. |
+
+If a reference file becomes required reading, fold its explanation back into `LESSON.md`.
 
 ## README.md
 
@@ -86,6 +139,10 @@ Do not put the full lesson, filming notes, long reference material, and code wal
 The lesson is the main document.
 
 It should read like a clear technical newsletter Owain can also use as recording prep.
+
+It should be complete enough to stand alone.
+
+Resources can deepen the lesson, but they should not be required to understand it.
 
 Suggested shape:
 
@@ -124,6 +181,14 @@ Use this section only when the tutorial needs runnable code.
 
 Include the command, expected result, and likely failure point.
 
+## References
+
+Optional.
+
+Link to prompts, checklists, slides, images, and external docs when they help.
+
+Keep this short.
+
 ## Summary
 
 - The one thing to remember:
@@ -143,6 +208,10 @@ The agent-memory script is the model:
 - normal teaching sections such as `The two parts of memory`, `The Memory Map`, and `Models do not remember by default`
 - demo steps folded into the lesson where useful
 - a short summary and CTA
+
+The lesson should not send the reader away for the next part of the explanation.
+
+Links are for references, not for the main teaching path.
 
 ## Writing Rules
 
@@ -263,10 +332,12 @@ The main cleanup jobs are:
 - remove filming-control labels from lessons
 - move copyable prompts to `resources/prompts.md`
 - move command references to `resources/`
+- move checklists and reference docs to `resources/`
 - move polished slide decks to `resources/slides/`
 - move runnable examples to `code/` when it does not break the sample
 - remove ignored runtime output from local tutorial folders
 - add Mermaid diagrams where they clarify the lesson
+- fold split teaching docs back into `LESSON.md`
 
 Do not force every older runnable app into `code/` in one mechanical move.
 

@@ -1,5 +1,11 @@
 # Lesson Title
 
+This is the one main teaching document.
+
+Everything required to understand the lesson should live here.
+
+Use resources only for references, prompts, checklists, images, slides, and other supporting material.
+
 ## Title Options
 
 Optional.
@@ -84,6 +90,16 @@ Explain where this works.
 Explain where it does not.
 
 Do not pretend the workflow is cleaner than it is.
+
+## References
+
+Optional.
+
+Link only to supporting material.
+
+- Prompts: `resources/prompts.md`
+- Slides: `resources/slides/`
+- Code: `code/`
 
 ## Summary
 

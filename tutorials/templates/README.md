@@ -19,6 +19,12 @@ The lesson stays the source of truth.
 
 The slides are visual support for recording or teaching.
 
+Keep the main teaching in `LESSON.md`.
+
+Use `resources/` for prompts, checklists, images, slides, and references.
+
+Use `code/` for runnable examples.
+
 ## Go Deeper
 
 To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).
