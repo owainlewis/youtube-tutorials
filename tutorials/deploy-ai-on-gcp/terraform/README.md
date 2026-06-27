@@ -1,5 +1,7 @@
 # Reference Terraform module: scheduled AI Cloud Run Job
 
+This is the supporting material for the video: Reference Terraform module: scheduled AI Cloud Run Job.
+
 A drop-in module for any scheduled AI automation on GCP.
 
 ## What it creates
@@ -47,3 +49,7 @@ Override any of these via variables.
 - Doesn't grant `roles/owner` or `roles/editor` to anything
 
 If you need a service or feature beyond this module, fork it. Don't bloat the reference.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

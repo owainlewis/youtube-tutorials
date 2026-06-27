@@ -1,5 +1,7 @@
 # System Design
 
+This is the supporting material for the video: System Design.
+
 The metaskill. AI can write any function. It cannot design your system. This is where you invest the most time.
 
 ## What to Learn
@@ -61,3 +63,7 @@ These were generated using AI and then reviewed for accuracy. This is an example
 ## The Test
 
 Can you draw a diagram of how a web application handles a request from browser to database and back? Can you explain when you'd use a message queue instead of a direct API call? If yes, you're thinking like a systems engineer.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

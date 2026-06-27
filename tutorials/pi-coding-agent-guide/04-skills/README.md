@@ -1,5 +1,7 @@
 # Skills
 
+This is the supporting material for the video: Skills.
+
 Skills are on-demand capability packages. Unlike extensions (which run code), skills are Markdown files that inject extra context into the conversation when the agent decides they're relevant.
 
 ## How Skills Work
@@ -60,3 +62,7 @@ See [code-review/SKILL.md](./code-review/SKILL.md) for a working example.
 | Security risk | Low (just text) | High (full system access) |
 
 Use skills for prompting patterns you reuse. Use extensions for behavior you need to code.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

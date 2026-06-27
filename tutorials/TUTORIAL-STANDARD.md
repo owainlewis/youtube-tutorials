@@ -65,19 +65,18 @@ Suggested shape:
 ```md
 # <Tutorial Title>
 
-One plain paragraph describing the result.
+This is the supporting material for the video: <Tutorial Title>.
 
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Run the code: [code/](./code/)
-- Copy resources: [resources/](./resources/)
+- Browse code samples: [code/](./code/)
+- Browse resources: [resources/](./resources/)
+- Browse slides: [resources/slides/](./resources/slides/)
 
-## Requirements
+## Go Deeper
 
-- <tool>
-- <account or API key>
-- <runtime>
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).
 ```
 
 Do not put the full lesson, filming notes, long reference material, and code walkthrough all in README.

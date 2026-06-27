@@ -1,31 +1,24 @@
 # Tutorial Templates
 
-Use these templates when creating or normalising tutorial folders.
+This is the supporting material for the video: Tutorial Templates.
 
-## Lesson
+## Start Here
 
-Start with [LESSON.md](./LESSON.md) for the one main teaching document.
+- Read the lesson: [LESSON.md](./LESSON.md)
+- Browse code samples: [code/](./code/)
+- Browse resources: [resources/](./resources/)
+- Browse slides: [resources/slides/](./resources/slides/)
 
-Copy it into:
+## How To Use These Templates
 
-```text
-tutorials/<slug>/LESSON.md
-```
+Copy [LESSON.md](./LESSON.md) into a tutorial folder as `LESSON.md`.
 
-Then replace the placeholders with the actual lesson.
-
-## Slides
-
-Start with [resources/slides/teaching-deck.html](./resources/slides/teaching-deck.html) when a lesson needs polished visual support.
-
-Copy it into:
-
-```text
-tutorials/<slug>/resources/slides/
-```
-
-Then replace the title, slide copy, and diagram labels.
+Copy [resources/slides/teaching-deck.html](./resources/slides/teaching-deck.html) into `resources/slides/` when a lesson needs polished visual support.
 
 The lesson stays the source of truth.
 
 The slides are visual support for recording or teaching.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

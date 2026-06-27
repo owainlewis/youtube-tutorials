@@ -1,5 +1,7 @@
 # Configuration
 
+This is the supporting material for the video: Configuration.
+
 Pi stores configuration at `~/.pi/agent/`. Here's how to set it up properly.
 
 ## Directory Structure
@@ -129,3 +131,7 @@ Check for bugs, security issues, and unnecessary complexity.
 ```
 
 Invoke with `/review`. Pi interpolates `{{focus}}` from context.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

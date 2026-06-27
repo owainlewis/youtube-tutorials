@@ -1,4 +1,6 @@
-# 04 — Install and Configure Multica
+# 04 - Install and Configure Multica
+
+This is the supporting material for the video: 04 - Install and Configure Multica.
 
 Multica is the agent control plane. It gives you a Kanban board where you create tickets, route them to specialized agents, and watch the work get done. Multica is **vendor-neutral**: it can delegate to Claude Code, Hermes Agent, OpenAI Codex, Pi Agent, or any other AI agent you point it at.
 
@@ -96,4 +98,8 @@ You have a control plane reachable over HTTPS, with both runners installed and d
 
 ## Next
 
-[05 — Configure specialized agents](../05-skills-and-agents/)
+[05 - Configure specialized agents](../05-skills-and-agents/)
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

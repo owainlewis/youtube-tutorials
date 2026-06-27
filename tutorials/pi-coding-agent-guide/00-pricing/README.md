@@ -1,5 +1,7 @@
 # Pricing and Providers
 
+This is the supporting material for the video: Pricing and Providers.
+
 Pi is free. You pay for the LLM provider you connect to.
 
 ## How Each Provider Works
@@ -62,3 +64,7 @@ Pi's real pricing advantage is model switching. Use the cheapest model for each 
 3. **Second opinion:** Switch providers entirely
 
 Switch mid-session with `Ctrl+P`. Claude Code can't do this.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

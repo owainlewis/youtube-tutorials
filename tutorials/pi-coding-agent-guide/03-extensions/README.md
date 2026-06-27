@@ -1,5 +1,7 @@
 # Writing Pi Extensions
 
+This is the supporting material for the video: Writing Pi Extensions.
+
 Extensions are TypeScript files that extend Pi's behavior. No build step required. Drop a `.ts` file in `~/.pi/agent/extensions/` and it auto-loads.
 
 ## How Extensions Work
@@ -164,3 +166,7 @@ pi.on("session_start", async (event, ctx) => {
 4. **State is lost on `/reload`.** Use `pi.appendEntry()` to persist state across reloads.
 
 5. **Extensions run with full system access.** There is no sandbox. Only install extensions you trust.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

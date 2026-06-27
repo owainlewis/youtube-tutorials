@@ -1,5 +1,7 @@
 # AI Tools & Workflows
 
+This is the supporting material for the video: AI Tools & Workflows.
+
 Most people use AI coding tools like a chatbot. Type a question, get an answer, copy paste. That's the lowest level.
 
 Professionals configure their tools, structure their prompts as specs, and review output systematically.
@@ -62,3 +64,7 @@ my-project/
 - [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code) - Official docs
 - [Blueprint Skills](https://github.com/owainlewis/blueprint) - SDLC as executable AI skills
 - [Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) - OpenAI's guide to better prompts
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

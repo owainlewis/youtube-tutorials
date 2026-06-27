@@ -1,18 +1,14 @@
 # Claude Code Agent Teams
 
-A teaching guide to Claude Code agent teams, how they differ from subagents, and where the workflow is useful.
+This is the supporting material for the video: Claude Code Agent Teams.
 
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Use supporting resources: [.ai](./.ai/)
+- Browse code samples: [code/](./code/)
+- Browse resources: [resources/](./resources/)
+- Browse slides: [resources/slides/](./resources/slides/)
 
-## What's Inside
+## Go Deeper
 
-- `LESSON.md` - the main teaching document.
-- Resource folders - prompts, examples, commands, docs, slides, or copyable files.
-
-## Notes
-
-This folder has been normalized so the README is the front door and `LESSON.md` is the source teaching document.
-Some older material may still be WIP and can be curated manually.
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

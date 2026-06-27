@@ -1,5 +1,7 @@
 # Email triage classifier
 
+This is the supporting material for the video: Email triage classifier.
+
 Cloud Run Job that reads new Gmail messages, classifies each into `needs-reply / fyi / newsletter / receipt` using Vertex AI Gemini, and applies the matching Gmail label.
 
 ## What it does
@@ -62,3 +64,7 @@ The classification rule is a single prompt in `main.py`. Edit `CATEGORIES` and t
 - Replace categories with sender-based routing (work / personal / promotional)
 
 The simpler the rule, the better Gemini Flash performs. Don't over-engineer.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

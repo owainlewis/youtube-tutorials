@@ -1,5 +1,7 @@
 # Advanced Usage
 
+This is the supporting material for the video: Advanced Usage.
+
 Power-user features for when you're past the basics.
 
 ## Modes
@@ -112,3 +114,7 @@ Then use them: `pi --strict`
 ## Self-Awareness
 
 Pi's system prompt includes information about its own architecture. If you ask Pi about its own capabilities, it reads its source from `node_modules` to give grounded answers. This is why Pi can write its own extensions. It has access to its own documentation and source code.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

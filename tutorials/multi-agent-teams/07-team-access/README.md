@@ -1,4 +1,6 @@
-# 07 — Add Team Access
+# 07 - Add Team Access
+
+This is the supporting material for the video: 07 - Add Team Access.
 
 This is what makes it an AI team instead of a personal toy. Anyone on your team can log in, create tickets, and use the agents.
 
@@ -8,7 +10,7 @@ This is what makes it an AI team instead of a personal toy. Anyone on your team 
 >
 > - Username/password (basic, fine for a small team)
 > - Magic link (email-based, no password)
-> - SSO (Google Workspace, Okta, etc. — for larger teams)
+> - SSO (Google Workspace, Okta, etc. - for larger teams)
 >
 > For 1-10 people, basic auth or magic link is enough.
 
@@ -22,9 +24,9 @@ This is what makes it an AI team instead of a personal toy. Anyone on your team 
 
 Adjust per Multica's permission model. Common shape:
 
-- **Admin** — configure agents, manage runners, change auth settings
-- **Editor** — create and assign tickets, review outputs
-- **Viewer** — read-only
+- **Admin** - configure agents, manage runners, change auth settings
+- **Editor** - create and assign tickets, review outputs
+- **Viewer** - read-only
 
 For most small teams, everyone is an editor.
 
@@ -34,19 +36,19 @@ By default Multica is reachable at `http://<vps-ip>:<port>`. Fine for testing, n
 
 Improve:
 
-1. **Put it behind a domain with HTTPS** — see [04 — Install Multica](../04-multica/#optional-put-multica-behind-a-real-domain-with-https) for the Caddy setup
+1. **Put it behind a domain with HTTPS** - see [04 - Install Multica](../04-multica/#optional-put-multica-behind-a-real-domain-with-https) for the Caddy setup
 2. **Restrict by IP** if your team uses a VPN:
    ```bash
    sudo ufw allow from <ip-range> to any port <multica-port>
    ```
-3. **Require auth on every action** — set short session timeouts in Multica's auth config
+3. **Require auth on every action** - set short session timeouts in Multica's auth config
 
 ## Cost split
 
 Multiple team members using the same agents stack up the API bill on whoever's API key Multica is using. Two options:
 
-- **Single shared API key**, billed centrally — simpler, less granular tracking
-- **Per-user API keys**, configured per Multica user — more granular but more setup
+- **Single shared API key**, billed centrally - simpler, less granular tracking
+- **Per-user API keys**, configured per Multica user - more granular but more setup
 
 Start with shared. Revisit if usage gets large.
 
@@ -79,3 +81,7 @@ Cost: ~$5-10/month for the VPS plus your API usage.
 - **Add more skills.** Every mechanical, verifiable task is a candidate. Audit your weekly work for things that fit.
 - **Schedule more automations.** Daily reports, weekly digests, post-publish repurposing. Multica's scheduled automations are underused.
 - **Don't over-delegate.** Re-read the [delegation framework](../README.md#the-thesis-what-to-delegate-what-to-keep) in the main README. If you find yourself iterating on an agent's output more than fixing it once, take the task back.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

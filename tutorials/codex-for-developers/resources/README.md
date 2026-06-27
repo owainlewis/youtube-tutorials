@@ -1,5 +1,7 @@
 # Resources
 
+This is the supporting material for the video: Resources.
+
 These are the copy, paste, and adapt files from the video.
 
 ## Setup
@@ -29,3 +31,7 @@ These are the copy, paste, and adapt files from the video.
 ## Automation
 
 - [`../06-automation/justfile`](../06-automation/justfile)
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

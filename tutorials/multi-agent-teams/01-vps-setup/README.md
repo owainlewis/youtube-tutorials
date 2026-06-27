@@ -1,4 +1,6 @@
-# 01 — Provision a Hostinger VPS
+# 01 - Provision a Hostinger VPS
+
+This is the supporting material for the video: 01 - Provision a Hostinger VPS.
 
 Reference for getting a Linux box stood up that the agents will run on.
 
@@ -16,8 +18,8 @@ Comparable alternatives: [Hetzner](https://www.hetzner.com/cloud/) (cheapest, EU
 
 For a small team running a handful of agents:
 
-- **KVM 1** — entry tier, 1 vCPU, 4 GB RAM. Enough to start.
-- **KVM 2** — 2 vCPU, 8 GB RAM. More headroom for parallel agent runs.
+- **KVM 1** - entry tier, 1 vCPU, 4 GB RAM. Enough to start.
+- **KVM 2** - 2 vCPU, 8 GB RAM. More headroom for parallel agent runs.
 
 Start with KVM 1. Upgrade if you hit memory pressure once you're running multiple agents in parallel.
 
@@ -43,7 +45,7 @@ Start with KVM 1. Upgrade if you hit memory pressure once you're running multipl
 ssh root@<your-vps-ip>
 ```
 
-Should land you at a `root@` prompt. If it doesn't, your SSH key wasn't added correctly — check Hostinger's SSH Keys panel.
+Should land you at a `root@` prompt. If it doesn't, your SSH key wasn't added correctly - check Hostinger's SSH Keys panel.
 
 ## Basic hardening (do this once)
 
@@ -117,4 +119,8 @@ This is normal headless-OAuth flow. It bites everyone the first time. The next s
 
 ## Next
 
-[02 — Install Claude Code](../02-claude-code/)
+[02 - Install Claude Code](../02-claude-code/)
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

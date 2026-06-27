@@ -1,5 +1,7 @@
 # Coming from Claude Code?
 
+This is the supporting material for the video: Coming from Claude Code?.
+
 If you're a Claude Code user, this is the guide you want. Pi does things differently, but most of what you rely on has an equivalent.
 
 ## Feature Mapping
@@ -55,3 +57,7 @@ If you're a Claude Code user, this is the guide you want. Pi does things differe
 - **Don't fight the minimalism.** Pi intentionally leaves things out. If you miss a feature, check the [60+ example extensions](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent/examples/extensions) before building your own.
 - **Use both tools.** Pi and Claude Code are not mutually exclusive. Use Claude Code for quick tasks where you want zero setup. Use Pi when you want control.
 - **Start with the defaults.** Pi works fine with just an API key and no extensions. Add complexity only when you need it.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

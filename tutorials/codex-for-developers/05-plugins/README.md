@@ -1,5 +1,7 @@
 # Plugins
 
+This is the supporting material for the video: Plugins.
+
 Plugins give Codex access to external tools. Instead of context-switching to another app,
 you describe the task in natural language and Codex handles the tool interaction.
 
@@ -44,3 +46,7 @@ This replaces the manual copy-paste loop between your issue tracker and your cod
 | Notion | Read and write docs from a Codex session |
 
 Install only what you actually use. Each plugin adds context overhead to every session.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

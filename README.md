@@ -47,3 +47,7 @@ Use [tutorials/templates](./tutorials/templates/) for reusable lesson and slide 
 ## About
 
 These tutorials demonstrate practical AI automation patterns. Each one is a complete, working example you can use and adapt.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

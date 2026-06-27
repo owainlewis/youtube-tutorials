@@ -1,4 +1,6 @@
-# 03 — Install Hermes Agent on the VPS
+# 03 - Install Hermes Agent on the VPS
+
+This is the supporting material for the video: 03 - Install Hermes Agent on the VPS.
 
 Hermes Agent is a general-purpose AI agent for personal automations and knowledge work. Where Claude Code is optimized for coding, Hermes is the better fit for research, repurposing, drafting, and general task automation.
 
@@ -47,15 +49,15 @@ echo "Summarize today's top AI news in 5 bullets" | hermes -p
 
 ## Use Hermes purely as a runner
 
-Hermes ships with its own Kanban feature. We're deliberately ignoring it — we want Multica's vendor-neutral abstraction layer instead. Configure Hermes only as a runner that Multica delegates to.
+Hermes ships with its own Kanban feature. We're deliberately ignoring it - we want Multica's vendor-neutral abstraction layer instead. Configure Hermes only as a runner that Multica delegates to.
 
 If Hermes has tool/integration setup it needs for the use cases in the video (e.g., access to specific MCPs or APIs), configure those before moving on. Document any tool/integration setup as you go.
 
 ## Common issues
 
-- **Auth conflicts with Claude Code** — they should be independent. Check token storage paths don't collide.
-- **Rate limits** — Hermes' free tier has limits. Consider a paid plan if you'll run many parallel agents.
-- **MCP sandboxing** — Hermes restricts MCP server processes more aggressively than Claude Code. OAuth-based MCPs (Notion, Gmail, Google Drive) often won't complete their flow inside Hermes. If you need Notion or similar, route those tasks to Claude Code instead, or use the GitHub gist pattern below for output.
+- **Auth conflicts with Claude Code** - they should be independent. Check token storage paths don't collide.
+- **Rate limits** - Hermes' free tier has limits. Consider a paid plan if you'll run many parallel agents.
+- **MCP sandboxing** - Hermes restricts MCP server processes more aggressively than Claude Code. OAuth-based MCPs (Notion, Gmail, Google Drive) often won't complete their flow inside Hermes. If you need Notion or similar, route those tasks to Claude Code instead, or use the GitHub gist pattern below for output.
 
 ## Recommended output pattern: GitHub gists
 
@@ -77,4 +79,8 @@ If you need rich formatting or dashboards (Notion, Airtable), do the agent's wor
 
 ## Next
 
-[04 — Install Multica](../04-multica/)
+[04 - Install Multica](../04-multica/)
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

@@ -1,5 +1,7 @@
 # Getting Started with Pi
 
+This is the supporting material for the video: Getting Started with Pi.
+
 ## Install
 
 ```bash
@@ -99,3 +101,7 @@ Pi stores everything under `~/.pi/agent/`:
 ├── settings.json   # Settings
 └── SYSTEM.md       # Custom system prompt
 ```
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

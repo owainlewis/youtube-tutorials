@@ -1,5 +1,7 @@
 # The Development Process
 
+This is the supporting material for the video: The Development Process.
+
 This is the process that turns code into reliable software. Skip it and you're just generating files.
 
 ## The Lifecycle
@@ -61,3 +63,7 @@ Commit often. Write messages that explain why, not what. Keep your history clean
 ## The Test
 
 Can you take a feature idea and produce a spec, break it into tasks, build it, review the output, and commit clean code? That's the full cycle. Practice it until it's automatic.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

@@ -1,4 +1,6 @@
-# 05 — Configure Specialized Agents
+# 05 - Configure Specialized Agents
+
+This is the supporting material for the video: 05 - Configure Specialized Agents.
 
 This is where the thesis lands. Each agent gets ONE job description and ONE skill file. No general-purpose chatbots.
 
@@ -45,7 +47,7 @@ skills/
 
 Each `SKILL.md` is the job description. Brief, single-task, clear output requirements.
 
-Example skill files are in [`skills/`](./skills/) — copy them as a starting point and adjust to your needs.
+Example skill files are in [`skills/`](./skills/) - copy them as a starting point and adjust to your needs.
 
 ## Adding the agent in Multica
 
@@ -109,8 +111,12 @@ If this works for one agent, it works for all of them. The architecture is the s
 
 ## The iteration loop
 
-When you review a draft and it needs work, move the card back to "Needs Revision" with a comment. Multica re-runs the agent with the original input plus your comment. This is the loop most multi-agent demos skip — they show one-shot generation, not iteration. Real work is iterative.
+When you review a draft and it needs work, move the card back to "Needs Revision" with a comment. Multica re-runs the agent with the original input plus your comment. This is the loop most multi-agent demos skip - they show one-shot generation, not iteration. Real work is iterative.
 
 ## Next
 
-[06 — Connect Multica to your Git repo](../06-git-access/)
+[06 - Connect Multica to your Git repo](../06-git-access/)
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

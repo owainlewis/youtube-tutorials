@@ -1,5 +1,7 @@
 # Slide Templates
 
+This is the supporting material for the video: Slide Templates.
+
 These slide templates are for teaching documents that need more polish than Markdown diagrams.
 
 They are based on the Agentic Engineer course slide style.
@@ -45,3 +47,6 @@ The deck includes these common teaching slides:
 - code or prompt slide
 - takeaway slide
 
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

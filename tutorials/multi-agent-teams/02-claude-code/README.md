@@ -1,4 +1,6 @@
-# 02 — Install Claude Code on the VPS
+# 02 - Install Claude Code on the VPS
+
+This is the supporting material for the video: 02 - Install Claude Code on the VPS.
 
 Claude Code is Anthropic's coding-focused CLI agent. We're installing it on the VPS so Multica can delegate coding tasks to it remotely.
 
@@ -130,10 +132,10 @@ If this works without prompting, you're set.
 
 ## Common issues
 
-- **"command not found: claude"** — npm global bin isn't in PATH. See install step.
-- **OAuth code expired** — codes are short-lived. Restart the auth flow and complete it faster.
-- **Localhost redirect** — some flows redirect to `http://localhost:port/callback?code=...`. Just grab the `code=` value from the URL bar in your local browser and paste it back into the VPS terminal. Localhost won't actually load anything (no browser on the VPS), but the code in the URL is what you need.
-- **MCP not loading in headless mode** — pass `--mcp-config ~/.claude.json` and `--permission-mode bypassPermissions` when invoking non-interactively.
+- **"command not found: claude"** - npm global bin isn't in PATH. See install step.
+- **OAuth code expired** - codes are short-lived. Restart the auth flow and complete it faster.
+- **Localhost redirect** - some flows redirect to `http://localhost:port/callback?code=...`. Just grab the `code=` value from the URL bar in your local browser and paste it back into the VPS terminal. Localhost won't actually load anything (no browser on the VPS), but the code in the URL is what you need.
+- **MCP not loading in headless mode** - pass `--mcp-config ~/.claude.json` and `--permission-mode bypassPermissions` when invoking non-interactively.
 
 ## The principle
 
@@ -143,4 +145,8 @@ If a token expires or is revoked, redo the dance. Set a calendar reminder before
 
 ## Next
 
-[03 — Install Hermes Agent](../03-hermes-agent/)
+[03 - Install Hermes Agent](../03-hermes-agent/)
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

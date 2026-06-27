@@ -1,4 +1,6 @@
-# 06 — Connect Multica to your Git repo
+# 06 - Connect Multica to your Git repo
+
+This is the supporting material for the video: 06 - Connect Multica to your Git repo.
 
 Agents need somewhere to push their output. Git is the right answer because it's free, durable, and gives you a diff-based review interface for free.
 
@@ -16,7 +18,7 @@ Steps:
    - Contents: Read and write (for `git push`)
    - Pull requests: Read and write (for `gh pr create`)
    - Metadata: Read-only (auto-required)
-6. Generate. Copy the `github_pat_...` value immediately — you won't see it again.
+6. Generate. Copy the `github_pat_...` value immediately - you won't see it again.
 
 ## Authenticate gh CLI on the VPS
 
@@ -102,4 +104,8 @@ Set a calendar reminder.
 
 ## Next
 
-[07 — Add team access](../07-team-access/)
+[07 - Add team access](../07-team-access/)
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

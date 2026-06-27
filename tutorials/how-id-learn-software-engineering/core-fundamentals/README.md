@@ -1,5 +1,7 @@
 # Core Fundamentals
 
+This is the supporting material for the video: Core Fundamentals.
+
 Learn one language deeply. Python. Not because you'll write production code by hand forever, but because you need to read and review what AI generates.
 
 ## What to Learn
@@ -36,3 +38,7 @@ Learn one language deeply. Python. Not because you'll write production code by h
 ## The Test
 
 Can you read a 50-line Python function you've never seen and explain what it does? Can you spot the bug in AI-generated code that looks correct? If yes, you're ready for Branch 2.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

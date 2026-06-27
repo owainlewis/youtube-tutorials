@@ -1,5 +1,7 @@
 # Multi-Provider Setup
 
+This is the supporting material for the video: Multi-Provider Setup.
+
 One of Pi's strongest features: switch between LLM providers mid-session. Use Claude for complex reasoning, GPT for speed, Gemini for large context, or a local model for privacy.
 
 ## Built-in Providers
@@ -111,3 +113,7 @@ The key insight: you don't need the most expensive model for every message. Swit
 ## Changes Are Live
 
 `models.json` is hot-reloaded. Edit it, save, and new models appear in the Ctrl+P cycle immediately. No restart needed.
+
+## Go Deeper
+
+To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).
