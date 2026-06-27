@@ -64,7 +64,7 @@ def _build_logger(log_path: Path, level: int) -> logging.Logger:
         logger.addHandler(handler)
 
     logger.setLevel(level)
-    # Never propagate to the root logger — keeps output out of the console.
+    # Never propagate to the root logger - keeps output out of the console.
     logger.propagate = False
     return logger
 
@@ -154,7 +154,7 @@ def register_logging_listeners(
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     logger = _build_logger(log_path, level)
-    logger.info("Logging listener initialised — writing to %s", log_path.resolve())
+    logger.info("Logging listener initialised - writing to %s", log_path.resolve())
 
     handlers = _make_handlers(logger)
     for event_type, handler in handlers.items():

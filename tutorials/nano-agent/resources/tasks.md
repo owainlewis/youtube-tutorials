@@ -8,7 +8,7 @@
 ---
 
 ## Phase 1: Working Conversational Agent with UI
-**Goal**: `uv run nano-agent` starts with a polished Rich UI, sends user input to the Anthropic API with extended thinking, displays the thinking trace and response with proper styling. No tools yet — just a beautiful conversational agent loop.
+**Goal**: `uv run nano-agent` starts with a polished Rich UI, sends user input to the Anthropic API with extended thinking, displays the thinking trace and response with proper styling. No tools yet - just a beautiful conversational agent loop.
 **Requirements covered**: FR-01, FR-02, FR-03, FR-04, FR-05, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19, FR-20, NFR-02, NFR-04, NFR-05
 
 <task id="1.1">
@@ -33,7 +33,7 @@
     Create `src/nano_agent/__init__.py` with `__version__ = "0.1.0"`.
   </action>
   <verify>
-    Run `uv sync` — exits without error, `.venv` is created.
+    Run `uv sync` - exits without error, `.venv` is created.
   </verify>
   <depends_on></depends_on>
 </task>
@@ -42,9 +42,9 @@
   <title>Implement event bus with lifecycle events</title>
   <context>
     The event bus is a single-file module (~50 lines). Events are dataclasses. The bus has three methods:
-    `on(event_type, async_callback)` — register a listener.
-    `emit(event)` — call all registered listeners for that event type.
-    `emit_approval(event) -> bool` — special method for `PreToolUse` that returns True if approved.
+    `on(event_type, async_callback)` - register a listener.
+    `emit(event)` - call all registered listeners for that event type.
+    `emit_approval(event) -> bool` - special method for `PreToolUse` that returns True if approved.
     Event types: `PreToolUse(tool_name, tool_params)`, `PostToolUse(tool_name, result)`,
     `Stop(text)`, `SubagentStart(task)`, `SubagentStop(task, result)`.
     All listeners are async callables. Listeners are called in registration order.
@@ -63,12 +63,12 @@
     - `SubagentStop` has fields: `task: str`, `result: str`.
     - Class `EventBus` with:
       - `self._listeners: dict[type, list[Callable]]` initialized as defaultdict(list).
-      - `on(event_type, callback)` — appends callback to the list for that type.
-      - `async emit(event)` — iterates `self._listeners[type(event)]` and awaits each callback with the event.
-      - `async emit_approval(event: PreToolUse) -> bool` — calls each listener; if any returns False, return False. Default True.
+      - `on(event_type, callback)` - appends callback to the list for that type.
+      - `async emit(event)` - iterates `self._listeners[type(event)]` and awaits each callback with the event.
+      - `async emit_approval(event: PreToolUse) -> bool` - calls each listener; if any returns False, return False. Default True.
   </action>
   <verify>
-    Run `uv run pytest tests/test_events.py` — write a quick test that registers a listener, emits an event, and asserts the listener was called. Test approval gate returns True by default and False when a listener denies.
+    Run `uv run pytest tests/test_events.py` - write a quick test that registers a listener, emits an event, and asserts the listener was called. Test approval gate returns True by default and False when a listener denies.
   </verify>
   <depends_on>1.1</depends_on>
 </task>
@@ -104,7 +104,7 @@
     Create `providers/__init__.py` that re-exports `Provider`, `AnthropicProvider`, `ProviderResponse`.
   </action>
   <verify>
-    Run `uv run python -c "from nano_agent.providers import AnthropicProvider; print('OK')"` — no import errors.
+    Run `uv run python -c "from nano_agent.providers import AnthropicProvider; print('OK')"` - no import errors.
   </verify>
   <depends_on>1.1</depends_on>
 </task>
@@ -113,20 +113,20 @@
   <title>Implement the core agent loop</title>
   <context>
     The agent loop manages conversation history, calls the provider, emits events, and dispatches tools.
-    It contains ZERO UI or approval logic — all side effects go through the event bus.
+    It contains ZERO UI or approval logic - all side effects go through the event bus.
     The loop: append user message -> call provider -> if tool_use blocks, emit PreToolUse, await approval,
     execute tool (or deny), emit PostToolUse, loop back to provider -> if text only, emit Stop, return text.
     Conversation history is a list of message dicts kept in memory (FR-03).
     The agent is initialized with a Provider, EventBus, tool registry (dict), and system prompt string.
     A system prompt constant is defined in `system_prompt.py`.
-    For this task, the tools dict will be empty — just get the text-only conversational loop working.
+    For this task, the tools dict will be empty - just get the text-only conversational loop working.
   </context>
   <files>
     src/nano_agent/agent.py
     src/nano_agent/system_prompt.py
   </files>
   <action>
-    Create `system_prompt.py` with a `SYSTEM_PROMPT` string constant — short text describing the agent as a coding assistant that uses tools to interact with the filesystem.
+    Create `system_prompt.py` with a `SYSTEM_PROMPT` string constant - short text describing the agent as a coding assistant that uses tools to interact with the filesystem.
 
     Create `agent.py` with:
     - Class `Agent` initialized with `provider: Provider`, `event_bus: EventBus`, `tools: dict`, `system_prompt: str = SYSTEM_PROMPT`.
@@ -168,7 +168,7 @@
     UI rendering: `PreToolUse` -> panel showing tool name + params. `PostToolUse` -> panel showing result (truncated to 10000 chars). `Stop` -> Rich markdown rendering. `SubagentStart`/`SubagentStop` -> brief status lines.
     Approval: prompts via `Console.input("[y/n]")`, returns True for "y", False otherwise.
     Each listener module exports a `register_*_listeners(event_bus)` function.
-    The UI should look polished from the start — this is what users see first.
+    The UI should look polished from the start - this is what users see first.
   </context>
   <files>
     src/nano_agent/listeners/__init__.py
@@ -178,33 +178,33 @@
   <action>
     Create `listeners/ui.py` with:
     - A Rich `Console` instance.
-    - `async def on_pre_tool_use(event: PreToolUse)` — print a Rich Panel with title=tool_name, body=JSON-formatted params.
-    - `async def on_post_tool_use(event: PostToolUse)` — print result text (truncated to 10000 chars) in a dim panel.
-    - `async def on_stop(event: Stop)` — print event.text as Rich Markdown.
-    - `async def on_subagent_start(event: SubagentStart)` — print a status line like "Sub-agent started: {task}".
-    - `async def on_subagent_stop(event: SubagentStop)` — print "Sub-agent done: {task}".
-    - `def register_ui_listeners(event_bus: EventBus)` — calls `event_bus.on()` for each handler.
+    - `async def on_pre_tool_use(event: PreToolUse)` - print a Rich Panel with title=tool_name, body=JSON-formatted params.
+    - `async def on_post_tool_use(event: PostToolUse)` - print result text (truncated to 10000 chars) in a dim panel.
+    - `async def on_stop(event: Stop)` - print event.text as Rich Markdown.
+    - `async def on_subagent_start(event: SubagentStart)` - print a status line like "Sub-agent started: {task}".
+    - `async def on_subagent_stop(event: SubagentStop)` - print "Sub-agent done: {task}".
+    - `def register_ui_listeners(event_bus: EventBus)` - calls `event_bus.on()` for each handler.
 
     Create `listeners/approval.py` with:
-    - `async def on_pre_tool_use(event: PreToolUse) -> bool` — uses Rich Console to prompt "Allow {tool_name}? [y/n]", returns True if input starts with "y".
-    - `def register_approval_listener(event_bus: EventBus)` — registers the handler.
+    - `async def on_pre_tool_use(event: PreToolUse) -> bool` - uses Rich Console to prompt "Allow {tool_name}? [y/n]", returns True if input starts with "y".
+    - `def register_approval_listener(event_bus: EventBus)` - registers the handler.
 
     Create `listeners/__init__.py` that re-exports both register functions.
   </action>
   <verify>
-    Run `uv run python -c "from nano_agent.listeners import register_ui_listeners, register_approval_listener; print('OK')"` — no import errors.
+    Run `uv run python -c "from nano_agent.listeners import register_ui_listeners, register_approval_listener; print('OK')"` - no import errors.
   </verify>
   <depends_on>1.2</depends_on>
 </task>
 
 <task id="1.6">
-  <title>Wire everything together in main.py — working conversational agent</title>
+  <title>Wire everything together in main.py - working conversational agent</title>
   <context>
     `main.py` is the CLI entry point. It creates the provider, event bus, agent, registers listeners, and runs the REPL.
     The provider is AnthropicProvider. API key comes from `ANTHROPIC_API_KEY` env var.
     Model is configurable via `--model` CLI flag or `NANO_AGENT_MODEL` env var, default `claude-sonnet-4-20250514`.
     Use `argparse` for CLI args (just `--model` and `--max-tokens`).
-    No tools registered yet — the agent is conversational only but with full Rich UI.
+    No tools registered yet - the agent is conversational only but with full Rich UI.
     Error handling: catch `ProviderError` in the REPL loop, print the error via Rich, continue.
     Catches KeyboardInterrupt/EOFError for clean exit with code 0, no traceback.
     This is the milestone: run `uv run nano-agent`, have a conversation, see thinking traces and styled responses.
@@ -229,7 +229,7 @@
     - `def main()`: wraps `asyncio.run(run())` in try/except for KeyboardInterrupt and EOFError, prints goodbye, exits 0.
   </action>
   <verify>
-    Set `ANTHROPIC_API_KEY` env var. Run `uv run nano-agent`. See welcome banner. Type "What is 2+2?". See the thinking trace rendered in a styled panel, then the response rendered as Rich markdown. Type another question — conversation history is maintained. Press Ctrl+C — clean exit with no traceback.
+    Set `ANTHROPIC_API_KEY` env var. Run `uv run nano-agent`. See welcome banner. Type "What is 2+2?". See the thinking trace rendered in a styled panel, then the response rendered as Rich markdown. Type another question - conversation history is maintained. Press Ctrl+C - clean exit with no traceback.
   </verify>
   <depends_on>1.4, 1.5</depends_on>
 </task>
@@ -258,7 +258,7 @@
   <action>
     Create `tools/__init__.py`:
     - `MAX_OUTPUT = 10000` constant.
-    - `def get_tools() -> dict` — returns registry dict for all tools. Start with read_file and edit_file.
+    - `def get_tools() -> dict` - returns registry dict for all tools. Start with read_file and edit_file.
 
     Create `tools/read_file.py`:
     - `async def read_file(file_path: str) -> str`: read file at path, return contents. On FileNotFoundError or PermissionError, return error message string. Truncate output to 10000 chars with a "[truncated]" suffix.
@@ -267,13 +267,13 @@
     Create `tools/edit_file.py`:
     - `async def edit_file(file_path: str, old_string: str, new_string: str) -> str`:
       1. Read the file. Return error if not found.
-      2. Check that `old_string` appears exactly once. If zero: return "old_string not found in file". If multiple: return "old_string is not unique — provide more context".
+      2. Check that `old_string` appears exactly once. If zero: return "old_string not found in file". If multiple: return "old_string is not unique - provide more context".
       3. Replace and write back.
       4. Return f"Successfully edited {file_path}".
     - `SCHEMA` dict.
   </action>
   <verify>
-    Run `uv run pytest tests/test_tools.py` — write tests: read_file reads a temp file correctly, returns error for missing file, truncates large output. edit_file replaces a unique string, fails on missing string, fails on ambiguous match.
+    Run `uv run pytest tests/test_tools.py` - write tests: read_file reads a temp file correctly, returns error for missing file, truncates large output. edit_file replaces a unique string, fails on missing string, fails on ambiguous match.
   </verify>
   <depends_on>1.1</depends_on>
 </task>
@@ -283,9 +283,9 @@
   <context>
     Three file-system tools, each following the same pattern as read_file:
     async function + SCHEMA dict. Errors returned as strings, not raised.
-    `write_file(file_path, content)` — writes content to file, creating parent dirs if needed. Returns confirmation.
-    `find_files(pattern, path=".")` — uses `glob.glob(pattern, recursive=True)` relative to path. Returns newline-separated list of matches.
-    `list_directory(path=".")` — uses `os.listdir`. Returns newline-separated list of entries with type indicators (/ for dirs).
+    `write_file(file_path, content)` - writes content to file, creating parent dirs if needed. Returns confirmation.
+    `find_files(pattern, path=".")` - uses `glob.glob(pattern, recursive=True)` relative to path. Returns newline-separated list of matches.
+    `list_directory(path=".")` - uses `os.listdir`. Returns newline-separated list of entries with type indicators (/ for dirs).
   </context>
   <files>
     src/nano_agent/tools/write_file.py
@@ -309,7 +309,7 @@
     Update `tools/__init__.py` to register all three new tools in `get_tools()`.
   </action>
   <verify>
-    Run `uv run pytest tests/test_tools.py` — add tests for each: write_file creates a file and returns confirmation, find_files finds matching files, list_directory lists entries with "/" suffix for dirs.
+    Run `uv run pytest tests/test_tools.py` - add tests for each: write_file creates a file and returns confirmation, find_files finds matching files, list_directory lists entries with "/" suffix for dirs.
   </verify>
   <depends_on>2.1</depends_on>
 </task>
@@ -318,7 +318,7 @@
   <title>Implement run_bash tool</title>
   <context>
     `run_bash` executes arbitrary bash commands via `asyncio.create_subprocess_shell`.
-    No restrictions on what commands can be run — the user approval listener gates execution.
+    No restrictions on what commands can be run - the user approval listener gates execution.
     Returns combined stdout + stderr. Truncated to 10000 characters.
     Has a default timeout of 30 seconds. On timeout, kills the process and returns a timeout message.
   </context>
@@ -340,7 +340,7 @@
     Update `tools/__init__.py` to register run_bash.
   </action>
   <verify>
-    Run `uv run pytest tests/test_tools.py` — test `run_bash("echo hello")` returns "Exit code: 0\nhello\n". Test a failing command returns non-zero exit code.
+    Run `uv run pytest tests/test_tools.py` - test `run_bash("echo hello")` returns "Exit code: 0\nhello\n". Test a failing command returns non-zero exit code.
   </verify>
   <depends_on>2.1</depends_on>
 </task>
@@ -375,7 +375,7 @@
   <title>Implement spawn_agent tool with parallel execution</title>
   <context>
     `spawn_agent` creates a new Agent instance with its own EventBus and conversation history.
-    The sub-agent gets the SAME provider and tools as the parent (minus spawn_agent itself — no recursion).
+    The sub-agent gets the SAME provider and tools as the parent (minus spawn_agent itself - no recursion).
     The sub-agent's EventBus gets an auto-approve listener (returns True for all PreToolUse events).
     When the parent agent encounters multiple spawn_agent tool_use blocks in a single turn,
     it runs them concurrently via `asyncio.gather()`. This logic lives in the agent loop, not in the tool itself.
@@ -389,7 +389,7 @@
   <action>
     Create `tools/spawn_agent.py`:
     - `SCHEMA` with: name="spawn_agent", description="Spawn a sub-agent to handle a subtask independently", input_schema with `task` (required string).
-    - No function export needed — the agent loop handles sub-agent creation directly.
+    - No function export needed - the agent loop handles sub-agent creation directly.
 
     Update `agent.py` to handle `spawn_agent` specially in the tool dispatch:
     - When processing tool_use blocks, collect all `spawn_agent` calls into a list.
@@ -399,7 +399,7 @@
     - Emit `SubagentStop(task, result)` for each on the PARENT event bus.
     - Use results as the tool results.
 
-    Update `tools/__init__.py` to include spawn_agent schema (but no function — agent handles it).
+    Update `tools/__init__.py` to include spawn_agent schema (but no function - agent handles it).
   </action>
   <verify>
     Write `tests/test_agent.py` test: mock provider returns two spawn_agent tool_use blocks, then a text response. Mock sub-agent provider returns text immediately. Assert both SubagentStart and SubagentStop events are emitted, and results are fed back to the parent.
@@ -428,14 +428,14 @@
     Write tests in `tests/test_events.py`:
     - test_emit_calls_listener: register a listener, emit event, assert called with correct event.
     - test_emit_multiple_listeners: register two listeners, emit, assert both called in order.
-    - test_emit_no_listeners: emit with no listeners registered — no error.
+    - test_emit_no_listeners: emit with no listeners registered - no error.
     - test_approval_default_true: emit_approval with no listeners returns True.
     - test_approval_approved: register listener returning True, assert emit_approval returns True.
     - test_approval_denied: register listener returning False, assert emit_approval returns False.
     - test_approval_multiple_listeners_one_denies: register two listeners (True, False), assert False.
   </action>
   <verify>
-    Run `uv run pytest tests/test_events.py -v` — all tests pass.
+    Run `uv run pytest tests/test_events.py -v` - all tests pass.
   </verify>
   <depends_on>1.2</depends_on>
 </task>
@@ -463,7 +463,7 @@
     - test_conversation_history: call agent.run() twice -> history contains both exchanges.
   </action>
   <verify>
-    Run `uv run pytest tests/test_agent.py -v` — all tests pass.
+    Run `uv run pytest tests/test_agent.py -v` - all tests pass.
   </verify>
   <depends_on>1.4</depends_on>
 </task>
@@ -473,7 +473,7 @@
   <context>
     Each tool function should be tested with valid inputs, edge cases, and error cases.
     Use pytest `tmp_path` fixture for all filesystem operations.
-    All tool functions are async — use `pytest-asyncio` or `asyncio.run()` in tests.
+    All tool functions are async - use `pytest-asyncio` or `asyncio.run()` in tests.
   </context>
   <files>
     tests/test_tools.py
@@ -488,7 +488,7 @@
     - run_bash: runs echo command, handles failing command (non-zero exit), handles timeout.
   </action>
   <verify>
-    Run `uv run pytest tests/test_tools.py -v` — all tests pass.
+    Run `uv run pytest tests/test_tools.py -v` - all tests pass.
   </verify>
   <depends_on>2.1, 2.2, 2.3</depends_on>
 </task>
@@ -513,7 +513,7 @@
     - test_send_wraps_api_error: mock raises `anthropic.APIError` -> ProviderError raised.
   </action>
   <verify>
-    Run `uv run pytest tests/test_providers.py -v` — all tests pass.
+    Run `uv run pytest tests/test_providers.py -v` - all tests pass.
   </verify>
   <depends_on>1.3</depends_on>
 </task>

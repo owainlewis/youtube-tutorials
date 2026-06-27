@@ -17,7 +17,7 @@ class Thinking:
 
 @dataclass
 class PreToolUse:
-    """Emitted before a tool is executed. Approval gate — listeners return True/False."""
+    """Emitted before a tool is executed. Approval gate - listeners return True/False."""
 
     tool_name: str
     tool_params: dict

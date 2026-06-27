@@ -21,7 +21,7 @@ console = Console()
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Nano Agent — a minimal coding agent")
+    parser = argparse.ArgumentParser(description="Nano Agent - a minimal coding agent")
     parser.add_argument(
         "--config",
         default=None,

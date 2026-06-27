@@ -45,7 +45,7 @@ def test_emit_no_listeners():
 
 
 def test_approval_default_true():
-    """No approval handler registered — defaults to True."""
+    """No approval handler registered - defaults to True."""
     bus = EventBus()
     result = asyncio.run(bus.emit_approval(PreToolUse(tool_name="test", tool_params={})))
     assert result is True
@@ -89,7 +89,7 @@ def test_emit_approval_also_notifies_listeners():
 
     event = PreToolUse(tool_name="test", tool_params={})
 
-    # emit calls on() listeners — does not call approval handler
+    # emit calls on() listeners - does not call approval handler
     asyncio.run(bus.emit(event))
     assert len(ui_events) == 1
 

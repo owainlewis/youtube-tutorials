@@ -1,4 +1,4 @@
-"""Edit file tool — exact string replacement."""
+"""Edit file tool - exact string replacement."""
 
 SCHEMA = {
     "name": "edit_file",
@@ -39,7 +39,7 @@ async def edit_file(file_path: str, old_string: str, new_string: str) -> str:
     if first == -1:
         return "Error: old_string not found in file"
     if content.find(old_string, first + 1) != -1:
-        return "Error: old_string is not unique — provide more context"
+        return "Error: old_string is not unique - provide more context"
 
     new_content = content[:first] + new_string + content[first + len(old_string):]
 

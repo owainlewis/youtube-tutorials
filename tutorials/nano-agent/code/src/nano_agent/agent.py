@@ -16,7 +16,7 @@ from nano_agent.system_prompt import SYSTEM_PROMPT
 
 
 class Agent:
-    """The agent loop. Contains zero UI or approval logic — all side effects go through the event bus."""
+    """The agent loop. Contains zero UI or approval logic - all side effects go through the event bus."""
 
     def __init__(
         self,
@@ -50,7 +50,7 @@ class Agent:
             text_blocks = [b for b in response.content if isinstance(b, TextBlock)]
 
             if tool_use_blocks:
-                # Build assistant message — include thinking blocks for multi-turn
+                # Build assistant message - include thinking blocks for multi-turn
                 assistant_content = []
                 if response.thinking:
                     assistant_content.append({
@@ -111,7 +111,7 @@ class Agent:
                 self.history.append({"role": "user", "content": tool_results})
 
             else:
-                # Text-only response — we're done
+                # Text-only response - we're done
                 text = "\n".join(b.text for b in text_blocks)
                 # Echo thinking in history for multi-turn extended thinking
                 if response.thinking:

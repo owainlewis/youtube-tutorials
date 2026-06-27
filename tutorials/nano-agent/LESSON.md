@@ -4,7 +4,27 @@ A working AI coding agent that runs in the terminal like Claude Code etc.
 
 This was built as part of a YouTube tutorial and is for educational purposes only.
 
-# How Coding Agents Work
+## Run The Code
+
+The runnable project lives in [code/](./code/).
+
+From this tutorial folder:
+
+```bash
+cd code
+uv sync
+cp nano-agent.example.yml nano-agent.yml
+export ANTHROPIC_API_KEY="sk-..."
+uv run nano-agent
+```
+
+Run the tests from the same folder:
+
+```bash
+uv run pytest
+```
+
+## How Coding Agents Work
 
 A coding agent is a loop. Strip away the frameworks and abstractions and you're left with this:
 
@@ -272,3 +292,11 @@ nano-agent is a teaching tool. Things we skipped:
 - **Cost tracking** - no token counting or budget limits
 
 The core loop stays the same when you add these. They're good follow-up projects.
+
+## References
+
+- Architecture notes: [resources/architecture.md](./resources/architecture.md)
+- Requirements: [resources/requirements.md](./resources/requirements.md)
+- Implementation tasks: [resources/tasks.md](./resources/tasks.md)
+- Original plan: [resources/plan.md](./resources/plan.md)
+- Claude settings example: [resources/claude-settings.example.json](./resources/claude-settings.example.json)

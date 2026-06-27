@@ -26,7 +26,7 @@ Developers who want to build their own coding agents have no simple, readable re
 - FR-13: Sub-agent results are collected and returned to the parent agent as tool results.
 - FR-14: The agent loop emits lifecycle events at each stage: `PreToolUse`, `PostToolUse`, `Stop`, `SubagentStart`, `SubagentStop`.
 - FR-15: Event listeners can be registered on the agent to respond to lifecycle events. Listeners are async callables that receive the event.
-- FR-16: A listener can control flow by returning a value — e.g., a `PreToolUse` listener returns approve/deny to gate tool execution.
+- FR-16: A listener can control flow by returning a value - e.g., a `PreToolUse` listener returns approve/deny to gate tool execution.
 - FR-17: The terminal UI (Rich) is implemented as a set of event listeners, not called directly by the agent loop.
 - FR-18: Tool call approval is implemented as an event listener on `PreToolUse`, keeping the approval logic outside the agent loop.
 - FR-19: The agent does not use streaming; it waits for the full API response before displaying output.
@@ -35,10 +35,10 @@ Developers who want to build their own coding agents have no simple, readable re
 
 ## Non-Functional Requirements
 <nfr>
-- NFR-01: The codebase is structured for readability — simple modules, clear naming, minimal abstraction. A developer unfamiliar with the project can understand the full agent loop by reading the code.
+- NFR-01: The codebase is structured for readability - simple modules, clear naming, minimal abstraction. A developer unfamiliar with the project can understand the full agent loop by reading the code.
 - NFR-02: The project is installable and runnable via `uv` (no pip/poetry).
 - NFR-03: The project uses `pytest` for testing.
-- NFR-04: The agent handles API errors (rate limits, network failures) with clear error messages displayed to the user — no silent failures.
+- NFR-04: The agent handles API errors (rate limits, network failures) with clear error messages displayed to the user - no silent failures.
 - NFR-05: The agent exits cleanly on Ctrl+C / EOF without traceback.
 </nfr>
 
@@ -56,18 +56,18 @@ Developers who want to build their own coding agents have no simple, readable re
 - A developer can clone the repo, run `uv run nano-agent`, and interact with a working coding agent within 2 minutes.
 - A developer can read and understand the entire agent loop (prompt → API call → tool execution → response) in under 30 minutes.
 - All 6 tools (read_file, write_file, find_files, list_directory, run_bash, spawn_agent) execute correctly and display their results in the terminal.
-- The agent loop contains zero UI or approval logic — all side effects are handled by event listeners.
+- The agent loop contains zero UI or approval logic - all side effects are handled by event listeners.
 - The thinking trace and tool call display are visually distinct and easy to follow in the terminal.
 
 ## Assumptions
 - [ASSUMED] Python 3.12+ is the minimum supported version (per project standards).
-- [ASSUMED] The default Anthropic model is Claude Sonnet (latest) — configurable via environment variable or CLI flag.
+- [ASSUMED] The default Anthropic model is Claude Sonnet (latest) - configurable via environment variable or CLI flag.
 - [ASSUMED] The Anthropic API key is provided via the `ANTHROPIC_API_KEY` environment variable.
 - [ASSUMED] Tool call approval is a simple y/n prompt per tool call (no batch approval or "approve all" mode).
 - [ASSUMED] No authentication, permissions, or sandboxing for bash command execution.
 - [ASSUMED] The Rich library is used for terminal UI rendering.
 
 ## Open Questions
-- [TBD] Should tool results (e.g., file contents, command output) be truncated after a certain length to keep the terminal readable? — Affects UX for large files/outputs. (YES)
-- [TBD] Should the agent have a system prompt that defines its persona and capabilities, or is the tool list sufficient? — Affects response quality. (YES we need a basic agent system prompt)
-- [TBD] What is the CLI entry point name? (`nano-agent`, `na`, something else?) — Affects packaging and pyproject.toml config.
+- [TBD] Should tool results (e.g., file contents, command output) be truncated after a certain length to keep the terminal readable? - Affects UX for large files/outputs. (YES)
+- [TBD] Should the agent have a system prompt that defines its persona and capabilities, or is the tool list sufficient? - Affects response quality. (YES we need a basic agent system prompt)
+- [TBD] What is the CLI entry point name? (`nano-agent`, `na`, something else?) - Affects packaging and pyproject.toml config.
