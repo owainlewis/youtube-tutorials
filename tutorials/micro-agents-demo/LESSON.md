@@ -1,6 +1,6 @@
 # Micro Agents Demo
 
-A YouTube research agent built with the [Micro Agent](docs/spec.md) pattern.
+A YouTube research agent built with the [Micro Agent](resources/docs/spec.md) pattern.
 
 ## What is a Micro Agent?
 
@@ -29,6 +29,7 @@ This repo contains a working YouTube research agent that can:
 1. **Set up environment**
 
 ```bash
+cd code
 cp .env.example .env
 # Add your YOUTUBE_API_KEY
 ```
@@ -54,20 +55,16 @@ The agent reads the instructions, discovers the tools, and gets to work.
 ```
 micro-agents-demo/
 ├── resources/
-│   └── AGENTS.md             # Agent identity and instructions
-├── tools/
-│   └── youtube.py           # YouTube API wrapper
-├── context/
-│   ├── script-guide.md      # How to write scripts
-│   ├── title-guide.md       # How to write titles
-│   └── templates/
-│       └── metadata.md      # Video upload template
-├── workspace/
-│   ├── projects/            # Video project folders
-│   ├── research/            # Topic research
-│   └── transcripts/         # Downloaded transcripts
-└── docs/
-    └── spec.md              # The micro agent specification
+│   ├── AGENTS.md             # Agent identity and instructions
+│   ├── context/              # Script, title, and metadata guidance
+│   └── docs/
+│       └── spec.md           # The micro agent specification
+├── code/
+│   ├── .env.example          # Credentials template
+│   ├── pyproject.toml        # Python project
+│   ├── workspace/            # Projects, research, transcripts
+│   └── tools/
+│       └── youtube.py        # YouTube API wrapper
 ```
 
 ## Tools
@@ -75,30 +72,34 @@ micro-agents-demo/
 ### search_videos
 
 ```bash
+cd code
 uv run tools/youtube.py search_videos "AI agents" --max 10 --json
 ```
 
 ### get_channel_videos
 
 ```bash
+cd code
 uv run tools/youtube.py get_channel_videos @daveebbelaar --days 365 --json
 ```
 
 ### get_transcript
 
 ```bash
+cd code
 uv run tools/youtube.py get_transcript VIDEO_ID
 ```
 
 ### upload
 
 ```bash
+cd code
 uv run tools/youtube.py upload video.mp4 --metadata metadata.md
 ```
 
 ## The Pattern
 
-Read [docs/spec.md](docs/spec.md) for the full micro agent specification.
+Read [resources/docs/spec.md](resources/docs/spec.md) for the full micro agent specification.
 
 The key insight: if it runs from a terminal, it's a tool. No wrappers. No schemas. 50 years of Unix tools work out of the box.
 

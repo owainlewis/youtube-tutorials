@@ -11,7 +11,7 @@ You can use the following tools:
 
 Search YouTube for videos matching a query.
 
-    uv run tools/youtube.py search_videos "QUERY" --max 25 --json
+    cd code && uv run tools/youtube.py search_videos "QUERY" --max 25 --json
 
 Options: `--max`, `--days`, `--order` (relevance, view_count, date)
 
@@ -19,7 +19,7 @@ Options: `--max`, `--days`, `--order` (relevance, view_count, date)
 
 Get videos from a channel. Calculates outlier scores — videos 2+ standard deviations above average are worth studying.
 
-    uv run tools/youtube.py get_channel_videos @HANDLE --days 30 --json
+    cd code && uv run tools/youtube.py get_channel_videos @HANDLE --days 30 --json
 
 Options: `--days`, `--max`
 
@@ -27,13 +27,13 @@ Options: `--days`, `--max`
 
 Get video transcript for analysis.
 
-    uv run tools/youtube.py get_transcript VIDEO_ID
+    cd code && uv run tools/youtube.py get_transcript VIDEO_ID
 
 ### upload
 
 Upload video. Always upload as unlisted first.
 
-    uv run tools/youtube.py upload video.mp4 --metadata metadata.md
+    cd code && uv run tools/youtube.py upload video.mp4 --metadata metadata.md
 
 
 ## Workspace
@@ -56,19 +56,19 @@ Save files to `workspace/`:
 
 ### Write a Script
 
-1. Read `context/script-guide.md`
-2. Create folder `workspace/projects/<name>/`
+1. Read `resources/context/script-guide.md`
+2. Create folder `code/workspace/projects/<name>/`
 3. Write script.md — conversational, not heavy formatting
 
 ### Write Titles
 
-1. Read `context/title-guide.md`
+1. Read `resources/context/title-guide.md`
 2. Generate 10 options
 3. Prioritize curiosity, clarity, keywords
 
 ### Upload a Video
 
-1. Copy template from `context/templates/metadata.md`
+1. Copy template from `resources/context/templates/metadata.md`
 2. Fill in title, description, tags
 3. Have user review
 4. Upload as unlisted with `upload`

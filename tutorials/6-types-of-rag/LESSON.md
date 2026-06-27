@@ -9,6 +9,7 @@ Real code examples showing six retrieval strategies for RAG, from simple documen
 ### 1. Start PostgreSQL
 
 ```bash
+cd code
 docker compose up -d
 ```
 
@@ -40,7 +41,8 @@ uv run src/01_document_loading.py   # Load full docs into prompt
 uv run src/02_full_text_search.py   # PostgreSQL keyword search
 uv run src/03_vector_search.py      # OpenAI embeddings + pgvector semantic search
 uv run src/04_hybrid_search.py      # Combined FTS + vector with RRF
-uv run src/05_sql_rag.py            # LLM generates SQL queries
+uv run src/05a_sql_rag_parameterized.py # LLM uses safe parameterized SQL
+uv run src/05b_sql_rag_dynamic.py       # LLM generates SQL queries
 uv run src/06_agentic_rag.py        # Agent picks the right strategy
 ```
 

@@ -14,7 +14,7 @@ I recommend Claude Code. But Cursor, Codex, and others work too. The point is: p
 
 The biggest lever is giving your AI tool context about your project. In Claude Code, this is a `CLAUDE.md` file at the root of your project.
 
-See [resources/ai-tools/CLAUDE.md](../resources/ai-tools/CLAUDE.md) for an example.
+See [CLAUDE.md](./CLAUDE.md) for an example.
 
 A good context file includes:
 - What the project is and how it's structured

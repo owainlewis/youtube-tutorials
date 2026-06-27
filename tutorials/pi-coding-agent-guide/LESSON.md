@@ -47,12 +47,12 @@ git clone https://github.com/owainlewis/youtube-tutorials.git
 cd youtube-tutorials/tutorials/pi-coding-agent-guide
 
 # Copy extensions to your Pi config
-cp 03-extensions/permission-gate.ts ~/.pi/agent/extensions/
-cp 03-extensions/git-checkpoint.ts ~/.pi/agent/extensions/
-cp 03-extensions/cost-tracker.ts ~/.pi/agent/extensions/
+cp resources/03-extensions/permission-gate.ts ~/.pi/agent/extensions/
+cp resources/03-extensions/git-checkpoint.ts ~/.pi/agent/extensions/
+cp resources/03-extensions/cost-tracker.ts ~/.pi/agent/extensions/
 
 # Copy the multi-provider config
-cp 06-multi-provider/models.json ~/.pi/agent/models.json
+cp resources/06-multi-provider/models.json ~/.pi/agent/models.json
 
 # Start Pi (extensions auto-load)
 pi
@@ -73,20 +73,20 @@ Pi itself is free. You pay for the LLM.
 
 **Quick version:** Claude needs an API key. OpenAI works with your existing subscription. Switch models mid-session with `Ctrl+P`.
 
-See [00-pricing/](./00-pricing/) for the full breakdown.
+See [resources/00-pricing/](./resources/00-pricing/) for the full breakdown.
 
 ## Extensions Included
 
 | Extension | What it does |
 |-----------|-------------|
-| [permission-gate.ts](./03-extensions/permission-gate.ts) | Block dangerous bash commands |
-| [git-checkpoint.ts](./03-extensions/git-checkpoint.ts) | Auto-stash before each agent turn |
-| [cost-tracker.ts](./03-extensions/cost-tracker.ts) | Track token spend + `/cost` command |
-| [slash-command.ts](./03-extensions/slash-command.ts) | Custom `/review` and `/explain` commands |
+| [permission-gate.ts](./resources/03-extensions/permission-gate.ts) | Block dangerous bash commands |
+| [git-checkpoint.ts](./resources/03-extensions/git-checkpoint.ts) | Auto-stash before each agent turn |
+| [cost-tracker.ts](./resources/03-extensions/cost-tracker.ts) | Track token spend + `/cost` command |
+| [slash-command.ts](./resources/03-extensions/slash-command.ts) | Custom `/review` and `/explain` commands |
 
 ## Coming from Claude Code?
 
-See the [migration guide](./05-claude-code-migration/). Your CLAUDE.md files work as-is. Most features have equivalents. The main gaps are MCP (use extensions instead) and permission modes (use the permission-gate extension).
+See the [migration guide](./resources/05-claude-code-migration/). Your CLAUDE.md files work as-is. Most features have equivalents. The main gaps are MCP (use extensions instead) and permission modes (use the permission-gate extension).
 
 ## Requirements
 

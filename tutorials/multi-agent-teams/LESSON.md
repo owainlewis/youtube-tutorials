@@ -202,13 +202,13 @@ The Kanban states match the review states: `Backlog -> In Progress -> Drafted ->
 
 Read these in order. Each one builds on the previous.
 
-1. [01 - Provision a VPS](./01-vps-setup/) - Hostinger, base tooling, hardening
-2. [02 - Install Claude Code](./02-claude-code/) - npm install, API key, the headless OAuth dance
-3. [03 - Install Hermes Agent](./03-hermes-agent/) - install + configure
-4. [04 - Install Multica](./04-multica/) - self-host, reverse proxy, first-run config
-5. [05 - Configure specialized agents](./05-skills-and-agents/) - skill files, agent definitions, scheduled automation
-6. [06 - Connect Multica to Git](./06-git-access/) - fine-grained PAT, gh CLI, manual PR test
-7. [07 - Add team access](./07-team-access/) - Multica auth, multi-user, the verification test
+1. [01 - Provision a VPS](./resources/01-vps-setup/) - Hostinger, base tooling, hardening
+2. [02 - Install Claude Code](./resources/02-claude-code/) - npm install, API key, the headless OAuth dance
+3. [03 - Install Hermes Agent](./resources/03-hermes-agent/) - install + configure
+4. [04 - Install Multica](./resources/04-multica/) - self-host, reverse proxy, first-run config
+5. [05 - Configure specialized agents](./resources/05-skills-and-agents/) - skill files, agent definitions, scheduled automation
+6. [06 - Connect Multica to Git](./resources/06-git-access/) - fine-grained PAT, gh CLI, manual PR test
+7. [07 - Add team access](./resources/07-team-access/) - Multica auth, multi-user, the verification test
 
 The first three steps stand up the runners. The next three configure the team. The last step proves it works for someone other than you.
 
@@ -229,7 +229,7 @@ The system is wrong if:
 ## Things to watch out for
 
 - **Token cost.** Multiple agents running in parallel costs roughly N times a single session. Make sure the parallelism is adding value.
-- **OAuth on a server is a manual step.** Headless servers don't have browsers. The first time you authenticate Claude Code or any OAuth-based MCP, you'll copy a URL out of your terminal into your local browser, complete auth, then paste a code back. See [02 - Install Claude Code](./02-claude-code/) for the dance.
+- **OAuth on a server is a manual step.** Headless servers don't have browsers. The first time you authenticate Claude Code or any OAuth-based MCP, you'll copy a URL out of your terminal into your local browser, complete auth, then paste a code back. See [02 - Install Claude Code](./resources/02-claude-code/) for the dance.
 - **Same-file edits.** Two agents editing the same file will overwrite each other. Specialize each agent so they own different output paths.
 - **Token rotation.** Fine-grained GitHub PATs expire every 90 days max. Set a calendar reminder.
 - **Provider lock-in is sneaky.** It's tempting to consolidate on one vendor's tools as they ship more features. Resist if you can. The vendor-neutral setup outlives any one provider's product cycle.

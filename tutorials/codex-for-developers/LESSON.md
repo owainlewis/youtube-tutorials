@@ -260,7 +260,7 @@ With the Linear plugin, the full loop stays in one place. Codex reads the ticket
 - The Linear plugin is the most useful one for day-to-day development work. Start there.
 - Plugins work best when combined with a good AGENTS.md - the plugin provides the ticket, AGENTS.md provides the standing rules.
 
-See: [`05-plugins/README.md`](05-plugins/README.md)
+See: [`resources/05-plugins/README.md`](resources/05-plugins/README.md)
 
 ---
 
@@ -300,7 +300,7 @@ A skill writes it once. The instructions live in a file, they are version-contro
 - Refine them over time. A skill is a living document - update it when you find a better way to do the task.
 - The `$plan` skill is a good first one to write. Planning is the highest-leverage thing to get right before coding.
 
-See: [`04-skills/plan-skill/SKILL.md`](04-skills/plan-skill/SKILL.md)
+See: [`resources/04-skills/plan-skill/SKILL.md`](resources/04-skills/plan-skill/SKILL.md)
 
 ---
 
@@ -344,13 +344,13 @@ For a full breakdown of how Codex permissions map to Claude's dangerous mode, se
 | File | What it is |
 |---|---|
 | [`resources/AGENTS.md`](resources/AGENTS.md) | AGENTS.md example |
-| [`config.toml.example`](config.toml.example) | Safe default config |
+| [`resources/config.toml.example`](resources/config.toml.example) | Safe default config |
 | [`resources/codex-permissions-guide.md`](resources/codex-permissions-guide.md) | Permissions reference |
-| [`02-plans-and-specs/template.md`](02-plans-and-specs/template.md) | Task brief template |
-| [`02-plans-and-specs/good-example.md`](02-plans-and-specs/good-example.md) | Good task brief example |
-| [`04-skills/plan-skill/SKILL.md`](04-skills/plan-skill/SKILL.md) | Example skill file |
-| [`05-plugins/README.md`](05-plugins/README.md) | Plugins guide |
-| [`06-automation/justfile`](06-automation/justfile) | justfile targets |
+| [`resources/02-plans-and-specs/template.md`](resources/02-plans-and-specs/template.md) | Task brief template |
+| [`resources/02-plans-and-specs/good-example.md`](resources/02-plans-and-specs/good-example.md) | Good task brief example |
+| [`resources/04-skills/plan-skill/SKILL.md`](resources/04-skills/plan-skill/SKILL.md) | Example skill file |
+| [`resources/05-plugins/README.md`](resources/05-plugins/README.md) | Plugins guide |
+| [`resources/06-automation/justfile`](resources/06-automation/justfile) | justfile targets |
 | [`resources/live-demo-workflow.md`](resources/live-demo-workflow.md) | Live demo workflow |
 | [`resources/plan-template.md`](resources/plan-template.md) | Short plan template |
 

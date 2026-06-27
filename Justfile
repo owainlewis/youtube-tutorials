@@ -16,8 +16,12 @@ new-tutorial slug title:
 
 check:
     @git diff --check
+    @just audit-layout
     @just audit-root-docs
     @just audit-junk
+
+audit-layout:
+    @python3 -c 'from pathlib import Path; allowed={"README.md","LESSON.md","resources","code"}; bad=[(t, allowed-{p.name for p in t.iterdir()}, {p.name for p in t.iterdir()}-allowed) for t in sorted(Path("tutorials").iterdir()) if t.is_dir() and ((allowed-{p.name for p in t.iterdir()}) or ({p.name for p in t.iterdir()}-allowed))]; [print(f"{t}\\n  missing: {sorted(m)}\\n  extra: {sorted(e)}") for t,m,e in bad]; raise SystemExit(1 if bad else 0)' && echo "Tutorial layout OK."
 
 audit-root-docs:
     @bad="$(find tutorials -mindepth 2 -maxdepth 2 -type f -name '*.md' ! -name README.md ! -name LESSON.md | sort)"; \

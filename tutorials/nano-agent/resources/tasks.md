@@ -142,7 +142,7 @@
             - Append assistant message to history.
             - For each tool_use block:
               - Emit `PreToolUse(tool_name, tool_params)` via `event_bus.emit_approval()`.
-              - If approved: call the tool function from `self.tools[name]["function"](params)`.
+              - If approved: call the tool function from `self.tools[name]["function"]` with params.
               - If denied: result = "Tool call denied by user".
               - Emit `PostToolUse(tool_name, result)`.
             - Append tool result messages to history (role="user", tool_result content blocks).

@@ -23,8 +23,8 @@ Timestamps:
 ---
 
 Links:
-- [Resource 1](url)
-- [Resource 2](url)
+- Resource 1: url
+- Resource 2: url
 
 ---
 

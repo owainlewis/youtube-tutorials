@@ -179,16 +179,16 @@ Realistic baseline: $10-15/month plus inference. The database is the only fixed 
 
 ### Going deeper
 
-- **AI Engineer Skool**: [aiengineer.co](https://aiengineer.co). $79/month community where I teach this kind of work in depth.
+- **AI Engineer**: [aiengineer.co](https://aiengineer.co). A community where I teach this kind of work in depth.
 - **Gradient Work**: [gradientwork.com](https://gradientwork.com). The agency where I build production AI systems for clients.
 - [`resources/architecture.md`](resources/architecture.md): full architecture story with request flow, background job flow, permissions model, and how to brief a coding agent.
 - [`resources/checklist.md`](resources/checklist.md): the 10-step opinionated GCP project setup I use on every new client system.
 
 ### Other examples in this repo
 
-- [`email-classifier/`](email-classifier/): a Cloud Run Job that classifies new Gmail messages with Vertex AI Gemini and applies labels. Useful as a minimal scheduled-automation pattern.
-- [`proposal-generator/`](proposal-generator/): a small client-proposal generator built on the same primitives. Useful as a prompt-engineering-on-Vertex-AI pattern.
-- [`terraform/`](terraform/): a reference Terraform module for the email-classifier Cloud Run Job, including monitoring dashboard and alerting.
+- [`code/email-classifier/`](code/email-classifier/): a Cloud Run Job that classifies new Gmail messages with Vertex AI Gemini and applies labels. Useful as a minimal scheduled-automation pattern.
+- [`code/proposal-generator/`](code/proposal-generator/): a small client-proposal generator built on the same primitives. Useful as a prompt-engineering-on-Vertex-AI pattern.
+- [`code/terraform/`](code/terraform/): a reference Terraform module for the email-classifier Cloud Run Job, including monitoring dashboard and alerting.
 
 ---
 

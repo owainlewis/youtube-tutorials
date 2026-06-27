@@ -40,12 +40,12 @@ uv run python example.py "How do I reset my API key?"
 
 ## Chapters
 
-1. [The Problem](docs/01-the-problem.md) - Why sending every query through the same pipeline breaks
-2. [Query Types](docs/02-query-types.md) - A taxonomy of user intents and what each needs
-3. [The Classifier](docs/03-the-classifier.md) - Pydantic models + OpenAI structured output
-4. [The Router](docs/04-the-router.md) - Sending queries to the right retrieval strategy
-5. [Evaluation](docs/05-evaluation.md) - Testing that it actually works
-6. [Summary](docs/06-summary.md) - Recap and next steps
+1. [The Problem](resources/docs/01-the-problem.md) - Why sending every query through the same pipeline breaks
+2. [Query Types](resources/docs/02-query-types.md) - A taxonomy of user intents and what each needs
+3. [The Classifier](resources/docs/03-the-classifier.md) - Pydantic models + OpenAI structured output
+4. [The Router](resources/docs/04-the-router.md) - Sending queries to the right retrieval strategy
+5. [Evaluation](resources/docs/05-evaluation.md) - Testing that it actually works
+6. [Summary](resources/docs/06-summary.md) - Recap and next steps
 
 ## Files
 

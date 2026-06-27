@@ -338,7 +338,7 @@ Verification before PR.
 This tutorial includes:
 
 - [CLAUDE.md](./resources/CLAUDE.md)
-- [examples/settings.json](./examples/settings.json)
+- [examples/settings.json](./resources/examples/settings.json)
 
 ## Summary
 

@@ -44,11 +44,11 @@ Copy the hooks config into your project:
 
 ```bash
 # Copy the full hooks config (PostToolUse linting + Stop hook)
-cp hooks/settings.json .claude/settings.local.json
+cp resources/hooks/settings.json .claude/settings.local.json
 
 # Copy the stop-checks script
 mkdir -p .claude/hooks
-cp hooks/stop-checks.sh .claude/hooks/stop-checks.sh
+cp resources/hooks/stop-checks.sh .claude/hooks/stop-checks.sh
 chmod +x .claude/hooks/stop-checks.sh
 ```
 
@@ -57,9 +57,9 @@ This gives you two hooks:
 - **PostToolUse** runs ruff on every Python file edit (swap for your stack's linter)
 - **Stop** runs linting + security scanning every time Claude tries to finish a task. If checks fail, Claude is blocked and must fix the issues.
 
-See `hooks/stop-checks.sh` for the full script. Edit it for your stack.
+See `resources/hooks/stop-checks.sh` for the full script. Edit it for your stack.
 
-You can also use the agent-based stop hook for AI-powered review. See `hooks/stop-hook.json` for that config.
+You can also use the agent-based stop hook for AI-powered review. See `resources/hooks/stop-hook.json` for that config.
 
 ### Layer 2: AI Review Locally
 
@@ -68,7 +68,7 @@ You can also use the agent-based stop hook for AI-powered review. See `hooks/sto
 1. Copy the example REVIEW.md to your project root:
 
 ```bash
-cp examples/REVIEW.md ./REVIEW.md
+cp resources/examples/REVIEW.md ./REVIEW.md
 ```
 
 2. Edit it with your team's specific rules.
@@ -84,7 +84,7 @@ cp examples/REVIEW.md ./REVIEW.md
 /blueprint:code-review
 ```
 
-Or write your own review command. See `examples/codex-review-prompt.md` for an excellent reference prompt to adapt.
+Or write your own review command. See `resources/examples/codex-review-prompt.md` for an excellent reference prompt to adapt.
 
 **Option B: Codex /review**
 

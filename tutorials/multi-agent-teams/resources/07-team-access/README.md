@@ -80,7 +80,7 @@ Cost: ~$5-10/month for the VPS plus your API usage.
 
 - **Add more skills.** Every mechanical, verifiable task is a candidate. Audit your weekly work for things that fit.
 - **Schedule more automations.** Daily reports, weekly digests, post-publish repurposing. Multica's scheduled automations are underused.
-- **Don't over-delegate.** Re-read the [delegation framework](../README.md#the-thesis-what-to-delegate-what-to-keep) in the main README. If you find yourself iterating on an agent's output more than fixing it once, take the task back.
+- **Don't over-delegate.** Re-read the [delegation framework](../../README.md#the-thesis-what-to-delegate-what-to-keep) in the main README. If you find yourself iterating on an agent's output more than fixing it once, take the task back.
 
 ## Go Deeper
 

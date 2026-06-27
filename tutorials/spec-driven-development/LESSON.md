@@ -336,14 +336,14 @@ Start with the smallest spec that prevents the agent from guessing.
 
 This tutorial includes reusable command prompts and examples:
 
-- [commands/spec.md](./commands/spec.md)
-- [commands/task.md](./commands/task.md)
-- [commands/review.md](./commands/review.md)
-- [commands/commit.md](./commands/commit.md)
-- [examples/jwt-authentication.md](./examples/jwt-authentication.md)
-- [examples/hybrid-search.md](./examples/hybrid-search.md)
-- [examples/streaming-chat.md](./examples/streaming-chat.md)
-- [examples/youtube.md](./examples/youtube.md)
+- [resources/commands/spec.md](./resources/commands/spec.md)
+- [resources/commands/task.md](./resources/commands/task.md)
+- [resources/commands/review.md](./resources/commands/review.md)
+- [resources/commands/commit.md](./resources/commands/commit.md)
+- [resources/examples/jwt-authentication.md](./resources/examples/jwt-authentication.md)
+- [resources/examples/hybrid-search.md](./resources/examples/hybrid-search.md)
+- [resources/examples/streaming-chat.md](./resources/examples/streaming-chat.md)
+- [resources/examples/youtube.md](./resources/examples/youtube.md)
 
 ## Summary
 

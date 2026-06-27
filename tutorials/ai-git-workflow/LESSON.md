@@ -10,20 +10,20 @@ Two things you can copy straight into your project:
 
 1. **`resources/CLAUDE.md`** - A config file that defines your git conventions (branch naming, commit format, PR template, safety rules). Copy it into your project root as `CLAUDE.md`.
 
-2. **`commands/`** - Slash commands for the common git operations. Copy these into `.claude/commands/` in your project and use them as `/commit`, `/branch`, `/pr`, etc.
+2. **`resources/commands/`** - Slash commands for the common git operations. Copy these into `.claude/commands/` in your project and use them as `/commit`, `/branch`, `/pr`, etc.
 
 ```
 ai-git-workflow/
 ├── resources/
-│   └── CLAUDE.md            # Git conventions config
-├── commands/
-│   ├── commit.md            # /commit - stage and commit with a good message
-│   ├── branch.md            # /branch - create a branch following conventions
-│   ├── pr.md                # /pr - push and open a pull request
-│   ├── squash.md            # /squash - squash commits into one
-│   ├── undo.md              # /undo - safely undo a git mistake
-│   ├── cleanup.md           # /cleanup - delete merged branches
-│   └── history.md           # /history - explore what changed and why
+│   ├── CLAUDE.md             # Git conventions config
+│   └── commands/
+│       ├── commit.md         # /commit - stage and commit with a good message
+│       ├── branch.md         # /branch - create a branch following conventions
+│       ├── pr.md             # /pr - push and open a pull request
+│       ├── squash.md         # /squash - squash commits into one
+│       ├── undo.md           # /undo - safely undo a git mistake
+│       ├── cleanup.md        # /cleanup - delete merged branches
+│       └── history.md        # /history - explore what changed and why
 └── README.md
 ```
 
@@ -32,7 +32,7 @@ ai-git-workflow/
 ## Setup
 
 1. Copy `resources/CLAUDE.md` into the root of your project as `CLAUDE.md`
-2. Copy the `commands/` folder into `.claude/commands/` in your project
+2. Copy the `resources/commands/` folder into `.claude/commands/` in your project
 3. Adjust the conventions in `CLAUDE.md` to match your team's style
 4. Open Claude Code - the config loads automatically, and commands are available as `/command-name`
 
