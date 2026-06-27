@@ -4,9 +4,34 @@ Code and examples from my YouTube channel tutorials.
 
 ## Tutorials
 
-Browse the [tutorials](./tutorials/) folder. Each tutorial is self-contained with its own README.
+Each tutorial has a short README and a `lesson.md` teaching document.
 
+- [6 Types of RAG, Clearly Explained](./tutorials/6-types-of-rag/)
+- [Claude Code Agent Teams](./tutorials/agent-teams/)
+- [How I Review AI-Generated Code](./tutorials/ai-code-review/)
+- [AI Git Workflow](./tutorials/ai-git-workflow/)
 - [My Autonomous AI Coding Workflow](./tutorials/autonomous-ai-coding-workflow/)
+- [Background Agent Workers: A Pull-Based Architecture](./tutorials/background-agents/)
+- [Codex Automations: Bug Fix and Bug Scan](./tutorials/codex-automations/)
+- [OpenAI Codex For Developers](./tutorials/codex-for-developers/)
+- [7 Codex Skills I Use As An AI Engineer](./tutorials/codex-skills-i-use/)
+- [Deploy AI Systems on Google Cloud With OpenAI Codex](./tutorials/deploy-ai-on-gcp/)
+- [GitHub AI Workflow](./tutorials/github-ai-workflow/)
+- [How I'd Learn Software Engineering (When AI Writes the Code)](./tutorials/how-id-learn-software-engineering/)
+- [Intent-Based Query Routing for RAG](./tutorials/intent-based-classification/)
+- [Linear as Your Agent's Control Plane](./tutorials/linear-workflow/)
+- [Loop Engineering: A Practical Example](./tutorials/loop-engineering/)
+- [Give Your AI Agents a Database (Airtable MCP)](./tutorials/mcp-airtable/)
+- [Micro Agents Demo](./tutorials/micro-agents-demo/)
+- [Multica Turns Claude Code Into a Remote Teammate](./tutorials/multi-agent-teams/)
+- [Nano Agent](./tutorials/nano-agent/)
+- [Nested subagents in Claude Code: one agent, one concern](./tutorials/nested-subagents-claude-code/)
+- [Harness Engineering: Building a Custom Pi Agent Workflow](./tutorials/pi-agent-workflow/)
+- [Pi Coding Agent (Full Course)](./tutorials/pi-coding-agent-guide/)
+- [PostgreSQL for RAG](./tutorials/postgresql-only-database-ai/)
+- [Spec-Driven Development](./tutorials/spec-driven-development/)
+- [Stop Vibe Coding - How to Build Software With AI Like a Senior Engineer](./tutorials/stop-vibe-coding/)
+- [How I Test AI-Generated Code](./tutorials/testing-ai-generated-code/)
 
 ## Tutorial Standard
 

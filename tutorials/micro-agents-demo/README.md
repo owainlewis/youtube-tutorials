@@ -2,105 +2,20 @@
 
 A YouTube research agent built with the [Micro Agent](docs/spec.md) pattern.
 
-## What is a Micro Agent?
+## Start Here
 
-Two files. That's it.
+- Read the lesson: [lesson.md](./lesson.md)
+- Explore code samples: [tools](./tools/)
+- Use supporting resources: [docs](./docs/)
 
-```
-my-agent/
-├── AGENTS.md     # Instructions for the agent
-└── tools/        # Scripts it can run
-```
+## What's Inside
 
-No framework. No dependencies. Just files an LLM can read and execute.
+- `lesson.md` - the main teaching document.
+- Code folders - runnable examples, demo apps, SQL, Terraform, or sample tools.
+- Resource folders - prompts, examples, commands, docs, slides, or copyable files.
+- Supporting files - [`AGENTS.md`](./AGENTS.md), [`CLAUDE.md`](./CLAUDE.md), [`pyproject.toml`](./pyproject.toml).
 
-## This Demo
+## Notes
 
-This repo contains a working YouTube research agent that can:
-
-- Search YouTube for videos on any topic
-- Analyze channels to find outlier content (2+ std devs above average)
-- Download transcripts for study
-- Help write scripts and titles
-- Upload videos (with OAuth)
-
-## Quick Start
-
-1. **Set up environment**
-
-```bash
-cp .env.example .env
-# Add your YOUTUBE_API_KEY
-```
-
-2. **Install dependencies**
-
-```bash
-uv sync
-```
-
-3. **Point your agent at the folder**
-
-Open this folder in Claude Code, Goose, or any terminal agent:
-
-```
-Read AGENTS.md and help me research AI agent videos.
-```
-
-The agent reads the instructions, discovers the tools, and gets to work.
-
-## Structure
-
-```
-micro-agents-demo/
-├── AGENTS.md                 # Agent identity and instructions
-├── tools/
-│   └── youtube.py           # YouTube API wrapper
-├── context/
-│   ├── script-guide.md      # How to write scripts
-│   ├── title-guide.md       # How to write titles
-│   └── templates/
-│       └── metadata.md      # Video upload template
-├── workspace/
-│   ├── projects/            # Video project folders
-│   ├── research/            # Topic research
-│   └── transcripts/         # Downloaded transcripts
-└── docs/
-    └── spec.md              # The micro agent specification
-```
-
-## Tools
-
-### search_videos
-
-```bash
-uv run tools/youtube.py search_videos "AI agents" --max 10 --json
-```
-
-### get_channel_videos
-
-```bash
-uv run tools/youtube.py get_channel_videos @daveebbelaar --days 365 --json
-```
-
-### get_transcript
-
-```bash
-uv run tools/youtube.py get_transcript VIDEO_ID
-```
-
-### upload
-
-```bash
-uv run tools/youtube.py upload video.mp4 --metadata metadata.md
-```
-
-## The Pattern
-
-Read [docs/spec.md](docs/spec.md) for the full micro agent specification.
-
-The key insight: if it runs from a terminal, it's a tool. No wrappers. No schemas. 50 years of Unix tools work out of the box.
-
-## License
-
-MIT
+This folder has been normalized so the README is the front door and `lesson.md` is the source teaching document.
+Some older material may still be WIP and can be curated manually.
