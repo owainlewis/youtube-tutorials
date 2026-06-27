@@ -40,7 +40,7 @@ How I'd Learn Software Engineering
 core-fundamentals/       Python fundamentals checklist and exercises
 system-design/           20 system design questions with solutions
 development-process/     The SDLC as executable AI skills
-ai-tools/                Example CLAUDE.md and project configurations
+resources/ai-tools/      Example CLAUDE.md and project configurations
 ```
 
 ## What I'd Skip

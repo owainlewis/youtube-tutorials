@@ -6,7 +6,7 @@ These are the copy, paste, and adapt files from the video.
 
 ## Setup
 
-- [`../01-setup/AGENTS.md`](../01-setup/AGENTS.md)
+- [`AGENTS.md`](./AGENTS.md)
 - [`../config.toml.example`](../config.toml.example)
 - [`../codex-permissions-guide.md`](../codex-permissions-guide.md)
 

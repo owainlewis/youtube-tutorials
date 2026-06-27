@@ -8,13 +8,14 @@
 
 Two things you can copy straight into your project:
 
-1. **`CLAUDE.md`** - A config file that defines your git conventions (branch naming, commit format, PR template, safety rules). The agent reads this and follows it on every operation.
+1. **`resources/CLAUDE.md`** - A config file that defines your git conventions (branch naming, commit format, PR template, safety rules). Copy it into your project root as `CLAUDE.md`.
 
 2. **`commands/`** - Slash commands for the common git operations. Copy these into `.claude/commands/` in your project and use them as `/commit`, `/branch`, `/pr`, etc.
 
 ```
 ai-git-workflow/
-├── CLAUDE.md                # Git conventions config
+├── resources/
+│   └── CLAUDE.md            # Git conventions config
 ├── commands/
 │   ├── commit.md            # /commit - stage and commit with a good message
 │   ├── branch.md            # /branch - create a branch following conventions
@@ -30,7 +31,7 @@ ai-git-workflow/
 
 ## Setup
 
-1. Copy `CLAUDE.md` into the root of your project
+1. Copy `resources/CLAUDE.md` into the root of your project as `CLAUDE.md`
 2. Copy the `commands/` folder into `.claude/commands/` in your project
 3. Adjust the conventions in `CLAUDE.md` to match your team's style
 4. Open Claude Code - the config loads automatically, and commands are available as `/command-name`
@@ -146,7 +147,7 @@ The commands handle the common workflows. Natural language handles everything el
 
 These are starting points. Change whatever doesn't fit:
 
-- Different commit format? Edit `CLAUDE.md` and `commands/commit.md`
+- Different commit format? Edit `resources/CLAUDE.md` and `commands/commit.md`
 - Trunk-based instead of feature branches? Edit `commands/branch.md`
 - Different PR template? Edit `commands/pr.md`
 - Need a release command? Add `commands/release.md`

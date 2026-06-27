@@ -55,6 +55,8 @@ Keep the tutorial root clean.
 
 Move extra Markdown files into `resources/` unless they are `README.md` or `LESSON.md`.
 
+Tutorial-specific `AGENTS.md` and `CLAUDE.md` examples belong in `resources/`, not at the tutorial root.
+
 If a reference file becomes required reading, fold the teaching back into `LESSON.md`.
 
 ## Writing Standards

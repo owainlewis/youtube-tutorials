@@ -44,7 +44,7 @@ uv sync
 Open this folder in Claude Code, Goose, or any terminal agent:
 
 ```
-Read AGENTS.md and help me research AI agent videos.
+Read resources/AGENTS.md and help me research AI agent videos.
 ```
 
 The agent reads the instructions, discovers the tools, and gets to work.
@@ -53,7 +53,8 @@ The agent reads the instructions, discovers the tools, and gets to work.
 
 ```
 micro-agents-demo/
-├── AGENTS.md                 # Agent identity and instructions
+├── resources/
+│   └── AGENTS.md             # Agent identity and instructions
 ├── tools/
 │   └── youtube.py           # YouTube API wrapper
 ├── context/

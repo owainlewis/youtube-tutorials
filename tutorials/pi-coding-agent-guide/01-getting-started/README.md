@@ -86,6 +86,8 @@ Pi loads context files automatically, just like Claude Code loads CLAUDE.md:
 
 Pi also reads `CLAUDE.md` if no `AGENTS.md` exists. So if you already have Claude Code set up, Pi picks up your existing instructions.
 
+This repo includes an example project context file at [`../resources/pi/AGENTS.md`](../resources/pi/AGENTS.md).
+
 ## Directory Structure
 
 Pi stores everything under `~/.pi/agent/`:

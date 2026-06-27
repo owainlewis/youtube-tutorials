@@ -167,7 +167,7 @@ Linear project `Project Name` is the source of truth for current work. Agents ha
 
 Run `/init` to generate a starting point, then trim aggressively.
 
-See: [`01-setup/AGENTS.md`](01-setup/AGENTS.md)
+See: [`resources/AGENTS.md`](resources/AGENTS.md)
 
 ### Step 2 - Linear plugin: no context switching
 
@@ -343,7 +343,7 @@ For a full breakdown of how Codex permissions map to Claude's dangerous mode, se
 
 | File | What it is |
 |---|---|
-| [`01-setup/AGENTS.md`](01-setup/AGENTS.md) | AGENTS.md example |
+| [`resources/AGENTS.md`](resources/AGENTS.md) | AGENTS.md example |
 | [`config.toml.example`](config.toml.example) | Safe default config |
 | [`codex-permissions-guide.md`](codex-permissions-guide.md) | Permissions reference |
 | [`02-plans-and-specs/template.md`](02-plans-and-specs/template.md) | Task brief template |

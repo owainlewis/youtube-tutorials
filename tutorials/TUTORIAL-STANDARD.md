@@ -94,6 +94,8 @@ Avoid extra Markdown files at the tutorial root.
 
 When extra Markdown is needed, put it under `resources/` and make its role obvious.
 
+If a tutorial includes example `AGENTS.md` or `CLAUDE.md` files, keep them under `resources/`.
+
 Reference files should support the lesson.
 
 They should not contain essential teaching that is missing from `LESSON.md`.
