@@ -335,7 +335,7 @@ They are not competing for the same use case.
 
 If you can write a clear plan or spec, reach for Codex. If you are still figuring out the problem, reach for Claude Code.
 
-For a full breakdown of how Codex permissions map to Claude's dangerous mode, see [`codex-permissions-guide.md`](codex-permissions-guide.md).
+For a full breakdown of how Codex permissions map to Claude's dangerous mode, see [`resources/codex-permissions-guide.md`](resources/codex-permissions-guide.md).
 
 ---
 
@@ -345,7 +345,7 @@ For a full breakdown of how Codex permissions map to Claude's dangerous mode, se
 |---|---|
 | [`resources/AGENTS.md`](resources/AGENTS.md) | AGENTS.md example |
 | [`config.toml.example`](config.toml.example) | Safe default config |
-| [`codex-permissions-guide.md`](codex-permissions-guide.md) | Permissions reference |
+| [`resources/codex-permissions-guide.md`](resources/codex-permissions-guide.md) | Permissions reference |
 | [`02-plans-and-specs/template.md`](02-plans-and-specs/template.md) | Task brief template |
 | [`02-plans-and-specs/good-example.md`](02-plans-and-specs/good-example.md) | Good task brief example |
 | [`04-skills/plan-skill/SKILL.md`](04-skills/plan-skill/SKILL.md) | Example skill file |

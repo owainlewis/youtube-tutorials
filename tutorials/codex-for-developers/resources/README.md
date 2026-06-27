@@ -8,7 +8,7 @@ These are the copy, paste, and adapt files from the video.
 
 - [`AGENTS.md`](./AGENTS.md)
 - [`../config.toml.example`](../config.toml.example)
-- [`../codex-permissions-guide.md`](../codex-permissions-guide.md)
+- [`codex-permissions-guide.md`](./codex-permissions-guide.md)
 
 ## Plans And Specs
 

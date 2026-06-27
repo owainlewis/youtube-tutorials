@@ -16,7 +16,13 @@ new-tutorial slug title:
 
 check:
     @git diff --check
+    @just audit-root-docs
     @just audit-junk
+
+audit-root-docs:
+    @bad="$(find tutorials -mindepth 2 -maxdepth 2 -type f -name '*.md' ! -name README.md ! -name LESSON.md | sort)"; \
+      if [ -n "$bad" ]; then echo "$bad"; echo "Move tutorial root reference docs into resources/."; exit 1; fi; \
+      echo "Tutorial root docs OK."
 
 audit-junk:
     @git ls-files | rg '(^|/)(\.venv|venv|__pycache__|\.pytest_cache|\.ruff_cache|\.mypy_cache|\.DS_Store|\.git/|node_modules|dist/|build/|\.lsp|\.clj-kondo|\.ipynb_checkpoints|uv\.lock$|.*\.log$|\.env$|\.env\.local$)' && { echo "Tracked junk found."; exit 1; } || echo "No tracked junk found."

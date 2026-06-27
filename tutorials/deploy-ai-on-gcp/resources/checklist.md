@@ -107,7 +107,7 @@ The Terraform module creates the Cloud Run Job, scheduler, IAM, monitoring, and 
 Project is ready to ship into. Now:
 
 1. Copy `resources/AGENTS.md` into the target repo as `AGENTS.md`
-2. Write the spec for the system you're building (`spec.md`)
+2. Write the spec for the system you're building (`resources/spec.md`)
 3. Start working with Codex
 
 ## What I do not do at this stage

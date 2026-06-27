@@ -93,7 +93,7 @@ flowchart LR
 
 The browser only ever talks to the public Next.js web service. The web service calls the private API from server-side route handlers, using Google identity-token auth so the API never has to be exposed publicly. The ingest job is a separate runtime that syncs markdown policy documents from Cloud Storage into Postgres. All three runtimes share the same Cloud Logging and Cloud Monitoring stack, with no extra setup.
 
-For the deeper architecture story (request flow, background job flow, permissions model, briefing a coding agent), see [`architecture.md`](architecture.md).
+For the deeper architecture story (request flow, background job flow, permissions model, briefing a coding agent), see [`resources/architecture.md`](resources/architecture.md).
 
 ### The patterns this app uses
 
@@ -181,8 +181,8 @@ Realistic baseline: $10-15/month plus inference. The database is the only fixed 
 
 - **AI Engineer Skool**: [aiengineer.co](https://aiengineer.co). $79/month community where I teach this kind of work in depth.
 - **Gradient Work**: [gradientwork.com](https://gradientwork.com). The agency where I build production AI systems for clients.
-- [`architecture.md`](architecture.md): full architecture story with request flow, background job flow, permissions model, and how to brief a coding agent.
-- [`checklist.md`](checklist.md): the 10-step opinionated GCP project setup I use on every new client system.
+- [`resources/architecture.md`](resources/architecture.md): full architecture story with request flow, background job flow, permissions model, and how to brief a coding agent.
+- [`resources/checklist.md`](resources/checklist.md): the 10-step opinionated GCP project setup I use on every new client system.
 
 ### Other examples in this repo
 

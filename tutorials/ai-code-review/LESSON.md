@@ -128,7 +128,7 @@ coderabbit auth login
 ```
 ai-code-review/
 ├── README.md                           # This file
-├── ARCHITECTURE.md                     # Visual diagram of all 4 layers
+├── resources/architecture.md           # Visual diagram of all 4 layers
 ├── resources/slides/slides.html        # Branded slide deck for the video
 ├── hooks/
 │   ├── settings.json                   # Full hooks config (PostToolUse + Stop)
