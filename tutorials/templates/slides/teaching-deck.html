@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teaching Deck Template</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=DM+Sans:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0d0f14;
+      --panel: #141821;
+      --panel-2: #191f2a;
+      --ink: #f2f3f5;
+      --muted: #a5abb6;
+      --faint: #697080;
+      --rule: #273040;
+      --blue: #6aa4ff;
+      --green: #65d6a2;
+      --amber: #f0bc64;
+      --red: #ff7d7d;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "DM Sans", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.026) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+    }
+
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 28px;
+      padding: 64px 92px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .slide.center {
+      align-items: center;
+      text-align: center;
+      padding: 56px;
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .display {
+      color: var(--ink);
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    h1.display {
+      max-width: 16ch;
+      font-size: clamp(48px, 7vw, 92px);
+    }
+
+    h2.display {
+      max-width: 20ch;
+      font-size: clamp(34px, 4.8vw, 62px);
+    }
+
+    p, li {
+      max-width: 52ch;
+      color: var(--muted);
+      font-size: clamp(18px, 1.5vw, 22px);
+      line-height: 1.55;
+    }
+
+    .lead {
+      color: var(--ink);
+      font-size: clamp(21px, 1.8vw, 26px);
+      font-weight: 500;
+    }
+
+    .quote {
+      max-width: 38ch;
+      color: var(--muted);
+      font-family: "Instrument Serif", serif;
+      font-size: clamp(24px, 2.4vw, 34px);
+      font-style: italic;
+      line-height: 1.35;
+    }
+
+    code, pre {
+      font-family: "Geist Mono", ui-monospace, monospace;
+    }
+
+    .rail {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      width: min(1080px, 100%);
+    }
+
+    .rail-card {
+      min-height: 150px;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      padding: 22px;
+    }
+
+    .rail-card .kicker {
+      margin-bottom: 14px;
+      color: var(--faint);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .rail-card h3 {
+      color: var(--ink);
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      font-size: clamp(20px, 2vw, 26px);
+      line-height: 1.08;
+    }
+
+    .rail-card p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: clamp(14px, 1.1vw, 16px);
+      line-height: 1.45;
+    }
+
+    .pipeline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      width: min(1100px, 100%);
+    }
+
+    .step {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: clamp(13px, 1.1vw, 16px);
+      letter-spacing: 0.04em;
+      padding: 12px 16px;
+      white-space: nowrap;
+    }
+
+    .arr {
+      color: var(--blue);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 18px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      width: min(1040px, 100%);
+    }
+
+    .panel {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 26px;
+    }
+
+    .panel h3 {
+      color: var(--ink);
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      font-size: clamp(24px, 2.3vw, 34px);
+      line-height: 1.08;
+    }
+
+    .panel ul {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+      list-style: none;
+    }
+
+    .panel li {
+      max-width: none;
+      border-top: 1px solid var(--rule);
+      padding-top: 12px;
+      font-size: clamp(16px, 1.3vw, 19px);
+    }
+
+    .loop {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(170px, 1fr));
+      gap: 18px;
+      width: min(980px, 100%);
+      align-items: center;
+    }
+
+    .loop-node {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 24px;
+      text-align: center;
+    }
+
+    .loop-node h3 {
+      color: var(--ink);
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      font-size: clamp(22px, 2.1vw, 30px);
+    }
+
+    .loop-node p {
+      margin-top: 8px;
+      max-width: none;
+      font-size: clamp(14px, 1.1vw, 16px);
+    }
+
+    .loop-arrow {
+      color: var(--blue);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 22px;
+      text-align: center;
+    }
+
+    .code-block {
+      width: min(860px, 100%);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      background: #10131a;
+      color: var(--ink);
+      font-size: clamp(13px, 1.1vw, 16px);
+      line-height: 1.65;
+      overflow: auto;
+      padding: 22px;
+      white-space: pre-wrap;
+    }
+
+    .takeaway {
+      max-width: 24ch;
+      color: var(--ink);
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      font-size: clamp(36px, 5vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.04;
+    }
+
+    .progress {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 4;
+      height: 3px;
+      width: 0;
+      background: linear-gradient(90deg, var(--blue), var(--green), var(--amber));
+      transition: width 180ms ease;
+    }
+
+    .counter {
+      position: fixed;
+      right: 28px;
+      bottom: 20px;
+      z-index: 4;
+      color: var(--faint);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    .accent-blue { color: var(--blue); }
+    .accent-green { color: var(--green); }
+    .accent-amber { color: var(--amber); }
+    .accent-red { color: var(--red); }
+
+    @media (max-width: 760px) {
+      .slide {
+        padding: 34px 22px;
+        gap: 20px;
+      }
+
+      .slide.center {
+        padding: 32px 22px;
+      }
+
+      .rail,
+      .split,
+      .loop {
+        grid-template-columns: 1fr;
+      }
+
+      .rail-card {
+        min-height: auto;
+      }
+
+      .pipeline {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .arr {
+        transform: rotate(90deg);
+        align-self: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <section class="slide center active">
+      <p class="eyebrow">Tutorial Title</p>
+      <h1 class="display">Teaching Deck Template</h1>
+      <p class="quote">Use slides when the visual model makes the lesson easier to remember.</p>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">The plain idea</p>
+      <h2 class="display">Start With The Job The System Must Do</h2>
+      <p class="lead">Do not start with tools.</p>
+      <p>Name the problem, show the weak default, then give the viewer the useful model.</p>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">Pipeline pattern</p>
+      <h2 class="display">Use A Pipeline For Workflow Lessons</h2>
+      <div class="pipeline">
+        <span class="step">INPUT</span><span class="arr">-&gt;</span>
+        <span class="step">CONTEXT</span><span class="arr">-&gt;</span>
+        <span class="step">ACTION</span><span class="arr">-&gt;</span>
+        <span class="step">EVIDENCE</span><span class="arr">-&gt;</span>
+        <span class="step">NEXT STEP</span>
+      </div>
+      <p class="lead">This works well for agent loops, review flows, deployment flows, and memory systems.</p>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">Comparison pattern</p>
+      <h2 class="display">Use Cards To Separate Concepts</h2>
+      <div class="rail">
+        <article class="rail-card">
+          <p class="kicker">01</p>
+          <h3>What It Is</h3>
+          <p>The plain definition.</p>
+        </article>
+        <article class="rail-card">
+          <p class="kicker">02</p>
+          <h3>Why It Matters</h3>
+          <p>The problem it solves.</p>
+        </article>
+        <article class="rail-card">
+          <p class="kicker">03</p>
+          <h3>Where It Breaks</h3>
+          <p>The tradeoff or risk.</p>
+        </article>
+        <article class="rail-card">
+          <p class="kicker">04</p>
+          <h3>What To Do</h3>
+          <p>The practical next move.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">Before and after</p>
+      <h2 class="display">Use A Split For Weak Default Versus Better Model</h2>
+      <div class="split">
+        <article class="panel">
+          <h3 class="accent-red">Weak Default</h3>
+          <ul>
+            <li>Starts with tools.</li>
+            <li>Stores too much context.</li>
+            <li>Does not define ownership.</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h3 class="accent-green">Better Model</h3>
+          <ul>
+            <li>Starts with the job.</li>
+            <li>Loads only useful context.</li>
+            <li>Defines rules for updates.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">Loop pattern</p>
+      <h2 class="display">Use A Loop For Recurring Agent Systems</h2>
+      <div class="loop">
+        <article class="loop-node">
+          <h3>Load</h3>
+          <p>Bring in the useful context.</p>
+        </article>
+        <div class="loop-arrow">-&gt;</div>
+        <article class="loop-node">
+          <h3>Act</h3>
+          <p>Call the model or run the workflow.</p>
+        </article>
+        <div class="loop-arrow">^</div>
+        <article class="loop-node">
+          <h3>Save</h3>
+          <p>Store only what matters.</p>
+        </article>
+        <div class="loop-arrow">&lt;-</div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">Code or prompt</p>
+      <h2 class="display">Use Code Blocks For The Exact Thing To Copy</h2>
+      <pre class="code-block">Before continuing, audit the session.
+
+What context did you inspect?
+What did you assume?
+What tools did you use?
+What evidence do we have?
+What should we verify next?</pre>
+    </section>
+
+    <section class="slide center">
+      <p class="eyebrow">Takeaway</p>
+      <p class="takeaway">Good slides make the lesson easier to remember.</p>
+      <p class="lead">Keep the lesson as the source of truth.</p>
+    </section>
+  </main>
+
+  <div class="progress" id="progress"></div>
+  <div class="counter" id="counter">01 / 08</div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const progress = document.getElementById("progress");
+    const counter = document.getElementById("counter");
+    let current = 0;
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function show(index, updateHash = true) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, i) => slide.classList.toggle("active", i === current));
+      progress.style.width = ((current + 1) / slides.length) * 100 + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (updateHash) {
+        history.replaceState(null, "", "#" + String(current + 1));
+      }
+    }
+
+    function next() {
+      show(current + 1);
+    }
+
+    function prev() {
+      show(current - 1);
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "ArrowDown" || event.key === " ") {
+        event.preventDefault();
+        next();
+      }
+
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        event.preventDefault();
+        prev();
+      }
+    });
+
+    function loadHash() {
+      const match = window.location.hash.match(/^#(\d+)$/);
+      if (!match) return;
+      show(Number(match[1]) - 1, false);
+    }
+
+    window.addEventListener("hashchange", loadHash);
+    loadHash();
+    if (!window.location.hash) {
+      show(0);
+    }
+  </script>
+</body>
+</html>
