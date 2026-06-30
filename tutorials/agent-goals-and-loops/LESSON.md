@@ -267,36 +267,64 @@ Why this works:
 - `go test ./...` gives a verifier
 - the demo can show before and after issue state
 
-### Slate CLI v0.1.0
+### Slate App And CLI v0.1.0
 
 [`slate.do` issue #13][slate-cli-issue] is a better multi-ticket demo than another deploy.
 
 It has a clear product outcome:
 
+- build the owner-only app foundation first
+- add the agent API
 - keep the CLI in the main `slate.do` repo for now
-- build the first agent-facing CLI
-- ship a `v0.1.0` release
+- ship a release-ready `v0.1.0` slice
+
+Project state to check first:
+
+| Check | Current state |
+| --- | --- |
+| Repo | `github.com/owainlewis/slate.do` |
+| Starting point | Product shell with a static HTML prototype |
+| Open issues | #11 API tokens, #12 agent task routes, #13 CLI |
+| Release state | No release exists yet |
+
+The CLI is not useful on its own yet.
+
+It needs the app, database, auth, API tokens, and agent routes first.
 
 Codex or Claude Code:
 
 ```text
-/goal Ship Slate CLI v0.1.0 from the main slate.do repo. Keep the CLI in this
-repo for now. Implement the phase:5-agents-cli work needed for a usable first
-release: API tokens, agent task routes, and the initial CLI commands. You are
-done when `slate login`, `slate auth status --check`, `slate boards list`,
-`slate tasks pull --assignee <name>`, `slate tasks claim`, `slate tasks note`,
-`slate tasks status`, `slate tasks done`, and `slate tasks list --json` work
-against a local server, tests pass, and a v0.1.0 GitHub release is created or
-ready to create. Stop if token security, auth design, or public distribution
-needs a product decision.
+/goal Ship Slate v0.1.0 owner-only app foundation with an agent CLI from
+github.com/owainlewis/slate.do.
+
+First check the repo state. Read README.md, docs/prd.md,
+docs/saas-launch-journey/spec.md if it exists, and GitHub issues #11, #12, and
+#13. Confirm whether the app implementation exists or the repo is still a
+product shell.
+
+Build the smallest vertical slice that makes the CLI useful. Keep the CLI in the
+main slate.do repo for v0.1.0. Follow the SaaS launch journey shape unless the
+codebase points somewhere else: one Go server, Postgres persistence, owner-only
+auth, boards, buckets, tasks, API token management, agent task routes, and an
+in-repo Go CLI.
+
+You are done when an owner can run the app locally, create or revoke an API
+token, create basic boards and tasks, pull assigned tasks through /api/v1 agent
+routes, and use CLI commands for login, auth status, boards list, tasks pull,
+claim, note, status, done, and list --json. Invalid and revoked tokens must
+return 401. Relevant tests must pass. The README or CLI docs must explain local
+setup, auth, commands, and v0.1.0 release steps. Open a release-ready PR unless
+creating the release is clearly safe. Stop if the work needs a product decision
+about token security, auth design, public distribution, billing, DNS, or
+production deployment.
 ```
 
 Why this works:
 
 - it has a concrete release outcome
-- the CLI location decision is explicit
+- it starts from the actual repo state
 - the checks are command-shaped and demoable
-- it is product implementation, not another deployment
+- the app exists before the CLI is judged
 
 ### Claude PR Feedback Poll
 
