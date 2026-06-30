@@ -88,10 +88,14 @@ The full copyable prompts are in [resources/prompts.md](./resources/prompts.md).
 
 Use when open PRs need conflicts fixed, CI shepherded, or review feedback addressed.
 
-- Prompt: `/goal Merge all open PRs that are safe to merge.`
-- Done: every open PR is merged, closed, updated, or blocked with evidence.
-- Checks: CI, branch protection, review comments, merge conflicts.
-- Stop: unclear merge authority, conflicting feedback, risky code area.
+```text
+/goal Review all open PRs and fix any review feedback. Merge any PRs that are
+safe to merge now. Resolve rebase conflicts where safe. Check CI, branch
+protection, review comments, and merge conflicts. You are done when every open
+PR is merged, closed, updated, or blocked with evidence. Stop if merge
+authority is unclear, review feedback conflicts, or a PR touches auth, billing,
+permissions, security, or data deletion.
+```
 
 This is useful because the agent shepherds work through review.
 
@@ -101,10 +105,14 @@ It is not just writing code.
 
 Use when GitHub Issues has drifted away from reality.
 
-- Prompt: `/goal Triage all open GitHub issues.`
-- Done: every open issue has correct labels, is closed with evidence, or is blocked on a clear question.
-- Checks: labels, linked PRs, current codebase, duplicate issues.
-- Stop: product judgement, maintainer context, speculative closure.
+```text
+/goal Triage all open GitHub issues. Ensure every open issue has the correct
+labels. Close duplicate issues with a comment. Close issues that are already
+completed with evidence. Correct stale state, such as issues marked in review
+after the PR has merged. You are done when every issue is labelled, closed, or
+blocked on a clear question. Stop if the issue needs product judgement,
+maintainer context, or speculative closure.
+```
 
 This is useful because the backlog becomes trustworthy again.
 
@@ -112,10 +120,14 @@ This is useful because the backlog becomes trustworthy again.
 
 Use when the deploy path is known and the repo deploys from `master` through Cloud Build.
 
-- Prompt: `/goal Deploy this app to production on GCP.`
-- Done: deploy is on `master`, Cloud Build succeeds, live site works, logs show no new errors.
-- Checks: Cloud Build, live URL, smoke test path, production logs.
-- Stop: missing GCP access, failed build twice, secrets, IAM, billing, DNS, rollback needed.
+```text
+/goal Deploy this app to production on GCP. Pushing to master deploys the app
+with Cloud Build. You are done when the deploy is on master, Cloud Build
+succeeds, the live site loads, the core flow works, and production logs show no
+new errors. Stop if GCP access is missing, Cloud Build fails twice for the same
+reason, the deploy needs secrets, IAM, billing, DNS, or manual approval, or the
+live app needs rollback.
+```
 
 This is useful because deployment is follow-through work.
 
@@ -125,10 +137,13 @@ The agent can push, wait, inspect Cloud Build, open the site, check logs, and re
 
 Use when docs need to match the repo.
 
-- Prompt: `/goal Review the codebase and update stale documentation.`
-- Done: docs match implementation, checked commands still work, docs-only PR is opened or ready.
-- Checks: README, docs, package scripts, examples, relevant tests.
-- Stop: unclear behavior, product judgement, missing secrets.
+```text
+/goal Review the codebase and update stale documentation. Compare the README,
+docs, package scripts, examples, and current implementation. You are done when
+docs match the implementation, checked commands still work where practical, and
+a docs-only PR is opened or ready. Stop if behavior is unclear, docs need
+product judgement, or verification needs missing secrets.
+```
 
 This is useful because it is low risk and easy to review.
 
@@ -136,10 +151,13 @@ This is useful because it is low risk and easy to review.
 
 Use when the work spans several selected tickets.
 
-- Prompt: `/goal Build the selected tickets end to end.`
-- Done: each ticket is implemented, checks pass, UI changes are verified, final report links tickets and PR.
-- Checks: tests, browser verification, ticket acceptance criteria.
-- Stop: conflicting acceptance criteria, expanding scope, product decision needed.
+```text
+/goal Build the selected tickets end to end. Work only on the selected tickets.
+You are done when each ticket is implemented, relevant tests pass, UI changes
+are verified in the browser, and the final report links the tickets, changed
+files, checks, and PR. Stop if acceptance criteria conflict, scope expands
+beyond the selected tickets, or a product decision is needed.
+```
 
 This is useful when the next action depends on what the agent just learned.
 
