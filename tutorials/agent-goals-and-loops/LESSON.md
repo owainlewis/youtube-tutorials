@@ -14,7 +14,7 @@ The more general idea is simpler: run the agent on an interval.
 
 - [The model](#the-model)
 - [Goal examples](#goal-examples)
-- [A concrete GitHub demo](#a-concrete-github-demo)
+- [Demo examples](#demo-examples)
 - [Interval and schedule examples](#interval-and-schedule-examples)
 - [Combining goals with intervals and schedules](#combining-goals-with-intervals-and-schedules)
 
@@ -169,9 +169,62 @@ beyond the selected tickets, or a product decision is needed.
 
 This is useful when the next action depends on what the agent just learned.
 
-## A Concrete GitHub Demo
+## Demo Examples
 
-[`owainlewis/factory`](https://github.com/owainlewis/factory/issues) is a good repo to show this on.
+These are the strongest examples to show on screen.
+
+### Production Error Audit
+
+This is the clearest combined example.
+
+A fixed schedule starts the work every Monday.
+
+A goal defines the outcome: find real production bugs and open a PR.
+
+Codex:
+
+```text
+Create a Codex automation that runs every Monday morning.
+
+/goal Scan the last 7 days of production logs, CI failures, scheduled jobs, and
+GitHub issues. If you find a confirmed repo-owned bug, reproduce it, fix it,
+add tests, and open a draft PR. If there is no actionable bug, report what you
+checked and do not open a PR.
+```
+
+Why this works:
+
+- schedule starts the maintenance job
+- goal defines the finish line
+- logs and CI provide evidence
+- PR keeps humans in control
+
+### Passage Production Deploy
+
+[`passage.md` issue #25](https://github.com/owainlewis/passage.md/issues/25) is a good completed-thread demo.
+
+Use this when you want to show a goal with a visible real-world finish line.
+
+Codex or Claude Code:
+
+```text
+/goal Deploy passage.md to production on GCP. Pushing to main should trigger
+Cloud Build and deploy to Cloud Run. You are done when the live site works over
+HTTPS, Cloud Build has passed, Cloud SQL is connected, secrets are not in the
+repo, and there is a documented rollback path. Stop if GCP access, DNS, IAM,
+billing, or secrets need human approval.
+```
+
+Why this works:
+
+- it has a real deployed artifact
+- Cloud Build gives machine evidence
+- the live site gives human-visible evidence
+- the stop conditions are obvious
+
+### Factory Issue Cleanup
+
+[`owainlewis/factory`](https://github.com/owainlewis/factory/issues) is a good live demo.
 
 It has open GitHub issues with useful labels:
 
@@ -185,7 +238,7 @@ That makes it a clean demo for goals:
 - close duplicate or completed issues with evidence
 - open and merge safe PRs only after tests pass
 
-### Codex Goal
+Codex:
 
 ```text
 /goal Work through all open issues in owainlewis/factory. Implement issues
@@ -197,7 +250,7 @@ Stop before risky changes, unclear product decisions, or failing tests you
 cannot explain.
 ```
 
-### Claude Code Goal
+Claude Code:
 
 ```text
 /goal Work through github.com/owainlewis/factory/issues. Start with
@@ -207,7 +260,64 @@ issues open unless the blocker is gone. You are done when every issue is
 closed, merged, or blocked with evidence.
 ```
 
-### Codex Automation
+Why this works:
+
+- labels give clear routing
+- issue state gives a visible queue
+- `go test ./...` gives a verifier
+- the demo can show before and after issue state
+
+### Slate Phase Build
+
+[`slate.do` phase 5][slate-phase-5] is a better multi-ticket demo than another deploy.
+
+It is about agent-facing product work:
+
+- API token management
+- agent task routes
+- an initial CLI for agents
+
+Codex or Claude Code:
+
+```text
+/goal Complete the phase:5-agents-cli issues in slate.do. Work through the
+issues in order, keep each change scoped, open PRs, and run the relevant Go and
+browser checks. You are done when the phase issues are merged, closed, or
+blocked with evidence. Stop if auth design, token security, or product behavior
+needs human judgement.
+```
+
+Why this works:
+
+- it shows longer-running product implementation
+- the work has several related tickets
+- the output is visible in API routes, CLI commands, and tests
+- it is not another deployment example
+
+### Claude PR Feedback Poll
+
+Use this when a PR is waiting for review or CI.
+
+Claude Code:
+
+```text
+/loop every 5 minutes check PR #123 for review feedback. Address safe
+actionable feedback, rerun relevant checks, and report status. Stop when
+feedback is resolved, 30 minutes pass, or a comment needs product judgement.
+```
+
+Why this works:
+
+- review feedback arrives later
+- the loop has a clear interval
+- the time limit controls cost
+- human judgement stays in the loop
+
+### Weekly Factory Triage
+
+Use this for a schedule-only maintenance example.
+
+Codex:
 
 ```text
 Create a Codex automation that runs every Monday at 9am.
@@ -215,14 +325,6 @@ Create a Codex automation that runs every Monday at 9am.
 Review owainlewis/factory issues. Check labels, close duplicates or already
 completed issues with evidence, and report which factory-ready issue should be
 worked next. Do not write code in this automation.
-```
-
-### Claude Code Schedule
-
-```text
-/schedule every Monday at 9am, review owainlewis/factory issues. Check labels,
-close duplicates or already completed issues with evidence, and report the next
-factory-ready issue to work on. Do not write code in this scheduled task.
 ```
 
 ## Interval And Schedule Examples
@@ -342,6 +444,8 @@ Better:
 - Codex goals cookbook: <https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex>
 - Claude Code goals: <https://code.claude.com/docs/en/goal>
 - Claude Code scheduled tasks and `/loop`: <https://code.claude.com/docs/en/scheduled-tasks>
+
+[slate-phase-5]: https://github.com/owainlewis/slate.do/labels/phase%3A5-agents-cli
 
 ## Summary
 

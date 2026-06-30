@@ -269,6 +269,43 @@ issues open unless the blocker is gone. You are done when every issue is
 closed, merged, or blocked with evidence.
 ```
 
+## Production Error Audit Automation
+
+Codex:
+
+```text
+Create a Codex automation that runs every Monday morning.
+
+/goal Scan the last 7 days of production logs, CI failures, scheduled jobs, and
+GitHub issues. If you find a confirmed repo-owned bug, reproduce it, fix it,
+add tests, and open a draft PR. If there is no actionable bug, report what you
+checked and do not open a PR.
+```
+
+## Passage Production Deploy Goal
+
+Codex or Claude Code:
+
+```text
+/goal Deploy passage.md to production on GCP. Pushing to main should trigger
+Cloud Build and deploy to Cloud Run. You are done when the live site works over
+HTTPS, Cloud Build has passed, Cloud SQL is connected, secrets are not in the
+repo, and there is a documented rollback path. Stop if GCP access, DNS, IAM,
+billing, or secrets need human approval.
+```
+
+## Slate Phase 5 Goal
+
+Codex or Claude Code:
+
+```text
+/goal Complete the phase:5-agents-cli issues in slate.do. Work through the
+issues in order, keep each change scoped, open PRs, and run the relevant Go and
+browser checks. You are done when the phase issues are merged, closed, or
+blocked with evidence. Stop if auth design, token security, or product behavior
+needs human judgement.
+```
+
 ## Weekly Issue Triage Automation
 
 Codex:
