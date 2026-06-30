@@ -294,16 +294,20 @@ repo, and there is a documented rollback path. Stop if GCP access, DNS, IAM,
 billing, or secrets need human approval.
 ```
 
-## Slate Phase 5 Goal
+## Slate CLI v0.1.0 Goal
 
 Codex or Claude Code:
 
 ```text
-/goal Complete the phase:5-agents-cli issues in slate.do. Work through the
-issues in order, keep each change scoped, open PRs, and run the relevant Go and
-browser checks. You are done when the phase issues are merged, closed, or
-blocked with evidence. Stop if auth design, token security, or product behavior
-needs human judgement.
+/goal Ship Slate CLI v0.1.0 from the main slate.do repo. Keep the CLI in this
+repo for now. Implement the phase:5-agents-cli work needed for a usable first
+release: API tokens, agent task routes, and the initial CLI commands. You are
+done when `slate login`, `slate auth status --check`, `slate boards list`,
+`slate tasks pull --assignee <name>`, `slate tasks claim`, `slate tasks note`,
+`slate tasks status`, `slate tasks done`, and `slate tasks list --json` work
+against a local server, tests pass, and a v0.1.0 GitHub release is created or
+ready to create. Stop if token security, auth design, or public distribution
+needs a product decision.
 ```
 
 ## Weekly Issue Triage Automation

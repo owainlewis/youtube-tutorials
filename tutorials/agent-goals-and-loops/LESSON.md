@@ -267,32 +267,36 @@ Why this works:
 - `go test ./...` gives a verifier
 - the demo can show before and after issue state
 
-### Slate Phase Build
+### Slate CLI v0.1.0
 
-[`slate.do` phase 5][slate-phase-5] is a better multi-ticket demo than another deploy.
+[`slate.do` issue #13][slate-cli-issue] is a better multi-ticket demo than another deploy.
 
-It is about agent-facing product work:
+It has a clear product outcome:
 
-- API token management
-- agent task routes
-- an initial CLI for agents
+- keep the CLI in the main `slate.do` repo for now
+- build the first agent-facing CLI
+- ship a `v0.1.0` release
 
 Codex or Claude Code:
 
 ```text
-/goal Complete the phase:5-agents-cli issues in slate.do. Work through the
-issues in order, keep each change scoped, open PRs, and run the relevant Go and
-browser checks. You are done when the phase issues are merged, closed, or
-blocked with evidence. Stop if auth design, token security, or product behavior
-needs human judgement.
+/goal Ship Slate CLI v0.1.0 from the main slate.do repo. Keep the CLI in this
+repo for now. Implement the phase:5-agents-cli work needed for a usable first
+release: API tokens, agent task routes, and the initial CLI commands. You are
+done when `slate login`, `slate auth status --check`, `slate boards list`,
+`slate tasks pull --assignee <name>`, `slate tasks claim`, `slate tasks note`,
+`slate tasks status`, `slate tasks done`, and `slate tasks list --json` work
+against a local server, tests pass, and a v0.1.0 GitHub release is created or
+ready to create. Stop if token security, auth design, or public distribution
+needs a product decision.
 ```
 
 Why this works:
 
-- it shows longer-running product implementation
-- the work has several related tickets
-- the output is visible in API routes, CLI commands, and tests
-- it is not another deployment example
+- it has a concrete release outcome
+- the CLI location decision is explicit
+- the checks are command-shaped and demoable
+- it is product implementation, not another deployment
 
 ### Claude PR Feedback Poll
 
@@ -445,7 +449,7 @@ Better:
 - Claude Code goals: <https://code.claude.com/docs/en/goal>
 - Claude Code scheduled tasks and `/loop`: <https://code.claude.com/docs/en/scheduled-tasks>
 
-[slate-phase-5]: https://github.com/owainlewis/slate.do/labels/phase%3A5-agents-cli
+[slate-cli-issue]: https://github.com/owainlewis/slate.do/issues/13
 
 ## Summary
 
