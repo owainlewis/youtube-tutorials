@@ -311,8 +311,8 @@ model, and make the app run locally.
 
 You are done when the app starts locally, the main board screen is implemented
 as React components, the layout works in desktop and mobile browser checks,
-relevant checks pass, and a PR is open with verification notes. Stop if the work
-requires product decisions outside the app shell.
+relevant checks pass, and a PR is open with screenshots and verification notes.
+Stop if the work requires product decisions outside the app shell.
 ```
 
 ## Slate Phase 4 Goal
@@ -333,7 +333,8 @@ data, add bucket limits, and support reorder, move, and background persistence.
 You are done when the owner can create and edit boards, buckets, and tasks,
 reload without losing data, move tasks between buckets, see bucket limits, and
 use persisted board backgrounds. Relevant tests must pass. Open a PR with
-verification evidence. Stop if Phase 2 or Phase 3 foundation work is missing.
+screenshots and verification evidence. Stop if Phase 2 or Phase 3 foundation
+work is missing.
 ```
 
 ## Weekly Issue Triage Automation

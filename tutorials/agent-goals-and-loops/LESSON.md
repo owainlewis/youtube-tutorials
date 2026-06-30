@@ -281,6 +281,18 @@ That makes the prompt simple:
 By the end, <specific outcome> should be true.
 ```
 
+The prompt should describe:
+
+| Part | What To Say |
+| --- | --- |
+| Outcome | What should be true when the work is done |
+| Constraints | Scope, files to read, checks to run, decisions to avoid |
+| Evidence | Tests, screenshots, PR link, verification notes |
+| Stop rules | When the agent should pause instead of guessing |
+
+Avoid telling the agent exactly how to implement the code unless that detail is
+part of the requirement.
+
 Project state to check first:
 
 | Check | Current state |
@@ -314,8 +326,8 @@ model, and make the app run locally.
 
 You are done when the app starts locally, the main board screen is implemented
 as React components, the layout works in desktop and mobile browser checks,
-relevant checks pass, and a PR is open with verification notes. Stop if the work
-requires product decisions outside the app shell.
+relevant checks pass, and a PR is open with screenshots and verification notes.
+Stop if the work requires product decisions outside the app shell.
 ```
 
 Copyable Phase 4 goal:
@@ -334,7 +346,8 @@ data, add bucket limits, and support reorder, move, and background persistence.
 You are done when the owner can create and edit boards, buckets, and tasks,
 reload without losing data, move tasks between buckets, see bucket limits, and
 use persisted board backgrounds. Relevant tests must pass. Open a PR with
-verification evidence. Stop if Phase 2 or Phase 3 foundation work is missing.
+screenshots and verification evidence. Stop if Phase 2 or Phase 3 foundation
+work is missing.
 ```
 
 Why this works:
@@ -342,7 +355,7 @@ Why this works:
 - the phase gives the agent a bounded unit of work
 - the outcome explains what should be true at the end
 - the issues give a visible queue
-- the PR gives a concrete artifact
+- screenshots make the PR easy to verify on screen
 
 ### Claude PR Feedback Poll
 
