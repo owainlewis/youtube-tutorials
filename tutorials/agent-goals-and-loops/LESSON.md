@@ -10,6 +10,13 @@ One important naming note: `loop` is mostly a Claude Code feature name here.
 
 The more general idea is simpler: run the agent on an interval.
 
+## Contents
+
+- [The model](#the-model)
+- [Goal examples](#goal-examples)
+- [Interval and schedule examples](#interval-and-schedule-examples)
+- [Combining goals with intervals and schedules](#combining-goals-with-intervals-and-schedules)
+
 ## The Model
 
 | Job | Meaning | Codex | Claude Code |
