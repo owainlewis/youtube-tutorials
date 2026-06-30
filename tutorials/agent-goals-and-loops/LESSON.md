@@ -6,22 +6,26 @@ A prompt, a goal, a loop, a schedule, and an automation are related, but they ar
 
 This page explains the model, then gives compact examples you can copy into Codex or Claude Code.
 
+One important naming note: `loop` is mostly a Claude Code feature name here.
+
+The more general idea is simpler: run the agent on an interval.
+
 ## The Model
 
 | Primitive | Meaning | Use It For |
 | --- | --- | --- |
 | Prompt | Ask once. | One answer or one action. |
 | Goal | Keep working until done. | Longer work with a finish condition. |
-| Loop | Check changing state. | CI, PR comments, logs, deploy state. |
-| Schedule | Start work later or repeatedly. | Daily or weekly maintenance. |
+| Interval run | Run the agent every few minutes. | Polling CI, PR comments, logs, deploy state. |
+| Fixed schedule | Run the agent at a fixed time. | Daily or weekly maintenance. |
 | System | Combine the pieces. | Reliable workflows with boundaries. |
 
 The short version:
 
 - Prompt asks once.
 - Goal defines done.
-- Loop checks changing state.
-- Schedule decides when work starts.
+- Interval run polls by running the agent again.
+- Fixed schedule starts the agent at a set time.
 - System combines the pieces into useful work.
 
 ## Tool Map
@@ -30,8 +34,8 @@ The short version:
 | --- | --- | --- |
 | Prompt | Prompt | Prompt |
 | Goal | `/goal` | `/goal` |
-| Loop | Automation | `/loop` |
-| Schedule | Automation | `/schedule` |
+| Interval run | Automation | `/loop` |
+| Fixed schedule | Automation | `/schedule` |
 | Boundary | Sandbox and approvals | Permissions and hooks |
 
 Codex has `/goal`.
@@ -40,7 +44,11 @@ For repeated or later work in Codex, create an automation.
 
 Claude Code has `/goal` for outcome-driven work.
 
-Claude Code has `/loop` and `/schedule` for repeated prompts and scheduled tasks inside a session.
+Claude Code has `/loop` for interval polling.
+
+Claude Code has `/schedule` for fixed scheduled tasks.
+
+In Codex, use automations for interval runs and fixed schedules.
 
 ## Why Goals Matter
 
@@ -153,17 +161,19 @@ Use when the work spans several selected tickets.
 
 This is useful when the next action depends on what the agent just learned.
 
-## Loop Examples
+## Interval And Schedule Examples
 
-Loops are useful when the state changes after the first run.
+Use an interval when the useful action is polling.
 
-| Loop | Use When | Example |
+Use a fixed schedule when the useful action should start at a known time.
+
+| Pattern | Use When | Example |
 | --- | --- | --- |
-| CI watcher | CI finishes later. | `/loop every 5 minutes check CI for PR #123.` |
-| PR babysitter | Review feedback arrives later. | `/loop every 20 minutes check PR #123.` |
-| Deploy verifier | Production state changes after release. | Check Cloud Build, live site, and logs. |
-| Issue triage | Backlogs drift over time. | Create a Monday Codex automation. |
-| Docs drift | Code changes make docs stale. | Create a daily Codex automation. |
+| Interval run | CI finishes later. | `/loop every 5 minutes check CI for PR #123.` |
+| Interval run | Review feedback arrives later. | `/loop every 20 minutes check PR #123.` |
+| Interval run | Production state changes after release. | Check Cloud Build, live site, and logs. |
+| Fixed schedule | Backlogs drift over time. | Run every Monday at 9am. |
+| Fixed schedule | Code changes make docs stale. | Run every weekday morning. |
 
 ### Weekly Issue Triage
 
@@ -221,13 +231,13 @@ Stop early if:
 - 60 minutes pass
 ```
 
-## Combining Goals And Loops
+## Combining Goals With Intervals And Schedules
 
 Useful systems usually have three parts:
 
 1. A schedule or event starts the work.
 2. A goal defines the finish line.
-3. A loop checks changing state until the goal is done or blocked.
+3. An interval run repeats a check until the goal is done or blocked.
 
 ```mermaid
 flowchart LR
