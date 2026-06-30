@@ -267,16 +267,19 @@ Why this works:
 - `go test ./...` gives a verifier
 - the demo can show before and after issue state
 
-### Slate App And CLI v0.1.0
+### Slate Phase Goals
 
-[`slate.do` issue #13][slate-cli-issue] is a better multi-ticket demo than another deploy.
+[`slate.do`][slate-repo] is a good repo for showing implementation goals.
 
-It has a clear product outcome:
+The repo is already broken down into phases.
 
-- build the owner-only app foundation first
-- add the agent API
-- keep the CLI in the main `slate.do` repo for now
-- ship a release-ready `v0.1.0` slice
+That makes the prompt simple:
+
+```text
+/goal Implement all the work in Phase X.
+
+By the end, <specific outcome> should be true.
+```
 
 Project state to check first:
 
@@ -284,47 +287,62 @@ Project state to check first:
 | --- | --- |
 | Repo | `github.com/owainlewis/slate.do` |
 | Starting point | Product shell with a static HTML prototype |
-| Open issues | #11 API tokens, #12 agent task routes, #13 CLI |
-| Release state | No release exists yet |
+| Phase plan | `docs/saas-launch-journey/spec.md` |
+| Open issues | Issues #1 to #21, labelled by phase |
 
-The CLI is not useful on its own yet.
+Good demo phases:
 
-It needs the app, database, auth, API tokens, and agent routes first.
+| Phase | Demo Value | Outcome |
+| --- | --- | --- |
+| Phase 1: App Shell | Visual, easy to show live | Static prototype becomes a real app shell |
+| Phase 2: Backend | Serious engineering work | Go server and Postgres foundation exist |
+| Phase 4: Core Boards | Best multi-ticket goal | Boards, buckets, and tasks persist across reloads |
+| Phase 6: AI Workflows | More advanced product demo | AI suggestions preview changes before applying |
 
-Codex or Claude Code:
+Copyable Phase 1 goal:
 
 ```text
-/goal Ship Slate v0.1.0 owner-only app foundation with an agent CLI from
-github.com/owainlewis/slate.do.
+/goal Implement all the work in Phase 1 of github.com/owainlewis/slate.do.
 
-First check the repo state. Read README.md, docs/prd.md,
-docs/saas-launch-journey/spec.md if it exists, and GitHub issues #11, #12, and
-#13. Confirm whether the app implementation exists or the repo is still a
-product shell.
+By the end, Slate should have a real Next.js app shell that preserves the visual
+direction of the static prototype.
 
-Build the smallest vertical slice that makes the CLI useful. Keep the CLI in the
-main slate.do repo for v0.1.0. Follow the SaaS launch journey shape unless the
-codebase points somewhere else: one Go server, Postgres persistence, owner-only
-auth, boards, buckets, tasks, API token management, agent task routes, and an
-in-repo Go CLI.
+Read README.md, docs/prd.md, docs/saas-launch-journey/spec.md, and GitHub
+issues #2 and #3 before changing code. Keep scope to Phase 1. Port the board
+prototype into React components, preserve the current board-first interaction
+model, and make the app run locally.
 
-You are done when an owner can run the app locally, create or revoke an API
-token, create basic boards and tasks, pull assigned tasks through /api/v1 agent
-routes, and use CLI commands for login, auth status, boards list, tasks pull,
-claim, note, status, done, and list --json. Invalid and revoked tokens must
-return 401. Relevant tests must pass. The README or CLI docs must explain local
-setup, auth, commands, and v0.1.0 release steps. Open a release-ready PR unless
-creating the release is clearly safe. Stop if the work needs a product decision
-about token security, auth design, public distribution, billing, DNS, or
-production deployment.
+You are done when the app starts locally, the main board screen is implemented
+as React components, the layout works in desktop and mobile browser checks,
+relevant checks pass, and a PR is open with verification notes. Stop if the work
+requires product decisions outside the app shell.
+```
+
+Copyable Phase 4 goal:
+
+```text
+/goal Implement all the work in Phase 4 of github.com/owainlewis/slate.do.
+
+By the end, the owner should be able to use Slate for real board work across
+page reloads.
+
+Read README.md, docs/prd.md, docs/saas-launch-journey/spec.md, and GitHub
+issues #8, #9, and #10 before changing code. Keep scope to Phase 4. Implement
+boards, buckets, and tasks API behavior, wire the web board UI to persisted
+data, add bucket limits, and support reorder, move, and background persistence.
+
+You are done when the owner can create and edit boards, buckets, and tasks,
+reload without losing data, move tasks between buckets, see bucket limits, and
+use persisted board backgrounds. Relevant tests must pass. Open a PR with
+verification evidence. Stop if Phase 2 or Phase 3 foundation work is missing.
 ```
 
 Why this works:
 
-- it has a concrete release outcome
-- it starts from the actual repo state
-- the checks are command-shaped and demoable
-- the app exists before the CLI is judged
+- the phase gives the agent a bounded unit of work
+- the outcome explains what should be true at the end
+- the issues give a visible queue
+- the PR gives a concrete artifact
 
 ### Claude PR Feedback Poll
 
@@ -477,7 +495,7 @@ Better:
 - Claude Code goals: <https://code.claude.com/docs/en/goal>
 - Claude Code scheduled tasks and `/loop`: <https://code.claude.com/docs/en/scheduled-tasks>
 
-[slate-cli-issue]: https://github.com/owainlewis/slate.do/issues/13
+[slate-repo]: https://github.com/owainlewis/slate.do
 
 ## Summary
 

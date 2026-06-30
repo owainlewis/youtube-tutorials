@@ -294,34 +294,46 @@ repo, and there is a documented rollback path. Stop if GCP access, DNS, IAM,
 billing, or secrets need human approval.
 ```
 
-## Slate App And CLI v0.1.0 Goal
+## Slate Phase 1 Goal
 
 Codex or Claude Code:
 
 ```text
-/goal Ship Slate v0.1.0 owner-only app foundation with an agent CLI from
-github.com/owainlewis/slate.do.
+/goal Implement all the work in Phase 1 of github.com/owainlewis/slate.do.
 
-First check the repo state. Read README.md, docs/prd.md,
-docs/saas-launch-journey/spec.md if it exists, and GitHub issues #11, #12, and
-#13. Confirm whether the app implementation exists or the repo is still a
-product shell.
+By the end, Slate should have a real Next.js app shell that preserves the visual
+direction of the static prototype.
 
-Build the smallest vertical slice that makes the CLI useful. Keep the CLI in the
-main slate.do repo for v0.1.0. Follow the SaaS launch journey shape unless the
-codebase points somewhere else: one Go server, Postgres persistence, owner-only
-auth, boards, buckets, tasks, API token management, agent task routes, and an
-in-repo Go CLI.
+Read README.md, docs/prd.md, docs/saas-launch-journey/spec.md, and GitHub
+issues #2 and #3 before changing code. Keep scope to Phase 1. Port the board
+prototype into React components, preserve the current board-first interaction
+model, and make the app run locally.
 
-You are done when an owner can run the app locally, create or revoke an API
-token, create basic boards and tasks, pull assigned tasks through /api/v1 agent
-routes, and use CLI commands for login, auth status, boards list, tasks pull,
-claim, note, status, done, and list --json. Invalid and revoked tokens must
-return 401. Relevant tests must pass. The README or CLI docs must explain local
-setup, auth, commands, and v0.1.0 release steps. Open a release-ready PR unless
-creating the release is clearly safe. Stop if the work needs a product decision
-about token security, auth design, public distribution, billing, DNS, or
-production deployment.
+You are done when the app starts locally, the main board screen is implemented
+as React components, the layout works in desktop and mobile browser checks,
+relevant checks pass, and a PR is open with verification notes. Stop if the work
+requires product decisions outside the app shell.
+```
+
+## Slate Phase 4 Goal
+
+Codex or Claude Code:
+
+```text
+/goal Implement all the work in Phase 4 of github.com/owainlewis/slate.do.
+
+By the end, the owner should be able to use Slate for real board work across
+page reloads.
+
+Read README.md, docs/prd.md, docs/saas-launch-journey/spec.md, and GitHub
+issues #8, #9, and #10 before changing code. Keep scope to Phase 4. Implement
+boards, buckets, and tasks API behavior, wire the web board UI to persisted
+data, add bucket limits, and support reorder, move, and background persistence.
+
+You are done when the owner can create and edit boards, buckets, and tasks,
+reload without losing data, move tasks between buckets, see bucket limits, and
+use persisted board backgrounds. Relevant tests must pass. Open a PR with
+verification evidence. Stop if Phase 2 or Phase 3 foundation work is missing.
 ```
 
 ## Weekly Issue Triage Automation
