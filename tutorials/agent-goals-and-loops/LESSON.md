@@ -14,6 +14,7 @@ The more general idea is simpler: run the agent on an interval.
 
 - [The model](#the-model)
 - [Goal examples](#goal-examples)
+- [A concrete GitHub demo](#a-concrete-github-demo)
 - [Interval and schedule examples](#interval-and-schedule-examples)
 - [Combining goals with intervals and schedules](#combining-goals-with-intervals-and-schedules)
 
@@ -167,6 +168,62 @@ beyond the selected tickets, or a product decision is needed.
 ```
 
 This is useful when the next action depends on what the agent just learned.
+
+## A Concrete GitHub Demo
+
+[`owainlewis/factory`](https://github.com/owainlewis/factory/issues) is a good repo to show this on.
+
+It has open GitHub issues with useful labels:
+
+- `factory-ready`: the agent may work on the issue now.
+- `factory-blocked`: the agent should not pretend it can finish the issue yet.
+
+That makes it a clean demo for goals:
+
+- work through ready issues
+- leave blocked issues alone unless the blocker is gone
+- close duplicate or completed issues with evidence
+- open and merge safe PRs only after tests pass
+
+### Codex Goal
+
+```text
+/goal Work through all open issues in owainlewis/factory. Implement issues
+labelled factory-ready one at a time, open PRs, run go test ./..., and merge
+safe PRs when checks pass. For blocked issues, confirm the blocker is still
+real and leave a short note. Close duplicate or already completed issues with
+evidence. You are done when every issue is closed, merged, or clearly blocked.
+Stop before risky changes, unclear product decisions, or failing tests you
+cannot explain.
+```
+
+### Claude Code Goal
+
+```text
+/goal Work through github.com/owainlewis/factory/issues. Start with
+factory-ready issues. Implement one issue at a time, run go test ./..., open a
+PR, address review feedback, and merge only when safe. Leave factory-blocked
+issues open unless the blocker is gone. You are done when every issue is
+closed, merged, or blocked with evidence.
+```
+
+### Codex Automation
+
+```text
+Create a Codex automation that runs every Monday at 9am.
+
+Review owainlewis/factory issues. Check labels, close duplicates or already
+completed issues with evidence, and report which factory-ready issue should be
+worked next. Do not write code in this automation.
+```
+
+### Claude Code Schedule
+
+```text
+/schedule every Monday at 9am, review owainlewis/factory issues. Check labels,
+close duplicates or already completed issues with evidence, and report the next
+factory-ready issue to work on. Do not write code in this scheduled task.
+```
 
 ## Interval And Schedule Examples
 

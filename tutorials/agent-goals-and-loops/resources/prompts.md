@@ -245,6 +245,30 @@ Output:
 - PR URL or final diff summary
 ```
 
+## Factory Issue Queue Goal
+
+Codex:
+
+```text
+/goal Work through all open issues in owainlewis/factory. Implement issues
+labelled factory-ready one at a time, open PRs, run go test ./..., and merge
+safe PRs when checks pass. For blocked issues, confirm the blocker is still
+real and leave a short note. Close duplicate or already completed issues with
+evidence. You are done when every issue is closed, merged, or clearly blocked.
+Stop before risky changes, unclear product decisions, or failing tests you
+cannot explain.
+```
+
+Claude Code:
+
+```text
+/goal Work through github.com/owainlewis/factory/issues. Start with
+factory-ready issues. Implement one issue at a time, run go test ./..., open a
+PR, address review feedback, and merge only when safe. Leave factory-blocked
+issues open unless the blocker is gone. You are done when every issue is
+closed, merged, or blocked with evidence.
+```
+
 ## Weekly Issue Triage Automation
 
 Codex:
