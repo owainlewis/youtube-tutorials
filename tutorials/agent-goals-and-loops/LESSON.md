@@ -12,43 +12,25 @@ The more general idea is simpler: run the agent on an interval.
 
 ## The Model
 
-| Primitive | Meaning | Use It For |
-| --- | --- | --- |
-| Prompt | Ask once. | One answer or one action. |
-| Goal | Keep working until done. | Longer work with a finish condition. |
-| Interval run | Run the agent every few minutes. | Polling CI, PR comments, logs, deploy state. |
-| Fixed schedule | Run the agent at a fixed time. | Daily or weekly maintenance. |
-| System | Combine the pieces. | Reliable workflows with boundaries. |
+| Job | Meaning | Codex | Claude Code |
+| --- | --- | --- | --- |
+| Do a thing once | Ask once. | Prompt | Prompt |
+| Work toward a goal | Keep working until done. | `/goal` | `/goal` |
+| Run on an interval | Run the agent every few minutes. | Automation | `/loop` |
+| Run on a fixed schedule | Run the agent at a set time. | Automation | `/schedule` |
+| Build a system | Combine the pieces. | Goal plus automation | Goal plus interval or schedule |
 
-The short version:
+Examples:
 
-- Prompt asks once.
-- Goal defines done.
-- Interval run polls by running the agent again.
-- Fixed schedule starts the agent at a set time.
-- System combines the pieces into useful work.
+- Do once: `Explain this failing test.`
+- Goal: `/goal Merge all safe open PRs.`
+- Interval: `/loop every 5 minutes check CI for PR #123.`
+- Fixed schedule: `Every Monday at 9am, triage GitHub issues.`
+- System: set a goal, then run the agent on an interval or schedule until it is done.
 
-## Tool Map
+Codex uses automations for interval runs and fixed schedules.
 
-| Primitive | Codex | Claude Code |
-| --- | --- | --- |
-| Prompt | Prompt | Prompt |
-| Goal | `/goal` | `/goal` |
-| Interval run | Automation | `/loop` |
-| Fixed schedule | Automation | `/schedule` |
-| Boundary | Sandbox and approvals | Permissions and hooks |
-
-Codex has `/goal`.
-
-For repeated or later work in Codex, create an automation.
-
-Claude Code has `/goal` for outcome-driven work.
-
-Claude Code has `/loop` for interval polling.
-
-Claude Code has `/schedule` for fixed scheduled tasks.
-
-In Codex, use automations for interval runs and fixed schedules.
+Claude Code uses `/loop` for interval polling and `/schedule` for fixed scheduled tasks.
 
 ## Why Goals Matter
 
