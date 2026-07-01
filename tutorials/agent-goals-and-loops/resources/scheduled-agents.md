@@ -31,18 +31,6 @@ Cloud Routine, cloud Codex task, or GitHub Actions means your laptop can be off.
 - GitHub Actions can run either Claude Code or Codex on a schedule using cron.
 - GitHub Actions scheduled workflows run from the default branch. The shortest schedule interval is 5 minutes.
 
-## Reply To A Viewer
-
-```text
-It depends which scheduler you use.
-
-If you use a local loop, like Claude Code /loop, your machine and session need to be available. Claude Code Desktop scheduled tasks are also local, so your computer needs to be awake.
-
-If you use Claude Code /schedule, that creates a cloud Routine, so it can run while your laptop is off. GitHub Actions also runs on GitHub's runners, so your machine does not need to be on.
-
-For Codex, app automations are local and need the machine running Codex to be on. Codex can also run in cloud tasks, and Codex can run from GitHub Actions.
-```
-
 ## References
 
 - Claude Code scheduled tasks and `/loop`: <https://code.claude.com/docs/en/scheduled-tasks>
