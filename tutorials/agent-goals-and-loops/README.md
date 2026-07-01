@@ -6,11 +6,12 @@ This is the supporting material for the video: Agent Goals and Loops Explained S
 
 - Read the lesson: [LESSON.md](./LESSON.md)
 - Copy the prompts: [resources/prompts.md](./resources/prompts.md)
+- Answer scheduling questions: [resources/scheduled-agents.md](./resources/scheduled-agents.md)
 - Browse slides: [resources/slides/](./resources/slides/)
 
 ## What This Covers
 
-- The difference between a prompt, goal, loop, schedule, and automation.
+- The difference between a prompt, goal, recurring run, and system.
 - When to use Codex `/goal`.
 - When to use Claude Code `/goal`, `/loop`, and `/schedule`.
 - Practical examples for docs drift, production bugs, PRs, and issue triage.
