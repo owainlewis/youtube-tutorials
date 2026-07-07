@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from memory_utils import DB_PATH
+from agent import DB_PATH
 
 
 def main() -> None:

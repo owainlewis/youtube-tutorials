@@ -1,25 +1,11 @@
 from __future__ import annotations
 
-from memory_utils import ask_model, build_instructions
-
-
-SYSTEM_PROMPT = build_instructions()
+from agent import Agent, NoMemory, run_repl
 
 
 def main() -> None:
-    history: list[str] = []
-
-    print("No-memory agent. Type 'exit' to quit.\n")
-    while True:
-        user_message = input("you> ").strip()
-        if user_message.lower() in {"exit", "quit"}:
-            break
-
-        history.append(f"user: {user_message}")
-        reply = ask_model(SYSTEM_PROMPT, "\n".join(history))
-        history.append(f"assistant: {reply}")
-
-        print(f"\nagent> {reply}\n")
+    agent = Agent(memory=NoMemory())
+    run_repl(agent, "No-memory agent")
 
 
 if __name__ == "__main__":

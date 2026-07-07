@@ -4,6 +4,15 @@ This folder contains four small Python demos.
 
 Each demo adds one memory idea.
 
+The shared agent abstraction lives in `agent.py`.
+
+Each script keeps the same shape:
+
+```python
+agent = Agent(memory=StaticFileMemory())
+agent.run("How should I run Python commands here?")
+```
+
 ## Setup
 
 Use Python 3.11 or newer.

@@ -69,6 +69,8 @@ The goal is to make memory visible.
 
 The code lives in [code/](./code/).
 
+The shared abstraction lives in [code/agent.py](./code/agent.py).
+
 We will walk through four files:
 
 ```text
@@ -90,6 +92,29 @@ AI_MEMORY_DEMO_FAKE_MODEL=1 uv run 02_static_memory.py
 Fake-model mode is not the lesson.
 
 It is just a quick way to prove what context is being loaded before you spend tokens.
+
+All four demos use the same tiny agent abstraction:
+
+```python
+agent = Agent(memory=StaticFileMemory())
+reply = agent.run("How should I run Python commands here?")
+```
+
+The `Agent` owns the model call and current conversation history.
+
+It sends OpenAI a normal list of role/content messages.
+
+The memory object owns three things:
+
+```python
+startup_context = memory.startup()
+retrieved_context = memory.search(user_message)
+memory.save(user_message, assistant_reply)
+```
+
+That is the whole boundary.
+
+The agent should not know whether memory comes from files, SQLite, Mem0, or a production database.
 
 ## The Basic Idea
 
@@ -180,21 +205,11 @@ Here is the same idea as pseudocode:
 
 ```python
 def start_agent():
-    startup_memory = load_files(["AGENTS.md", "MEMORY.md"])
-    return Agent(startup_memory=startup_memory)
+    return Agent(memory=StaticFileMemory())
 
 
 def run_turn(agent, user_message):
-    relevant_memory = search_memory(user_message)
-
-    reply = call_model(
-        startup_memory=agent.startup_memory,
-        retrieved_memory=relevant_memory,
-        user_message=user_message,
-    )
-
-    save_anything_useful(user_message, reply)
-    return reply
+    return agent.run(user_message)
 ```
 
 Once you see this loop, the tools become easier to place.
@@ -275,9 +290,8 @@ This agent only has the current conversation while the process is running.
 It stores messages in a Python list:
 
 ```python
-history.append(f"user: {user_message}")
-reply = ask_model(SYSTEM_PROMPT, "\n".join(history))
-history.append(f"assistant: {reply}")
+agent = Agent(memory=NoMemory())
+reply = agent.run(user_message)
 ```
 
 Run it:
@@ -326,8 +340,8 @@ memory/MEMORY.md
 The important code is simple:
 
 ```python
-startup_memory = load_static_memory()
-instructions = build_instructions(startup_memory=startup_memory)
+agent = Agent(memory=StaticFileMemory())
+reply = agent.run(user_message)
 ```
 
 This is how many coding agents work.
@@ -379,11 +393,9 @@ This version saves messages to SQLite and searches recent sessions before each t
 The search is intentionally simple:
 
 ```python
-memories = search_sessions(db, user_message)
-instructions = build_instructions(
-    startup_memory=load_static_memory(),
-    retrieved_memory=memories,
-)
+memory = SessionSearchMemory()
+agent = Agent(memory=memory)
+reply = agent.run(user_message)
 ```
 
 Run it:
@@ -435,19 +447,21 @@ Open [code/04_mem0_memory.py](./code/04_mem0_memory.py).
 The search path is:
 
 ```python
+memory = Mem0Memory()
+agent = Agent(memory=memory)
+reply = agent.run(user_message)
+```
+
+Inside `Mem0Memory`, the search path is:
+
+```python
 results = client.search(user_message, filters={"user_id": USER_ID})
 ```
 
-The write path is:
+And the write path is:
 
 ```python
-client.add(
-    messages=[
-        {"role": "user", "content": user_message},
-        {"role": "assistant", "content": assistant_reply},
-    ],
-    user_id=USER_ID,
-)
+client.add(messages=messages, user_id=USER_ID)
 ```
 
 Run it with the Mem0 extra:
