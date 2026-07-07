@@ -1,4 +1,6 @@
-# Herdr for AI Coding Agents
+# Herdr: The Agent Multiplexer AI Developers Need
+
+Free resources included: my Herdr setup files, reference configs, prompts, and setup script.
 
 Herdr is a terminal workspace manager built for AI coding agents.
 
@@ -12,14 +14,18 @@ But I keep coming back to Herdr because it solves a slightly different problem. 
 
 ## Title Options
 
-1. Herdr Complete Guide for AI Coding Agents
-2. Herdr: The Agent Multiplexer for Claude Code and Codex
+Recommended title: Herdr: The Agent Multiplexer AI Developers Need
+
+Giveaway line: My Herdr setup files, configs, prompts, and setup script are linked for free below.
+
+1. Herdr: The Agent Multiplexer AI Developers Need
+2. Herdr Complete Guide for AI Coding Agents
 3. How to Run Multiple Coding Agents Without Losing Control
 4. My Herdr Workflow for Claude Code, Codex, Tests, and Logs
 5. Stop Losing Track of Your AI Coding Agents
 6. Herdr vs tmux for AI Developers
 7. The Terminal Runtime for AI Coding Agents
-8. Why Herdr Finally Clicked for My Agent Workflow
+8. Herdr: My Setup for Running Multiple Coding Agents
 
 ## Opening Script
 

@@ -1,6 +1,8 @@
-# Herdr for AI Coding Agents
+# Herdr: The Agent Multiplexer AI Developers Need
 
 This is the supporting material for a practical Herdr tutorial for developers using Claude Code, Codex, Pi, OpenCode, or other terminal coding agents.
+
+Includes my Herdr setup files, reference configs, prompts, and setup script.
 
 ## Start Here
 
