@@ -1,0 +1,7 @@
+.env
+.env.local
+.venv/
+uv.lock
+sessions.sqlite3
+__pycache__/
+.pytest_cache/
