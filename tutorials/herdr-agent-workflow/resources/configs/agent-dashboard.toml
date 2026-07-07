@@ -4,17 +4,32 @@
 onboarding = false
 
 [theme]
-name = "catppuccin"
+name = "rose-pine"
 auto_switch = true
-light_name = "catppuccin-latte"
-dark_name = "catppuccin"
+light_name = "rose-pine-dawn"
+dark_name = "rose-pine"
 
 [theme.custom]
-accent = "#89b4fa"
-green = "#a6e3a1"
-blue = "#89b4fa"
-red = "#f38ba8"
-yellow = "#f9e2af"
+accent = "#c4a7e7"
+green = "#9ccfd8"
+blue = "#31748f"
+red = "#eb6f92"
+yellow = "#f6c177"
+
+[keys]
+prefix = "ctrl+b"
+toggle_sidebar = "prefix+b"
+help = "prefix+?"
+new_workspace = "prefix+shift+n"
+workspace_picker = "prefix+w"
+new_tab = "prefix+c"
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
+split_vertical = "prefix+v"
+split_horizontal = "prefix+minus"
+zoom = "prefix+z"
+close_pane = "prefix+x"
+detach = "prefix+q"
 
 [ui]
 sidebar_width = 34
@@ -27,7 +42,7 @@ show_agent_labels_on_pane_borders = true
 agent_panel_sort = "priority"
 confirm_close = true
 prompt_new_tab_name = true
-accent = "cyan"
+accent = "#c4a7e7"
 
 [ui.toast]
 delivery = "herdr"

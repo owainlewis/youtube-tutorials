@@ -4,6 +4,7 @@
 - Install Herdr: https://herdr.dev/docs/install/
 - Quick start: https://herdr.dev/docs/quick-start/
 - Concepts: https://herdr.dev/docs/concepts/
+- How to work with Herdr: https://herdr.dev/docs/how-to-work/
 - Agents: https://herdr.dev/docs/agents/
 - Integrations: https://herdr.dev/docs/integrations/
 - Agent skill file: https://herdr.dev/docs/agent-skill/

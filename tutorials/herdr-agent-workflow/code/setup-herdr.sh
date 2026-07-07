@@ -54,19 +54,43 @@ herdr --version
 echo
 
 echo "Installing Herdr integrations..."
+failed_agents=()
 for agent in "${agents[@]}"; do
   echo "  herdr integration install ${agent}"
-  herdr integration install "${agent}"
+  if ! herdr integration install "${agent}"; then
+    failed_agents+=("${agent}")
+  fi
 done
 
 echo
 echo "Integration status:"
 herdr integration status || true
 
+if [[ ${#failed_agents[@]} -gt 0 ]]; then
+  echo
+  echo "Some integrations did not install:"
+  for agent in "${failed_agents[@]}"; do
+    echo "  - ${agent}"
+  done
+  cat <<'EOF'
+
+This usually means the agent is not installed yet, or its config directory does
+not exist for the current user. Install the agent, run it once, then rerun this
+script for that agent.
+EOF
+fi
+
 echo
 if command -v npx >/dev/null 2>&1; then
   echo "Installing Herdr skill globally for supported agents..."
-  npx skills add ogulcancelik/herdr --skill herdr -g
+  if ! npx skills add ogulcancelik/herdr --skill herdr -g; then
+    cat <<'EOF'
+The Herdr skill install failed.
+
+Manual skill source:
+  https://github.com/ogulcancelik/herdr/blob/master/SKILL.md
+EOF
+  fi
 else
   cat <<'EOF'
 npx was not found, so the Herdr skill was not installed.
