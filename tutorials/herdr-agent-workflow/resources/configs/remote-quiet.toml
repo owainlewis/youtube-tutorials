@@ -1,0 +1,31 @@
+# Quieter config for remote machines and shared environments.
+# Use terminal notifications over SSH, disable sound, and keep mouse behavior simple.
+
+onboarding = false
+
+[theme]
+name = "terminal"
+
+[remote]
+manage_ssh_config = true
+
+[ui]
+sidebar_width = 30
+mouse_capture = true
+mouse_scroll_lines = 3
+pane_borders = true
+pane_gaps = false
+agent_panel_sort = "priority"
+
+[ui.toast]
+delivery = "terminal"
+delay_seconds = 2
+
+[ui.sound]
+enabled = false
+
+[session]
+resume_agents_on_restore = true
+
+[experimental]
+pane_history = false

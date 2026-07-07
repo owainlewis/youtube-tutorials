@@ -1,0 +1,47 @@
+# Agent dashboard config for recording or daily agent supervision.
+# This makes agent state more visible and reduces noisy audio.
+
+onboarding = false
+
+[theme]
+name = "catppuccin"
+auto_switch = true
+light_name = "catppuccin-latte"
+dark_name = "catppuccin"
+
+[theme.custom]
+accent = "#89b4fa"
+green = "#a6e3a1"
+blue = "#89b4fa"
+red = "#f38ba8"
+yellow = "#f9e2af"
+
+[ui]
+sidebar_width = 34
+sidebar_min_width = 22
+sidebar_max_width = 44
+mobile_width_threshold = 72
+pane_borders = true
+pane_gaps = true
+show_agent_labels_on_pane_borders = true
+agent_panel_sort = "priority"
+confirm_close = true
+prompt_new_tab_name = true
+accent = "cyan"
+
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "bottom-right"
+
+[ui.toast.clipboard]
+enabled = true
+position = "bottom-center"
+
+[ui.sound]
+enabled = false
+
+[session]
+resume_agents_on_restore = true

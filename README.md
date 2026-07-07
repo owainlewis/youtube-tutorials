@@ -22,6 +22,7 @@ Each tutorial uses the same public shape:
 - [7 Codex Skills I Use As An AI Engineer](./tutorials/codex-skills-i-use/)
 - [Deploy AI Systems on Google Cloud With OpenAI Codex](./tutorials/deploy-ai-on-gcp/)
 - [GitHub AI Workflow](./tutorials/github-ai-workflow/)
+- [Herdr for AI Coding Agents](./tutorials/herdr-agent-workflow/)
 - [How I'd Learn Software Engineering (When AI Writes the Code)](./tutorials/how-id-learn-software-engineering/)
 - [Intent-Based Query Routing for RAG](./tutorials/intent-based-classification/)
 - [Linear as Your Agent's Control Plane](./tutorials/linear-workflow/)
