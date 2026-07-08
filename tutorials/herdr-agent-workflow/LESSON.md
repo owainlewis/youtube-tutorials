@@ -1,6 +1,6 @@
 # Herdr: The Agent Multiplexer AI Developers Need
 
-Free resources included: my Herdr setup files, reference configs, prompts, and setup script.
+Free resource included: my `/ticket` slash command for orchestrating GitHub issue work inside Herdr.
 
 This is a simple recording guide for the video.
 
@@ -14,13 +14,13 @@ The video should feel like this:
 4. How workspaces, tabs, and panes fit together.
 5. How to run coding agents inside it.
 6. How to customize it with AI.
-7. How agents can control Herdr itself.
+7. How agents can control Herdr itself with a real `/ticket` slash command.
 
 ## Title Options
 
 Recommended title: Herdr: The Agent Multiplexer AI Developers Need
 
-Giveaway line: My Herdr setup files, configs, prompts, and setup script are linked for free below.
+Giveaway line: My Herdr `/ticket` slash command is linked for free below.
 
 1. Herdr: The Agent Multiplexer AI Developers Need
 2. Herdr Complete Guide for AI Coding Agents
@@ -41,9 +41,9 @@ I have tried tmux and cmux, and both are interesting, but Herdr is the one that 
 
 In this video, I will show you what Herdr is, how to install it, how the UI works, how to create workspaces, tabs, and panes, and how to run coding agents inside it.
 
-Then at the end, I will show you the really interesting part: using AI agents to control Herdr itself, open panes, run commands, wait for output, and report back.
+Then at the end, I will show you the really interesting part: using an AI agent to control Herdr itself with a `/ticket` slash command that creates a worktree, opens a tab, starts an agent, and hands it a GitHub issue.
 
-All of the prompts, configs, and setup files are linked for free in the description below.
+The slash command is linked for free in the description below.
 
 So, let's get into it.
 
@@ -423,11 +423,7 @@ The human decides the taste and constraints.
 The agent makes the boring edit, validates it, and reports what changed.
 ```
 
-Reference configs are in:
-
-```text
-resources/configs/
-```
+For this tutorial, the main resource is not a big config pack. It is the real slash command used in the final demo.
 
 ## Install Agent Integrations
 
@@ -482,27 +478,31 @@ Create the pane without stealing focus.
 Do not close the pane when you are done.
 ```
 
-Then show the worker orchestrator version:
+Then show the real slash command:
+
+```md
+---
+description: Take a GitHub issue end to end - worktree, implement, test, PR - running in its own Herdr tab.
+argument-hint: <github issue number or URL>
+---
+
+Issue: $ARGUMENTS
+
+Do this yourself, you already know how - worktrees, testing, and PRs aren't new to you. Steps are here only to pin down the Herdr wiring, not to teach you the engineering. This works in any repo's current workspace:
+
+1. `gh issue view $ARGUMENTS` to pull the issue.
+2. Create a worktree + branch for it, always based off the repo's main branch.
+3. Find your current workspace: `herdr pane current` -> workspace_id.
+4. Create a new tab for this ticket with `herdr tab create`.
+5. Start an agent in that tab with `herdr agent start`.
+6. Hand it the task with `herdr agent send`.
+7. Tell me the tab label and branch name.
+```
+
+The full command is in:
 
 ```text
-Can you act as a worker orchestrator inside Herdr?
-
-Open three Herdr panes without stealing focus:
-
-1. A test pane that runs `npm test`.
-2. A lint pane that runs `npm run lint`.
-3. A git pane that runs `git diff --stat` and then waits.
-
-Read the output from each pane.
-
-Report back:
-
-1. Which panes you created.
-2. What passed.
-3. What failed.
-4. What I should review next.
-
-Do not close panes.
+resources/commands/ticket.md
 ```
 
 What this proves:
@@ -570,8 +570,8 @@ Use this order when recording:
 13. Show the rose-pine theme and useful bindings.
 14. Install the agent integrations and Herdr skill.
 15. Run the simple AI-controlled pane demo.
-16. Run the worker orchestrator demo.
-17. Show the free prompts and configs.
+16. Run the `/ticket` slash command demo.
+17. Show the free slash command file.
 18. Close with the practical takeaway.
 
 This should feel like a guided walkthrough, not a complete encyclopedia.
@@ -580,11 +580,7 @@ This should feel like a guided walkthrough, not a complete encyclopedia.
 
 Link these in the description:
 
-- setup helper: `code/setup-herdr.sh`
-- prompts: `resources/prompts.md`
-- reference configs: `resources/configs/`
-- AGENTS example: `resources/example-AGENTS.md`
-- checklist: `resources/checklist.md`
+- slash command: `resources/commands/ticket.md`
 - Herdr install docs: https://herdr.dev/docs/install/
 - Herdr work docs: https://herdr.dev/docs/how-to-work/
 - Herdr config docs: https://herdr.dev/docs/configuration/
@@ -605,6 +601,6 @@ one log pane
 
 Then, once that makes sense, you can move to the advanced pattern where agents control Herdr directly.
 
-All of the prompts, setup files, and reference configs are linked below.
+The `/ticket` slash command is linked below.
 
 If you are building serious projects with AI coding agents, this is the kind of workflow that helps you stay organised without slowing down.
