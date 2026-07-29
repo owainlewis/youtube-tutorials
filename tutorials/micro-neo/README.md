@@ -1,13 +1,13 @@
 # Micro Neo
 
-Micro Neo is a minimal coding agent written in Go. It uses OpenRouter, four
-tools, a serial agent loop, and a small event-driven terminal interface.
+Micro Neo is a minimal coding agent written in one Go file. It uses OpenRouter,
+three tools, a serial agent loop, and a small event-driven terminal interface.
 
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
 - Run the agent: [code/](./code/)
-- Copy the demo prompts: [resources/prompts.md](./resources/prompts.md)
+- Follow the live-build prompts: [resources/prompts.md](./resources/prompts.md)
 - Browse slides: [resources/slides/](./resources/slides/)
 
 ## Quick Start

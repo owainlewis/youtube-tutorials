@@ -63,7 +63,7 @@ It has:
 
 - one model provider: OpenRouter
 - one serial agent loop
-- four tools: read, search, exact edit, and shell
+- three tools: read, exact edit, and shell
 - one in-memory transcript
 - one small event-driven terminal interface
 
@@ -75,12 +75,16 @@ The implementation uses only the Go standard library.
 
 ```text
 code/
-  main.go        CLI setup and interactive input
-  agent.go       transcript, loop, events, and tool dispatch
-  openrouter.go  OpenRouter HTTP adapter
-  tools.go       tools available to the model
-  ui.go          terminal event renderer
+  main.go       the complete agent, built from top to bottom
+  main_test.go  the safety net, kept out of the teaching path
+  go.mod
+  testdata/     a tiny broken project for the demo
 ```
+
+The video builds only `main.go`. Each stage adds one idea to the same file, so
+the audience never has to jump between packages or reconstruct hidden code.
+The finished tests are included for people who want to verify the boundaries
+after the lesson.
 
 ## See It Working
 
@@ -374,6 +378,10 @@ network access, or available credentials.
 
 The prompt is not a sandbox.
 
+Command cancellation stops the shell process. A command that launches its own
+background children may leave those children running. Production agents need
+OS-specific process-group cleanup or a real sandbox.
+
 ## Tests
 
 Run the automated checks from the code folder:
@@ -388,17 +396,16 @@ paid OpenRouter requests.
 
 It covers:
 
-- a text-only model response
 - a tool call followed by a final response
 - matching tool call and result identifiers
-- unknown tools and tool failures
 - cancellation without orphaning later tool calls
 - the maximum-turn limit
 - incomplete responses stopped by a model output limit
 - OpenRouter request and error handling
-- reasoning-block replay across tool calls
-- bounded file reads, traversal, and exact-edit failures
-- command working directory and bounded output
+- bounded file reads and traversal
+- exact edits and strict tool arguments
+- bounded command output
+- terminal event rendering
 
 ## Tradeoffs
 
@@ -406,7 +413,7 @@ Micro Neo is designed for teaching, not unattended production work.
 
 It buffers complete model responses instead of streaming them. It keeps the
 whole transcript in memory. It runs tools serially. It has no interactive
-approval gate.
+approval gate. Its shell cancellation does not manage descendant processes.
 
 Those choices keep the core visible. Add each production feature only after
 the problem it solves is clear.
@@ -416,7 +423,7 @@ the problem it solves is clear.
 - [OpenRouter tool calling](https://openrouter.ai/docs/guides/features/tool-calling)
 - [OpenRouter quickstart](https://openrouter.ai/docs/quickstart)
 - [Runnable code](./code/)
-- [Demo prompts](./resources/prompts.md)
+- [Live-build and demo prompts](./resources/prompts.md)
 - [Neo](https://github.com/owainlewis/neo)
 
 ## Summary
