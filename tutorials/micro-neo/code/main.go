@@ -691,30 +691,67 @@ func runREPL(
 	agent *Agent,
 	renderer *Renderer,
 ) error {
+	lines := scanLines(ctx, input)
+
+	for {
+		renderer.Prompt()
+		select {
+		case <-ctx.Done():
+			fmt.Fprintln(renderer.writer)
+			return nil
+		case line, ok := <-lines:
+			if !ok {
+				fmt.Fprintln(renderer.writer)
+				return nil
+			}
+			if line.err != nil {
+				fmt.Fprintln(renderer.writer)
+				return line.err
+			}
+
+			prompt := strings.TrimSpace(line.text)
+			if prompt == "/exit" || prompt == "/quit" {
+				return nil
+			}
+			if prompt != "" {
+				_, err := agent.Run(ctx, prompt)
+				if errors.Is(err, context.Canceled) {
+					return nil
+				}
+				fmt.Fprintln(renderer.writer)
+			}
+		}
+	}
+}
+
+type inputLine struct {
+	text string
+	err  error
+}
+
+func scanLines(ctx context.Context, input io.Reader) <-chan inputLine {
+	lines := make(chan inputLine)
 	scanner := bufio.NewScanner(input)
 	scanner.Buffer(make([]byte, 1024), 1<<20)
 
-	for {
-		if ctx.Err() != nil {
-			return nil
-		}
-		renderer.Prompt()
-		if !scanner.Scan() {
-			fmt.Fprintln(renderer.writer)
-			return scanner.Err()
-		}
-		prompt := strings.TrimSpace(scanner.Text())
-		if prompt == "/exit" || prompt == "/quit" {
-			return nil
-		}
-		if prompt != "" {
-			_, err := agent.Run(ctx, prompt)
-			if errors.Is(err, context.Canceled) {
-				return nil
+	go func() {
+		defer close(lines)
+		for scanner.Scan() {
+			select {
+			case lines <- inputLine{text: scanner.Text()}:
+			case <-ctx.Done():
+				return
 			}
-			fmt.Fprintln(renderer.writer)
 		}
-	}
+		if err := scanner.Err(); err != nil {
+			select {
+			case lines <- inputLine{err: err}:
+			case <-ctx.Done():
+			}
+		}
+	}()
+
+	return lines
 }
 
 func envOr(name, fallback string) string {

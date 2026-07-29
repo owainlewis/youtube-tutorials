@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -115,6 +117,37 @@ func TestREPLEOFEndsPromptLine(t *testing.T) {
 	}
 	if got := output.String(); got != "› \n" {
 		t.Fatalf("output = %q, want prompt followed by newline", got)
+	}
+}
+
+func TestREPLCancellationInterruptsIdlePrompt(t *testing.T) {
+	reader, writer := io.Pipe()
+	defer reader.Close()
+	defer writer.Close()
+
+	output := &promptWriter{prompted: make(chan struct{})}
+	renderer := NewRenderer(output)
+	agent := NewAgent(&fakeProvider{}, nil, renderer.Handle)
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+	go func() {
+		done <- runREPL(ctx, reader, agent, renderer)
+	}()
+
+	select {
+	case <-output.prompted:
+	case <-time.After(time.Second):
+		t.Fatal("REPL did not show its prompt")
+	}
+	cancel()
+
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("REPL did not stop after cancellation")
 	}
 }
 
@@ -290,6 +323,19 @@ func TestRendererShowsProgressWithoutANSI(t *testing.T) {
 	if strings.Contains(got, "\x1b[") {
 		t.Fatalf("output contains ANSI: %q", got)
 	}
+}
+
+type promptWriter struct {
+	bytes.Buffer
+	once     sync.Once
+	prompted chan struct{}
+}
+
+func (w *promptWriter) Write(data []byte) (int, error) {
+	if strings.Contains(string(data), "› ") {
+		w.once.Do(func() { close(w.prompted) })
+	}
+	return w.Buffer.Write(data)
 }
 
 func mustTools(t *testing.T, root string) map[string]Tool {
