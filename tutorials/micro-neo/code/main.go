@@ -608,7 +608,9 @@ func NewRenderer(writer io.Writer) *Renderer {
 
 func (r *Renderer) Banner(model, workspace string) {
 	fmt.Fprintf(r.writer, "%sMicro Neo%s\n", r.style("\x1b[1;34m"), r.style("\x1b[0m"))
-	fmt.Fprintf(r.writer, "model      %s\nworkspace  %s\n\n", model, workspace)
+	fmt.Fprintf(r.writer, "model      %s\nworkspace  %s\n", model, workspace)
+	fmt.Fprintln(r.writer, "type a message, or /exit to quit")
+	fmt.Fprintln(r.writer)
 }
 
 func (r *Renderer) Prompt() {
@@ -657,6 +659,9 @@ func run() error {
 	model := flag.String("model", envOr("OPENROUTER_MODEL", defaultModel), "OpenRouter model slug")
 	workspace := flag.String("workspace", ".", "workspace available to Micro Neo")
 	flag.Parse()
+	if flag.NArg() != 0 {
+		return errors.New("enter tasks at the interactive prompt; positional arguments are not supported")
+	}
 
 	apiKey := strings.TrimSpace(os.Getenv("OPENROUTER_API_KEY"))
 	if apiKey == "" {
@@ -677,29 +682,76 @@ func run() error {
 	defer stop()
 	renderer.Banner(*model, root)
 
-	if prompt := strings.TrimSpace(strings.Join(flag.Args(), " ")); prompt != "" {
-		_, err := agent.Run(ctx, prompt)
-		return err
-	}
+	return runREPL(ctx, os.Stdin, agent, renderer)
+}
 
-	scanner := bufio.NewScanner(os.Stdin)
+func runREPL(
+	ctx context.Context,
+	input io.Reader,
+	agent *Agent,
+	renderer *Renderer,
+) error {
+	lines := scanLines(ctx, input)
+
 	for {
 		renderer.Prompt()
-		if !scanner.Scan() {
-			return scanner.Err()
-		}
-		prompt := strings.TrimSpace(scanner.Text())
-		if prompt == "/exit" || prompt == "/quit" {
+		select {
+		case <-ctx.Done():
+			fmt.Fprintln(renderer.writer)
 			return nil
-		}
-		if prompt != "" {
-			_, err := agent.Run(ctx, prompt)
-			if errors.Is(err, context.Canceled) {
+		case line, ok := <-lines:
+			if !ok {
+				fmt.Fprintln(renderer.writer)
 				return nil
 			}
-			fmt.Fprintln(os.Stdout)
+			if line.err != nil {
+				fmt.Fprintln(renderer.writer)
+				return line.err
+			}
+
+			prompt := strings.TrimSpace(line.text)
+			if prompt == "/exit" || prompt == "/quit" {
+				return nil
+			}
+			if prompt != "" {
+				_, err := agent.Run(ctx, prompt)
+				if errors.Is(err, context.Canceled) {
+					return nil
+				}
+				fmt.Fprintln(renderer.writer)
+			}
 		}
 	}
+}
+
+type inputLine struct {
+	text string
+	err  error
+}
+
+func scanLines(ctx context.Context, input io.Reader) <-chan inputLine {
+	lines := make(chan inputLine)
+	scanner := bufio.NewScanner(input)
+	scanner.Buffer(make([]byte, 1024), 1<<20)
+
+	go func() {
+		defer close(lines)
+		for scanner.Scan() {
+			select {
+			case lines <- inputLine{text: scanner.Text()}:
+			case <-ctx.Done():
+				return
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			select {
+			case lines <- inputLine{err: err}:
+			case <-ctx.Done():
+			}
+		}
+	}()
+
+	return lines
 }
 
 func envOr(name, fallback string) string {

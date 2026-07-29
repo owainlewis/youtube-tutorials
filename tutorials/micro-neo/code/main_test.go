@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -68,6 +70,84 @@ func TestAgentLoop(t *testing.T) {
 		if events[i].Kind != kind {
 			t.Fatalf("event %d = %q, want %q", i, events[i].Kind, kind)
 		}
+	}
+}
+
+func TestREPLRunsMultipleMessagesInOneConversation(t *testing.T) {
+	provider := &fakeProvider{responses: []Message{
+		{Role: "assistant", Content: "first answer", StopReason: "stop"},
+		{Role: "assistant", Content: "second answer", StopReason: "stop"},
+	}}
+	var output bytes.Buffer
+	renderer := NewRenderer(&output)
+	agent := NewAgent(provider, nil, renderer.Handle)
+
+	err := runREPL(
+		context.Background(),
+		strings.NewReader("first question\nfollow up\n/exit\n"),
+		agent,
+		renderer,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(provider.calls) != 2 {
+		t.Fatalf("provider calls = %d, want 2", len(provider.calls))
+	}
+	secondCall := provider.calls[1]
+	if len(secondCall) != 3 ||
+		secondCall[0].Content != "first question" ||
+		secondCall[1].Content != "first answer" ||
+		secondCall[2].Content != "follow up" {
+		t.Fatalf("second request transcript = %#v", secondCall)
+	}
+	if got := output.String(); !strings.Contains(got, "first answer") ||
+		!strings.Contains(got, "second answer") {
+		t.Fatalf("output = %q", got)
+	}
+}
+
+func TestREPLEOFEndsPromptLine(t *testing.T) {
+	var output bytes.Buffer
+	renderer := NewRenderer(&output)
+	agent := NewAgent(&fakeProvider{}, nil, renderer.Handle)
+
+	if err := runREPL(context.Background(), strings.NewReader(""), agent, renderer); err != nil {
+		t.Fatal(err)
+	}
+	if got := output.String(); got != "› \n" {
+		t.Fatalf("output = %q, want prompt followed by newline", got)
+	}
+}
+
+func TestREPLCancellationInterruptsIdlePrompt(t *testing.T) {
+	reader, writer := io.Pipe()
+	defer reader.Close()
+	defer writer.Close()
+
+	output := &promptWriter{prompted: make(chan struct{})}
+	renderer := NewRenderer(output)
+	agent := NewAgent(&fakeProvider{}, nil, renderer.Handle)
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+	go func() {
+		done <- runREPL(ctx, reader, agent, renderer)
+	}()
+
+	select {
+	case <-output.prompted:
+	case <-time.After(time.Second):
+		t.Fatal("REPL did not show its prompt")
+	}
+	cancel()
+
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("REPL did not stop after cancellation")
 	}
 }
 
@@ -243,6 +323,19 @@ func TestRendererShowsProgressWithoutANSI(t *testing.T) {
 	if strings.Contains(got, "\x1b[") {
 		t.Fatalf("output contains ANSI: %q", got)
 	}
+}
+
+type promptWriter struct {
+	bytes.Buffer
+	once     sync.Once
+	prompted chan struct{}
+}
+
+func (w *promptWriter) Write(data []byte) (int, error) {
+	if strings.Contains(string(data), "› ") {
+		w.once.Do(func() { close(w.prompted) })
+	}
+	return w.Buffer.Write(data)
 }
 
 func mustTools(t *testing.T, root string) map[string]Tool {

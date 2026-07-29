@@ -11,13 +11,15 @@ Build the smallest useful Go CLI in main.go.
 Requirements:
 - Use only the Go standard library.
 - Read OPENROUTER_API_KEY from the environment.
-- Accept a task from the command-line arguments.
+- Start an interactive read-eval-print loop.
+- Read one message at a time from standard input.
 - POST the task to OpenRouter's /api/v1/chat/completions endpoint.
 - Use OPENROUTER_MODEL when set, with a sensible default.
-- Print the model's text response.
+- Print the model's text response, then show the prompt again.
+- Exit cleanly when the user enters /exit.
 - Keep all code in main.go.
 
-Run gofmt, go test ./..., and go run . --help when finished.
+Run gofmt, go test ./..., and go run main.go --help when finished.
 ```
 
 Teaching point: before it is an agent, it is just a model call.
@@ -52,8 +54,10 @@ For each turn:
 5. Append one tool message with the matching tool_call_id for every call.
 6. Send the expanded transcript back to the model.
 
-Add a maximum of 50 turns. Tool failures must become tool results so the model
-can recover. Keep everything in main.go. Run gofmt and go test ./....
+After the model returns final text, wait for the next user message and keep the
+transcript so follow-ups have the full conversation. Add a maximum of 50 model
+turns per user message. Tool failures must become tool results so the model can
+recover. Keep everything in main.go. Run gofmt and go test ./....
 ```
 
 Teaching point: this loop is the core of the entire agent.
@@ -139,8 +143,13 @@ Run these from `tutorials/micro-neo/code/`.
 ## Main Demo
 
 ```bash
-go run . --workspace testdata/demo \
-  "Find and fix the failing test. Run the tests when you are done."
+go run main.go --workspace testdata/demo
+```
+
+Then enter:
+
+```text
+› Find and fix the failing test. Run the tests when you are done.
 ```
 
 Expected path:
@@ -160,15 +169,25 @@ git restore tutorials/micro-neo/code/testdata/demo/calculator.go
 ## Read-Only Exploration
 
 ```bash
-go run . --workspace . \
-  "Explain how this coding agent works. Do not change any files."
+go run main.go --workspace .
+```
+
+Then enter:
+
+```text
+› Explain how this coding agent works. Do not change any files.
 ```
 
 ## Failure Recovery
 
 ```bash
-go run . --workspace testdata/demo \
-  "Read arithmetic.go, explain the Add function, and run its tests."
+go run main.go --workspace testdata/demo
+```
+
+Then enter:
+
+```text
+› Read arithmetic.go, explain the Add function, and run its tests.
 ```
 
 The file does not exist. The model can recover with `run_command`, inspect the
@@ -177,10 +196,9 @@ workspace, and continue.
 ## Try Another Model
 
 ```bash
-go run . \
+go run main.go \
   --model openai/gpt-5.4 \
-  --workspace testdata/demo \
-  "Find and fix the failing test. Run the tests when you are done."
+  --workspace testdata/demo
 ```
 
 The selected OpenRouter model must support tool calling.
