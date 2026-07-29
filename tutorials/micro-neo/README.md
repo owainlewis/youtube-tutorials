@@ -15,8 +15,13 @@ three tools, a serial agent loop, and a small event-driven terminal interface.
 ```bash
 cd code
 export OPENROUTER_API_KEY="your-key"
-go run . --workspace testdata/demo \
-  "Find and fix the failing test. Run the tests when you are done."
+go run main.go --workspace testdata/demo
+```
+
+Then enter a task at the prompt:
+
+```text
+› Find and fix the failing test. Run the tests when you are done.
 ```
 
 The lesson includes model selection, tests, security limits, and the exact demo

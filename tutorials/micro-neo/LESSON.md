@@ -95,19 +95,28 @@ From the repository root:
 ```bash
 cd tutorials/micro-neo/code
 export OPENROUTER_API_KEY="your-key"
-go run . --workspace testdata/demo \
-  "Find and fix the failing test. Run the tests when you are done."
+go run main.go --workspace testdata/demo
+```
+
+Micro Neo starts an interactive session. Enter the task at the prompt:
+
+```text
+› Find and fix the failing test. Run the tests when you are done.
 ```
 
 The default model is `anthropic/claude-sonnet-4.6`. Choose another
 tool-capable OpenRouter model with:
 
 ```bash
-go run . \
+go run main.go \
   --model openai/gpt-5.4 \
-  --workspace testdata/demo \
-  "Find and fix the failing test. Run the tests when you are done."
+  --workspace testdata/demo
 ```
+
+Each message runs the agent loop until the model returns a final response.
+Micro Neo then shows another prompt. The transcript stays in memory, so a
+follow-up message has the full conversation and tool history. Enter `/exit` to
+finish the session.
 
 The model should:
 
@@ -396,6 +405,7 @@ paid OpenRouter requests.
 
 It covers:
 
+- multiple messages in one interactive conversation
 - a tool call followed by a final response
 - matching tool call and result identifiers
 - cancellation without orphaning later tool calls

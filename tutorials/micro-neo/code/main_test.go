@@ -71,6 +71,53 @@ func TestAgentLoop(t *testing.T) {
 	}
 }
 
+func TestREPLRunsMultipleMessagesInOneConversation(t *testing.T) {
+	provider := &fakeProvider{responses: []Message{
+		{Role: "assistant", Content: "first answer", StopReason: "stop"},
+		{Role: "assistant", Content: "second answer", StopReason: "stop"},
+	}}
+	var output bytes.Buffer
+	renderer := NewRenderer(&output)
+	agent := NewAgent(provider, nil, renderer.Handle)
+
+	err := runREPL(
+		context.Background(),
+		strings.NewReader("first question\nfollow up\n/exit\n"),
+		agent,
+		renderer,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(provider.calls) != 2 {
+		t.Fatalf("provider calls = %d, want 2", len(provider.calls))
+	}
+	secondCall := provider.calls[1]
+	if len(secondCall) != 3 ||
+		secondCall[0].Content != "first question" ||
+		secondCall[1].Content != "first answer" ||
+		secondCall[2].Content != "follow up" {
+		t.Fatalf("second request transcript = %#v", secondCall)
+	}
+	if got := output.String(); !strings.Contains(got, "first answer") ||
+		!strings.Contains(got, "second answer") {
+		t.Fatalf("output = %q", got)
+	}
+}
+
+func TestREPLEOFEndsPromptLine(t *testing.T) {
+	var output bytes.Buffer
+	renderer := NewRenderer(&output)
+	agent := NewAgent(&fakeProvider{}, nil, renderer.Handle)
+
+	if err := runREPL(context.Background(), strings.NewReader(""), agent, renderer); err != nil {
+		t.Fatal(err)
+	}
+	if got := output.String(); got != "› \n" {
+		t.Fatalf("output = %q, want prompt followed by newline", got)
+	}
+}
+
 func TestAgentPairsFailedAndCancelledToolResults(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	changed := false
