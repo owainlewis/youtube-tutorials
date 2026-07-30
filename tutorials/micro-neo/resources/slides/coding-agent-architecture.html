@@ -12,19 +12,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
   <style>
     :root {
-      --paper: #f7f7f4;
-      --paper-deep: #efefeb;
-      --ink: #171918;
-      --muted: #676b68;
-      --line: #d7d8d3;
-      --rust: #a9462d;
-      --rust-soft: #f0ded8;
-      --teal: #285f5b;
-      --teal-soft: #dce9e6;
-      --gold: #8a7138;
-      --dark: #1d211f;
-      --dark-panel: #252b28;
-      --cream: #fafaf7;
+      color-scheme: dark;
+      --paper: #0f1211;
+      --paper-deep: #141816;
+      --ink: #f1efe8;
+      --muted: #9aa39e;
+      --line: #2b332f;
+      --rust: #d17d62;
+      --rust-soft: #35231e;
+      --teal: #79b9b0;
+      --teal-soft: #1b332f;
+      --gold: #b79a5b;
+      --dark: #0b0e0d;
+      --dark-panel: #171c19;
+      --cream: #181d1a;
     }
 
     * {
@@ -42,6 +43,11 @@
       background: var(--paper);
       font-family: "Bricolage Grotesque", system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--teal-soft);
+      color: var(--ink);
     }
 
     body::before {
@@ -778,9 +784,9 @@
       display: block;
       width: 7px;
       height: 7px;
-      border: 1px solid rgba(23, 32, 30, 0.42);
+      border: 1px solid #46504b;
       border-radius: 50%;
-      background: rgba(241, 238, 229, 0.78);
+      background: #1b211e;
       transition: transform 160ms ease, background 160ms ease;
     }
 
