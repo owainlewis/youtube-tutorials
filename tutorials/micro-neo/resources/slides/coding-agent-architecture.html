@@ -1016,41 +1016,41 @@
     <section class="slide" id="s2">
       <div class="slide-inner">
         <div class="eyebrow">Architecture</div>
-        <h2>The main parts of a coding agent</h2>
-        <p class="lead">The loop connects the model to context, tools, the interface, safety controls, and saved sessions.</p>
+        <h2>What the agent runtime actually does</h2>
+        <p class="lead">Most of the engineering lives around the model call.</p>
         <div class="layer-grid">
           <div class="layer">
             <span class="layer-number">01</span>
-            <h3>Agent loop</h3>
-            <p>Repeat model calls until there is a final answer or a stop condition.</p>
+            <h3>Continue or stop</h3>
+            <p>Call the model again after tools. Stop on a final answer, cancellation, error, or turn limit.</p>
           </div>
           <div class="layer">
             <span class="layer-number">02</span>
-            <h3>Prompt context</h3>
-            <p>Assemble prompts, project instructions, transcript, and compacted history.</p>
+            <h3>Build the request</h3>
+            <p>Combine instructions, tool schemas, transcript, and the user message in a fixed order.</p>
           </div>
           <div class="layer">
             <span class="layer-number">03</span>
-            <h3>Tools</h3>
-            <p>Expose tool schemas and route valid calls to executable code.</p>
+            <h3>Run tools</h3>
+            <p>Validate arguments, optionally ask for approval, execute, cap output, and append the result.</p>
           </div>
           <div class="layer">
             <span class="layer-number">04</span>
-            <h3>Events and TUI</h3>
-            <p>Send typed state changes to the TUI and other event consumers.</p>
+            <h3>Publish events</h3>
+            <p>Report text, tool calls, results, parallel groups, errors, and completion to the interface.</p>
           </div>
           <div class="layer">
             <span class="layer-number">05</span>
-            <h3>Safety controls</h3>
-            <p>Support approvals, cancellation, output limits, and the host sandbox boundary.</p>
+            <h3>Enforce limits</h3>
+            <p>Bound runtime, output size, turn count, and concurrency. Rely on the host sandbox to limit reach.</p>
           </div>
           <div class="layer">
             <span class="layer-number">06</span>
-            <h3>Sessions</h3>
-            <p>Save the transcript, provider, model, usage, working directory, and timestamps.</p>
+            <h3>Save the session</h3>
+            <p>Persist the transcript, provider, model, usage, working directory, and timestamps.</p>
           </div>
         </div>
-        <blockquote class="rule-quote">The model proposes actions. The agent runs tools, updates the transcript, and decides when to stop.</blockquote>
+        <blockquote class="rule-quote">The model chooses the next action. The runtime controls everything that happens around it.</blockquote>
       </div>
       <div class="slide-no">02 / 12</div>
     </section>
@@ -1060,12 +1060,12 @@
         <div>
           <div class="eyebrow">Agent loop</div>
           <h2>How the two loops work</h2>
-          <p class="lead">The outer loop keeps the conversation alive. The inner loop keeps the model working through tools.</p>
+          <p class="lead">The inner loop ends when the model stops calling tools. The outer loop saves the turn and waits for the next message.</p>
           <div class="event-list">
-            <div class="event-pill">outer: read user input</div>
+            <div class="event-pill">outer: receive user message</div>
             <div class="event-pill">inner: call model</div>
-            <div class="event-pill">outer: persist session</div>
-            <div class="event-pill">inner: execute tools</div>
+            <div class="event-pill">inner: run tools and repeat</div>
+            <div class="event-pill">outer: save and wait</div>
           </div>
         </div>
         <div class="diagram-card" style="background:#202b28;border-color:#3b4945;">
@@ -1418,31 +1418,31 @@
     <section class="slide" id="s10">
       <div class="slide-inner">
         <div class="eyebrow">Neo</div>
-        <h2>How Neo is structured</h2>
-        <p class="lead">Neo keeps the loop small and adds product features around it.</p>
+        <h2>Four useful design choices in Neo</h2>
+        <p class="lead">These boundaries keep provider code, conversation state, the interface, and delegated work separate.</p>
         <div class="comparison-grid">
           <div class="repo-card">
-            <div class="repo"><strong>Agent core</strong><span>internal/agent</span></div>
-            <h3>Loop and transcript</h3>
-            <p>Owns messages, model calls, tool execution, events, steering, compaction, and turn limits.</p>
+            <div class="repo"><strong>Transcript</strong><span>source of truth</span></div>
+            <h3>The agent owns history</h3>
+            <p>The TUI renders events but does not edit conversation state. Sessions save the agent's messages after each send.</p>
+          </div>
+          <div class="repo-card">
+            <div class="repo"><strong>Providers</strong><span>one protocol</span></div>
+            <h3>The loop is provider-neutral</h3>
+            <p>Adapters translate provider APIs into the same request, response, tool-call, and usage types. The loop does not change.</p>
           </div>
           <div class="repo-card featured">
-            <div class="repo"><strong>Providers</strong><span>internal/llm</span></div>
-            <h3>Model adapters</h3>
-            <p>Anthropic, OpenAI, OpenRouter, and Google use the same internal request and response types.</p>
+            <div class="repo"><strong>Prompt cache</strong><span>stable prefix</span></div>
+            <h3>Cache only what stays stable</h3>
+            <p>Base instructions and the skill catalog are cacheable. AGENTS.md stays separate because project context changes.</p>
           </div>
           <div class="repo-card">
-            <div class="repo"><strong>Product layer</strong><span>cmd + tui + session</span></div>
-            <h3>CLI, TUI, and sessions</h3>
-            <p>The CLI starts chat or headless runs. Bubble Tea renders events. Sessions save transcript, model, provider, and usage.</p>
-          </div>
-          <div class="repo-card">
-            <div class="repo"><strong>Context</strong><span>skills + projectctx + factory</span></div>
-            <h3>Rules and subagents</h3>
-            <p>Skills and AGENTS.md add task context. The agent tool starts supervised work or inspect subagents.</p>
+            <div class="repo"><strong>Subagents</strong><span>tools by mode</span></div>
+            <h3>Read-only agents get fewer tools</h3>
+            <p>Inspect agents receive read_file, grep, and glob. Work agents are writable and serial. Capabilities are enforced in code.</p>
           </div>
         </div>
-        <p class="small" style="margin-top:24px;">Tools, approvals, configuration, and prompt caching are separate packages that are wired together at startup.</p>
+        <p class="small" style="margin-top:24px;">Neo also compacts before each provider call. Approvals are optional UI friction. The host VM or sandbox is the security boundary.</p>
       </div>
       <div class="slide-no">10 / 12</div>
     </section>
@@ -1479,8 +1479,8 @@
           </div>
           <div class="build-step">
             <span class="stage">Stage 06</span>
-            <h3>Boundaries</h3>
-            <p>Contain paths, time, output, and cancellation.</p>
+            <h3>Hard limits</h3>
+            <p>Bound paths, runtime, output size, turns, and cancellation.</p>
           </div>
           <div class="build-step">
             <span class="stage">Stage 07</span>
@@ -1489,8 +1489,8 @@
           </div>
           <div class="build-step">
             <span class="stage">Stage 08</span>
-            <h3>Skills + subagents</h3>
-            <p>Add reusable instructions and delegated work last.</p>
+            <h3>Add subagents last</h3>
+            <p>Delegate work only after one agent is reliable.</p>
           </div>
         </div>
       </div>
