@@ -8,6 +8,7 @@ three tools, a serial agent loop, and a small event-driven terminal interface.
 - Read the lesson: [LESSON.md](./LESSON.md)
 - Run the agent: [code/](./code/)
 - Follow the live-build prompts: [resources/prompts.md](./resources/prompts.md)
+- Read the deep architecture guide: [resources/architecture-guide.md](./resources/architecture-guide.md)
 - Browse slides: [resources/slides/](./resources/slides/)
 
 ## Quick Start

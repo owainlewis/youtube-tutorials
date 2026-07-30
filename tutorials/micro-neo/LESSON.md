@@ -434,6 +434,8 @@ the problem it solves is clear.
 - [OpenRouter quickstart](https://openrouter.ai/docs/quickstart)
 - [Runnable code](./code/)
 - [Live-build and demo prompts](./resources/prompts.md)
+- [Deep coding-agent architecture guide](./resources/architecture-guide.md)
+- [Visual architecture guide](./resources/slides/coding-agent-architecture.html)
 - [Neo](https://github.com/owainlewis/neo)
 
 ## Summary

@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A visual guide to the architecture of coding agents." />
+  <title>How Coding Agents Work</title>
+  <link rel="icon" href="data:," />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.14/dist/index.global.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #0f1211;
+      --paper-deep: #141816;
+      --ink: #f1efe8;
+      --muted: #9aa39e;
+      --line: #2b332f;
+      --rust: #d17d62;
+      --rust-soft: #35231e;
+      --teal: #79b9b0;
+      --teal-soft: #1b332f;
+      --gold: #b79a5b;
+      --dark: #0b0e0d;
+      --dark-panel: #171c19;
+      --cream: #181d1a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--teal-soft);
+      color: var(--ink);
+    }
+
+    body::before {
+      display: none;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .deck {
+      width: 100%;
+    }
+
+    .slide {
+      position: relative;
+      display: flex;
+      min-height: 100vh;
+      padding: clamp(36px, 5vw, 72px);
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+      overflow: visible;
+    }
+
+    .slide-inner {
+      position: relative;
+      z-index: 2;
+      width: min(1240px, 100%);
+      margin: 0 auto;
+    }
+
+    #s2 {
+      padding-top: 60px;
+      padding-bottom: 60px;
+    }
+
+    .eyebrow {
+      display: flex;
+      margin-bottom: 18px;
+      color: var(--teal);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .eyebrow::before {
+      display: none;
+    }
+
+    .slide h1, .slide h2, .slide h3, .slide p {
+      margin-top: 0;
+    }
+
+    .slide h1, .slide h2, .slide h3 {
+      text-wrap: balance;
+    }
+
+    .slide h1 {
+      max-width: 13ch;
+      margin-bottom: 26px;
+      font-size: clamp(54px, 8vw, 108px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 0.93;
+    }
+
+    .slide h2 {
+      max-width: 18ch;
+      margin-bottom: 22px;
+      font-size: clamp(38px, 5vw, 66px);
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1;
+    }
+
+    .slide h3 {
+      margin-bottom: 10px;
+      font-size: clamp(20px, 2vw, 28px);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+    }
+
+    .serif {
+      color: inherit;
+      font-family: inherit;
+      font-weight: inherit;
+      font-style: normal;
+      letter-spacing: inherit;
+    }
+
+    .lead {
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: clamp(18px, 1.6vw, 22px);
+      line-height: 1.5;
+      text-wrap: pretty;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .mono {
+      font-family: "Geist Mono", ui-monospace, monospace;
+    }
+
+    .title-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(360px, 0.8fr);
+      gap: clamp(36px, 8vw, 120px);
+      align-items: center;
+    }
+
+    .formula {
+      display: grid;
+      position: relative;
+      gap: 10px;
+    }
+
+    .formula-card {
+      display: flex;
+      min-height: 76px;
+      padding: 17px 21px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--cream);
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .formula-card strong {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .formula-card span {
+      color: var(--muted);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .formula-card.core {
+      border-color: var(--rust);
+      background: var(--rust-soft);
+      color: var(--ink);
+    }
+
+    .formula-card.core span {
+      color: var(--muted);
+    }
+
+    .rule-quote {
+      max-width: 1100px;
+      margin: 28px 0 0;
+      padding: 18px 0 0;
+      border-top: 1px solid var(--line);
+      border-left: 0;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: clamp(20px, 2vw, 26px);
+      line-height: 1.35;
+    }
+
+    .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .layer {
+      min-height: 145px;
+      padding: 21px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--cream);
+    }
+
+    .layer-number {
+      display: inline-flex;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 16px;
+      border-radius: 4px;
+      background: var(--teal-soft);
+      color: var(--teal);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .layer p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .diagram-card {
+      padding: clamp(22px, 3vw, 38px);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--cream);
+    }
+
+    .dark-slide {
+      border-color: var(--line);
+      background: var(--paper-deep);
+      color: var(--ink);
+    }
+
+    .dark-slide .lead,
+    .dark-slide .small {
+      color: var(--muted);
+    }
+
+    .dark-slide .eyebrow {
+      color: var(--teal);
+    }
+
+    .loop-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.75fr) minmax(520px, 1.25fr);
+      gap: clamp(28px, 6vw, 90px);
+      align-items: center;
+    }
+
+    .loop-svg,
+    .sequence-svg,
+    .event-svg,
+    .safety-svg {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .annotation {
+      display: flex;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      gap: 12px;
+    }
+
+    .annotation .mark {
+      display: inline-flex;
+      width: 24px;
+      min-width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: var(--rust-soft);
+      color: var(--rust);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sequence-wrap {
+      margin-top: 24px;
+      padding: 18px;
+      border: 1px solid #35423e;
+      border-radius: 6px;
+      background: var(--dark-panel);
+    }
+
+    .sequence-svg {
+      display: block;
+      max-height: 410px;
+      margin: 0 auto;
+    }
+
+    .invariant-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.62fr);
+      gap: clamp(28px, 7vw, 96px);
+      align-items: center;
+    }
+
+    .transcript {
+      position: relative;
+      display: grid;
+      gap: 12px;
+      padding-left: 34px;
+    }
+
+    .transcript::before {
+      position: absolute;
+      top: 12px;
+      bottom: 12px;
+      left: 9px;
+      width: 1px;
+      content: "";
+      background: var(--line);
+    }
+
+    .message {
+      position: relative;
+      padding: 17px 19px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--cream);
+    }
+
+    .message::before {
+      position: absolute;
+      top: 25px;
+      left: -31px;
+      width: 13px;
+      height: 13px;
+      border: 3px solid var(--paper);
+      border-radius: 50%;
+      content: "";
+      background: var(--muted);
+    }
+
+    .message.assistant::before {
+      background: var(--rust);
+    }
+
+    .message.tool::before {
+      background: var(--teal);
+    }
+
+    .message .role {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .message code {
+      color: var(--ink);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 13px;
+    }
+
+    .invariant-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .invariant-item {
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .invariant-item:last-child {
+      border: 0;
+    }
+
+    .invariant-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 19px;
+    }
+
+    .invariant-item span {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      margin-top: 44px;
+      gap: 9px;
+      align-items: stretch;
+    }
+
+    .pipe-step {
+      position: relative;
+      min-height: 170px;
+      padding: 20px 16px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--cream);
+    }
+
+    .pipe-step::after {
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      z-index: 3;
+      color: var(--teal);
+      content: "→";
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 17px;
+      transform: translateY(-50%);
+    }
+
+    .pipe-step:last-child::after {
+      display: none;
+    }
+
+    .pipe-step .n {
+      display: block;
+      margin-bottom: 35px;
+      color: var(--rust);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .pipe-step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 17px;
+    }
+
+    .pipe-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .event-layout {
+      display: grid;
+      grid-template-columns: minmax(440px, 1.1fr) minmax(0, 0.9fr);
+      gap: clamp(28px, 7vw, 94px);
+      align-items: center;
+    }
+
+    .event-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .event-pill {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 12px;
+    }
+
+    .prompt-layout {
+      display: grid;
+      grid-template-columns: minmax(340px, 0.72fr) minmax(0, 1.28fr);
+      gap: clamp(34px, 7vw, 100px);
+      align-items: center;
+    }
+
+    .prompt-stack {
+      display: grid;
+    }
+
+    .prompt-layer {
+      position: relative;
+      display: flex;
+      min-height: 64px;
+      margin-top: 8px;
+      padding: 15px 20px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--cream);
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .prompt-layer:first-child {
+      margin-top: 0;
+    }
+
+    .prompt-layer strong {
+      font-size: 16px;
+    }
+
+    .prompt-layer span {
+      color: var(--muted);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .prompt-layer.stable {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      color: var(--ink);
+    }
+
+    .prompt-layer.stable span {
+      color: var(--muted);
+    }
+
+    .split-rule {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 35px;
+    }
+
+    .split-card {
+      min-height: 190px;
+      padding: 25px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--cream);
+    }
+
+    .split-card.code {
+      border-color: var(--teal);
+    }
+
+    .split-card .label {
+      display: block;
+      margin-bottom: 28px;
+      color: var(--rust);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .split-card.code .label {
+      color: var(--teal);
+    }
+
+    .split-card ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .split-card li {
+      margin: 8px 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .safety-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.72fr) minmax(520px, 1.28fr);
+      gap: clamp(30px, 6vw, 86px);
+      align-items: center;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 38px;
+    }
+
+    .repo-card {
+      min-height: 285px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--cream);
+    }
+
+    .repo-card .repo {
+      display: flex;
+      margin-bottom: 44px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .repo-card .repo strong {
+      font-size: 22px;
+    }
+
+    .repo-card .repo span {
+      color: var(--muted);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .repo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .repo-card.featured {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      color: var(--ink);
+    }
+
+    .repo-card.featured .repo span,
+    .repo-card.featured p {
+      color: var(--muted);
+    }
+
+    .build-rail {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 24px 15px;
+      margin-top: 46px;
+    }
+
+    .build-rail::before {
+      position: absolute;
+      top: 18px;
+      right: 7%;
+      left: 7%;
+      height: 1px;
+      content: "";
+      background: var(--line);
+    }
+
+    .build-step {
+      position: relative;
+      padding-top: 54px;
+    }
+
+    .build-step::before {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      z-index: 2;
+      width: 17px;
+      height: 17px;
+      border: 4px solid var(--paper);
+      border-radius: 50%;
+      content: "";
+      background: var(--teal);
+      box-shadow: 0 0 0 1px var(--line);
+    }
+
+    .build-step:nth-child(1)::before,
+    .build-step:nth-child(2)::before,
+    .build-step:nth-child(3)::before {
+      background: var(--rust);
+    }
+
+    .build-step .stage {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .build-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .takeaway {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.55fr);
+      gap: clamp(40px, 8vw, 130px);
+      align-items: end;
+    }
+
+    .slide .takeaway h2 {
+      max-width: 14ch;
+      margin-bottom: 34px;
+      font-size: clamp(44px, 6vw, 78px);
+    }
+
+    .contracts {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .contract {
+      display: flex;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--cream);
+      color: var(--ink);
+      font-size: 14px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .contract::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      content: "";
+      background: #75c2bc;
+    }
+
+    .source-note {
+      margin-top: 26px;
+      color: var(--muted);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    .nav {
+      position: fixed;
+      top: 50%;
+      right: 18px;
+      z-index: 30;
+      display: grid;
+      gap: 8px;
+      transform: translateY(-50%);
+    }
+
+    .nav a {
+      display: block;
+      width: 7px;
+      height: 7px;
+      border: 1px solid #46504b;
+      border-radius: 50%;
+      background: #1b211e;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      background: var(--rust);
+      transform: scale(1.55);
+    }
+
+    .slide-no {
+      position: absolute;
+      right: clamp(36px, 6vw, 88px);
+      bottom: 25px;
+      z-index: 3;
+      color: var(--muted);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+    }
+
+    .dark-slide .slide-no {
+      color: var(--muted);
+    }
+
+    @media (min-width: 901px) {
+      html {
+        scroll-snap-type: y proximity;
+      }
+
+      .slide {
+        scroll-snap-align: start;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .title-grid,
+      .loop-layout,
+      .event-layout,
+      .prompt-layout,
+      .safety-layout,
+      .takeaway {
+        grid-template-columns: 1fr;
+      }
+
+      .formula {
+        max-width: 650px;
+      }
+
+      .layer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .pipeline {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .pipe-step:nth-child(4)::after {
+        display: none;
+      }
+
+      .comparison-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .slide {
+        min-height: auto;
+        padding: 70px 20px;
+        overflow: visible;
+      }
+
+      #s2 {
+        padding-top: 70px;
+        padding-bottom: 70px;
+      }
+
+      .nav,
+      .slide-no {
+        display: none;
+      }
+
+      .slide h1 {
+        font-size: clamp(54px, 17vw, 86px);
+      }
+
+      .slide h2 {
+        font-size: clamp(38px, 12vw, 60px);
+      }
+
+      .title-grid {
+        gap: 52px;
+      }
+
+      .formula-card.core {
+        transform: none;
+      }
+
+      .layer-grid,
+      .invariant-grid,
+      .split-rule,
+      .comparison-grid,
+      .build-rail {
+        grid-template-columns: 1fr;
+      }
+
+      .layer {
+        min-height: 0;
+      }
+
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+
+      .pipe-step {
+        min-height: 0;
+      }
+
+      .pipe-step::after {
+        top: auto;
+        right: 50%;
+        bottom: -17px;
+        content: "↓";
+        transform: translateX(50%);
+      }
+
+      .pipe-step:nth-child(4)::after {
+        display: block;
+      }
+
+      .pipe-step:last-child::after {
+        display: none;
+      }
+
+      .event-list {
+        grid-template-columns: 1fr;
+      }
+
+      .sequence-wrap,
+      .diagram-card {
+        margin-right: -8px;
+        margin-left: -8px;
+        padding: 13px;
+        overflow-x: auto;
+      }
+
+      .sequence-svg,
+      .loop-svg,
+      .event-svg,
+      .safety-svg {
+        min-width: 620px;
+      }
+
+      .invariant-grid {
+        gap: 48px;
+      }
+
+      .repo-card.featured {
+        transform: none;
+      }
+
+      .build-rail::before {
+        top: 0;
+        right: auto;
+        bottom: 0;
+        left: 8px;
+        width: 1px;
+        height: auto;
+      }
+
+      .build-step {
+        padding: 0 0 24px 42px;
+      }
+
+      .build-step::before {
+        top: 3px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      * {
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[var(--paper)] text-[var(--ink)]">
+  <nav class="nav" aria-label="Slide navigation">
+    <a href="#s1" aria-label="Title"></a>
+    <a href="#s2" aria-label="Architecture"></a>
+    <a href="#s3" aria-label="Two loops"></a>
+    <a href="#s4" aria-label="One turn"></a>
+    <a href="#s5" aria-label="Transcript"></a>
+    <a href="#s6" aria-label="Tools"></a>
+    <a href="#s7" aria-label="Events and TUI"></a>
+    <a href="#s8" aria-label="Prompts"></a>
+    <a href="#s9" aria-label="Safety"></a>
+    <a href="#s10" aria-label="Neo architecture"></a>
+    <a href="#s11" aria-label="Build order"></a>
+    <a href="#s12" aria-label="Summary"></a>
+  </nav>
+
+  <main class="deck">
+    <section class="slide" id="s1">
+      <div class="slide-inner title-grid">
+        <div>
+          <div class="eyebrow">Micro Neo</div>
+          <h1>How coding agents work</h1>
+          <p class="lead">A coding agent calls a model, runs tools, adds the results to the conversation, and repeats.</p>
+        </div>
+        <div class="formula" aria-label="Coding agent formula">
+          <div class="formula-card"><strong>Model</strong><span>decides</span></div>
+          <div class="formula-card"><strong>Transcript</strong><span>stores messages</span></div>
+          <div class="formula-card core"><strong>Agent loop</strong><span>repeats</span></div>
+          <div class="formula-card"><strong>Tools</strong><span>act</span></div>
+          <div class="formula-card"><strong>Runtime</strong><span>validates</span></div>
+          <div class="formula-card"><strong>Interface</strong><span>renders</span></div>
+        </div>
+      </div>
+      <div class="slide-no">01 / 12</div>
+    </section>
+
+    <section class="slide" id="s2">
+      <div class="slide-inner">
+        <div class="eyebrow">Architecture</div>
+        <h2>What the agent runtime actually does</h2>
+        <p class="lead">Most of the engineering lives around the model call.</p>
+        <div class="layer-grid">
+          <div class="layer">
+            <span class="layer-number">01</span>
+            <h3>Continue or stop</h3>
+            <p>Call the model again after tools. Stop on a final answer, cancellation, error, or turn limit.</p>
+          </div>
+          <div class="layer">
+            <span class="layer-number">02</span>
+            <h3>Build the request</h3>
+            <p>Combine instructions, tool schemas, transcript, and the user message in a fixed order.</p>
+          </div>
+          <div class="layer">
+            <span class="layer-number">03</span>
+            <h3>Run tools</h3>
+            <p>Validate arguments, optionally ask for approval, execute, cap output, and append the result.</p>
+          </div>
+          <div class="layer">
+            <span class="layer-number">04</span>
+            <h3>Publish events</h3>
+            <p>Report text, tool calls, results, parallel groups, errors, and completion to the interface.</p>
+          </div>
+          <div class="layer">
+            <span class="layer-number">05</span>
+            <h3>Enforce limits</h3>
+            <p>Bound runtime, output size, turn count, and concurrency. Rely on the host sandbox to limit reach.</p>
+          </div>
+          <div class="layer">
+            <span class="layer-number">06</span>
+            <h3>Save the session</h3>
+            <p>Persist the transcript, provider, model, usage, working directory, and timestamps.</p>
+          </div>
+        </div>
+        <blockquote class="rule-quote">The model chooses the next action. The runtime controls everything that happens around it.</blockquote>
+      </div>
+      <div class="slide-no">02 / 12</div>
+    </section>
+
+    <section class="slide dark-slide" id="s3">
+      <div class="slide-inner loop-layout">
+        <div>
+          <div class="eyebrow">Agent loop</div>
+          <h2>How the two loops work</h2>
+          <p class="lead">The inner loop ends when the model stops calling tools. The outer loop saves the turn and waits for the next message.</p>
+          <div class="event-list">
+            <div class="event-pill">outer: receive user message</div>
+            <div class="event-pill">inner: call model</div>
+            <div class="event-pill">inner: run tools and repeat</div>
+            <div class="event-pill">outer: save and wait</div>
+          </div>
+        </div>
+        <div class="diagram-card" style="background:#202b28;border-color:#3b4945;">
+          <svg class="loop-svg" viewBox="0 0 760 520" role="img" aria-label="Outer conversation loop containing an inner model and tool loop">
+            <defs>
+              <marker id="arrow-light" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#75c2bc"/>
+              </marker>
+              <marker id="arrow-rust" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#d47a60"/>
+              </marker>
+            </defs>
+            <rect x="35" y="34" width="690" height="450" rx="28" fill="none" stroke="#53635e" stroke-width="2" stroke-dasharray="8 8"/>
+            <text x="66" y="75" fill="#aeb9b4" font-family="Geist Mono" font-size="14" letter-spacing="2">OUTER CONVERSATION LOOP</text>
+            <rect x="74" y="112" width="175" height="72" rx="13" fill="#2a3834" stroke="#53635e"/>
+            <text x="161" y="142" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="19" font-weight="600">User message</text>
+            <text x="161" y="164" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">interactive input</text>
+            <rect x="510" y="112" width="175" height="72" rx="13" fill="#2a3834" stroke="#53635e"/>
+            <text x="597" y="142" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="19" font-weight="600">Persist + render</text>
+            <text x="597" y="164" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">await next input</text>
+            <path d="M249 148 C340 95 425 95 510 148" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#arrow-light)"/>
+            <path d="M597 184 C660 240 665 345 602 412" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#arrow-light)"/>
+            <path d="M158 412 C80 344 86 237 158 184" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#arrow-light)"/>
+
+            <rect x="167" y="211" width="426" height="218" rx="24" fill="#17201e" stroke="#b34e32" stroke-width="2"/>
+            <text x="195" y="245" fill="#d47a60" font-family="Geist Mono" font-size="12" letter-spacing="2">INNER AGENT LOOP</text>
+            <rect x="210" y="270" width="130" height="61" rx="11" fill="#2a3834" stroke="#53635e"/>
+            <text x="275" y="306" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="18" font-weight="600">Call model</text>
+            <rect x="420" y="270" width="130" height="61" rx="11" fill="#2a3834" stroke="#53635e"/>
+            <text x="485" y="306" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="18" font-weight="600">Run tools</text>
+            <path d="M340 300 L420 300" fill="none" stroke="#d47a60" stroke-width="2" marker-end="url(#arrow-rust)"/>
+            <path d="M485 331 C480 385 280 385 275 331" fill="none" stroke="#d47a60" stroke-width="2" marker-end="url(#arrow-rust)"/>
+            <text x="380" y="371" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">append result, repeat</text>
+            <path d="M380 429 L380 455 L597 455 L597 412" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#arrow-light)"/>
+            <text x="448" y="448" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="10">final answer</text>
+          </svg>
+        </div>
+      </div>
+      <div class="slide-no">03 / 12</div>
+    </section>
+
+    <section class="slide dark-slide" id="s4">
+      <div class="slide-inner">
+        <div class="eyebrow">Agent turn</div>
+        <h2>How one agent turn works</h2>
+        <p class="lead">The model sees each tool result before it decides what to do next.</p>
+        <div class="sequence-wrap">
+          <svg class="sequence-svg" viewBox="0 0 1120 470" role="img" aria-label="Sequence from user to agent, model, tools, and workspace">
+            <defs>
+              <marker id="seq-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#75c2bc"/>
+              </marker>
+              <marker id="seq-rust" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#d47a60"/>
+              </marker>
+            </defs>
+            <g font-family="Bricolage Grotesque" font-weight="600" font-size="16" fill="#f8f5ed">
+              <text x="80" y="33" text-anchor="middle">User</text>
+              <text x="330" y="33" text-anchor="middle">Agent</text>
+              <text x="580" y="33" text-anchor="middle">Model</text>
+              <text x="830" y="33" text-anchor="middle">Tool runtime</text>
+              <text x="1050" y="33" text-anchor="middle">Workspace</text>
+            </g>
+            <g stroke="#4a5a55" stroke-width="1" stroke-dasharray="5 7">
+              <line x1="80" y1="53" x2="80" y2="445"/>
+              <line x1="330" y1="53" x2="330" y2="445"/>
+              <line x1="580" y1="53" x2="580" y2="445"/>
+              <line x1="830" y1="53" x2="830" y2="445"/>
+              <line x1="1050" y1="53" x2="1050" y2="445"/>
+            </g>
+            <g font-family="Geist Mono" font-size="11">
+              <line x1="80" y1="85" x2="320" y2="85" stroke="#75c2bc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+              <text x="200" y="75" text-anchor="middle" fill="#aeb9b4">fix failing test</text>
+              <line x1="330" y1="125" x2="570" y2="125" stroke="#75c2bc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+              <text x="450" y="115" text-anchor="middle" fill="#aeb9b4">prompt + transcript + schemas</text>
+              <line x1="580" y1="165" x2="340" y2="165" stroke="#d47a60" stroke-width="2" marker-end="url(#seq-rust)"/>
+              <text x="460" y="155" text-anchor="middle" fill="#d89a87">run_command("go test")</text>
+              <line x1="330" y1="205" x2="820" y2="205" stroke="#75c2bc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+              <text x="575" y="195" text-anchor="middle" fill="#aeb9b4">validate + optionally confirm + execute</text>
+              <line x1="830" y1="245" x2="1040" y2="245" stroke="#75c2bc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+              <text x="935" y="235" text-anchor="middle" fill="#aeb9b4">run command</text>
+              <line x1="1050" y1="285" x2="840" y2="285" stroke="#d47a60" stroke-width="2" marker-end="url(#seq-rust)"/>
+              <text x="945" y="275" text-anchor="middle" fill="#d89a87">test failure</text>
+              <line x1="830" y1="325" x2="340" y2="325" stroke="#75c2bc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+              <text x="585" y="315" text-anchor="middle" fill="#aeb9b4">bounded tool result</text>
+              <line x1="330" y1="365" x2="570" y2="365" stroke="#75c2bc" stroke-width="2" marker-end="url(#seq-arrow)"/>
+              <text x="450" y="355" text-anchor="middle" fill="#aeb9b4">expanded transcript</text>
+              <line x1="580" y1="405" x2="340" y2="405" stroke="#d47a60" stroke-width="2" marker-end="url(#seq-rust)"/>
+              <text x="460" y="395" text-anchor="middle" fill="#d89a87">next tool or final answer</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="slide-no">04 / 12</div>
+    </section>
+
+    <section class="slide" id="s5">
+      <div class="slide-inner invariant-grid">
+        <div>
+          <div class="eyebrow">Transcript</div>
+          <h2>Keep tool calls and results paired</h2>
+          <div class="transcript">
+            <div class="message">
+              <span class="role">user</span>
+              <code>Fix the failing test</code>
+            </div>
+            <div class="message assistant">
+              <span class="role">assistant</span>
+              <code>tool_call id=42 name=run_command</code>
+            </div>
+            <div class="message tool">
+              <span class="role">tool</span>
+              <code>tool_call_id=42 "1 test failed"</code>
+            </div>
+            <div class="message assistant">
+              <span class="role">assistant</span>
+              <code>tool_call id=43 name=read_file</code>
+            </div>
+            <div class="message tool">
+              <span class="role">tool</span>
+              <code>tool_call_id=43 "&lt;file contents&gt;"</code>
+            </div>
+          </div>
+        </div>
+        <div class="invariant-list">
+          <div class="invariant-item">
+            <strong>Failure is still a result</strong>
+            <span>Unknown tools, invalid arguments, denial, timeout, and cancellation must close the call.</span>
+          </div>
+          <div class="invariant-item">
+            <strong>Identifiers preserve meaning</strong>
+            <span>The result ID tells the model exactly which request produced the observation.</span>
+          </div>
+          <div class="invariant-item">
+            <strong>Order stays deterministic</strong>
+            <span>Parallel tools may finish out of order, but transcript results should follow source order.</span>
+          </div>
+          <div class="invariant-item">
+            <strong>Persist complete messages</strong>
+            <span>Rendered terminal rows are presentation, not durable conversation state.</span>
+          </div>
+        </div>
+      </div>
+      <div class="slide-no">05 / 12</div>
+    </section>
+
+    <section class="slide" id="s6">
+      <div class="slide-inner">
+        <div class="eyebrow">Tools</div>
+        <h2>How tool calls work</h2>
+        <p class="lead">The model returns a tool name and arguments. The agent validates the request, runs the tool, and records the result.</p>
+        <div class="pipeline">
+          <div class="pipe-step">
+            <span class="n">01</span>
+            <strong>Decode</strong>
+            <p>Convert provider JSON into your internal call type.</p>
+          </div>
+          <div class="pipe-step">
+            <span class="n">02</span>
+            <strong>Validate</strong>
+            <p>Reject malformed and unexpected arguments.</p>
+          </div>
+          <div class="pipe-step">
+            <span class="n">03</span>
+            <strong>Confirm</strong>
+            <p>Ask the user when an optional approval rule matches.</p>
+          </div>
+          <div class="pipe-step">
+            <span class="n">04</span>
+            <strong>Execute</strong>
+            <p>Run with a workspace, deadline, and cancellation.</p>
+          </div>
+          <div class="pipe-step">
+            <span class="n">05</span>
+            <strong>Bound</strong>
+            <p>Cap bytes, lines, duration, and images.</p>
+          </div>
+          <div class="pipe-step">
+            <span class="n">06</span>
+            <strong>Emit</strong>
+            <p>Send tool-call and tool-result events to the interface.</p>
+          </div>
+          <div class="pipe-step">
+            <span class="n">07</span>
+            <strong>Append</strong>
+            <p>Write the matching result into the transcript.</p>
+          </div>
+        </div>
+        <div class="annotation">
+          <span class="mark">!</span>
+          <span>Start with serial execution. Add concurrency only when every tool declares whether it is safe and result order remains stable.</span>
+        </div>
+      </div>
+      <div class="slide-no">06 / 12</div>
+    </section>
+
+    <section class="slide dark-slide" id="s7">
+      <div class="slide-inner event-layout">
+        <div class="diagram-card" style="background:#202b28;border-color:#3b4945;">
+          <svg class="event-svg" viewBox="0 0 700 560" role="img" aria-label="Agent events flowing to multiple consumers">
+            <defs>
+              <marker id="evt-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#75c2bc"/>
+              </marker>
+            </defs>
+            <rect x="45" y="102" width="165" height="72" rx="13" fill="#2a3834" stroke="#53635e"/>
+            <text x="127" y="133" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="20" font-weight="600">Model stream</text>
+            <text x="127" y="155" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">text + tool calls</text>
+            <rect x="45" y="386" width="165" height="72" rx="13" fill="#2a3834" stroke="#53635e"/>
+            <text x="127" y="417" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="20" font-weight="600">Tool runtime</text>
+            <text x="127" y="439" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">tool call + tool result</text>
+            <rect x="270" y="219" width="176" height="116" rx="18" fill="#b34e32" stroke="#d47a60"/>
+            <text x="358" y="262" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="23" font-weight="600">agent.Event</text>
+            <text x="358" y="287" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="11">typed state changes</text>
+            <text x="358" y="308" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="11">sent to consumers</text>
+            <path d="M210 138 C280 138 280 205 302 219" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
+            <path d="M210 422 C280 422 280 349 302 335" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
+            <g>
+              <rect x="515" y="70" width="145" height="62" rx="12" fill="#2a3834" stroke="#53635e"/>
+              <text x="587" y="108" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="15" font-weight="600">Bubble Tea TUI</text>
+              <rect x="515" y="180" width="145" height="62" rx="12" fill="#2a3834" stroke="#53635e"/>
+              <text x="587" y="218" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="15" font-weight="600">Headless counters</text>
+              <rect x="515" y="290" width="145" height="62" rx="12" fill="#2a3834" stroke="#53635e"/>
+              <text x="587" y="328" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="15" font-weight="600">Subagent runner</text>
+              <rect x="515" y="400" width="145" height="62" rx="12" fill="#2a3834" stroke="#53635e"/>
+              <text x="587" y="438" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="15" font-weight="600">Custom handler</text>
+              <path d="M446 247 C485 200 485 115 515 101" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
+              <path d="M446 267 L515 211" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
+              <path d="M446 287 L515 321" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
+              <path d="M446 307 C485 350 485 415 515 431" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <div class="eyebrow">Events and TUI</div>
+          <h2>How events drive the TUI</h2>
+          <p class="lead">Bubble Tea converts each agent event into new screen state.</p>
+          <div class="event-list">
+            <div class="event-pill">assistant_text → append text</div>
+            <div class="event-pill">assistant_commentary → show status</div>
+            <div class="event-pill">parallel_start → create group</div>
+            <div class="event-pill">tool_call → show running tool</div>
+            <div class="event-pill">tool_result → show receipt</div>
+            <div class="event-pill">done / error → finish turn</div>
+          </div>
+          <p class="small" style="margin-top:24px;">The transcript is saved state. Events are live notifications. The TUI renders events and collects approvals, but it does not own the agent loop.</p>
+        </div>
+      </div>
+      <div class="slide-no">07 / 12</div>
+    </section>
+
+    <section class="slide" id="s8">
+      <div class="slide-inner prompt-layout">
+        <div>
+          <div class="eyebrow">Prompts</div>
+          <h2>How prompts are assembled</h2>
+          <p class="lead">Neo combines stable instructions, skills, project rules, tool schemas, conversation history, and the current message.</p>
+          <div class="split-rule">
+            <div class="split-card">
+              <span class="label">Prompt</span>
+              <h3>Preferences</h3>
+              <ul>
+                <li>Prefer small edits</li>
+                <li>Inspect before editing</li>
+                <li>Run relevant tests</li>
+              </ul>
+            </div>
+            <div class="split-card code">
+              <span class="label">Runtime</span>
+              <h3>Guarantees</h3>
+              <ul>
+                <li>Reject ambiguous edits</li>
+                <li>Contain paths</li>
+                <li>Enforce timeouts</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="prompt-stack" aria-label="Prompt context layers">
+          <div class="prompt-layer stable"><strong>Base instructions</strong><span>stable + cacheable</span></div>
+          <div class="prompt-layer stable"><strong>Skill catalog</strong><span>stable + cacheable</span></div>
+          <div class="prompt-layer"><strong>AGENTS.md</strong><span>workspace scoped</span></div>
+          <div class="prompt-layer"><strong>Tool schemas</strong><span>request scoped</span></div>
+          <div class="prompt-layer"><strong>Transcript</strong><span>session scoped</span></div>
+          <div class="prompt-layer"><strong>Current user message</strong><span>turn scoped</span></div>
+        </div>
+      </div>
+      <div class="slide-no">08 / 12</div>
+    </section>
+
+    <section class="slide dark-slide" id="s9">
+      <div class="slide-inner safety-layout">
+        <div>
+          <div class="eyebrow">Safety</div>
+          <h2>Where safety is enforced</h2>
+          <p class="lead">Neo treats model tool calls as untrusted input. The host VM or sandbox provides the real security boundary.</p>
+          <div class="annotation">
+            <span class="mark">1</span>
+            <span>Neo can ask for confirmation when a tool name or shell prefix matches.</span>
+          </div>
+          <div class="annotation">
+            <span class="mark">2</span>
+            <span>The host sandbox limits access to files, processes, the network, and credentials.</span>
+          </div>
+        </div>
+        <div class="diagram-card" style="background:#202b28;border-color:#3b4945;">
+          <svg class="safety-svg" viewBox="0 0 780 510" role="img" aria-label="Neo validates a tool request, runs the tool inside the host sandbox, bounds the result, and adds it to the transcript">
+            <defs>
+              <marker id="safe-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#75c2bc"/>
+              </marker>
+            </defs>
+            <rect x="32" y="78" width="134" height="86" rx="10" fill="#b34e32" stroke="#d47a60"/>
+            <text x="99" y="113" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Model</text>
+            <text x="99" y="137" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="10">tool request</text>
+
+            <rect x="228" y="58" width="224" height="126" rx="10" fill="#2a3834" stroke="#75c2bc"/>
+            <text x="340" y="94" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Neo</text>
+            <text x="340" y="124" fill="#aeb9b4" text-anchor="middle" font-family="Geist Mono" font-size="11">validate arguments</text>
+            <text x="340" y="148" fill="#aeb9b4" text-anchor="middle" font-family="Geist Mono" font-size="11">optional approval</text>
+
+            <rect x="524" y="38" width="220" height="166" rx="10" fill="#17201e" stroke="#75c2bc" stroke-width="2"/>
+            <text x="634" y="76" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Host sandbox</text>
+            <text x="634" y="105" fill="#75c2bc" text-anchor="middle" font-family="Geist Mono" font-size="11">run the tool</text>
+            <g fill="#aeb9b4" font-family="Geist Mono" font-size="10" text-anchor="middle">
+              <text x="634" y="135">files · processes</text>
+              <text x="634" y="158">network · credentials</text>
+            </g>
+
+            <rect x="318" y="294" width="224" height="96" rx="10" fill="#176b67" stroke="#75c2bc"/>
+            <text x="430" y="334" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Neo</text>
+            <text x="430" y="361" fill="#d8eeeb" text-anchor="middle" font-family="Geist Mono" font-size="11">bound the result</text>
+
+            <rect x="48" y="294" width="190" height="96" rx="10" fill="#2a3834" stroke="#53635e"/>
+            <text x="143" y="334" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Transcript</text>
+            <text x="143" y="361" fill="#aeb9b4" text-anchor="middle" font-family="Geist Mono" font-size="11">matching tool result</text>
+
+            <path d="M166 121 L228 121" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
+            <path d="M452 121 L524 121" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
+            <path d="M634 204 C634 252 542 252 500 294" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
+            <path d="M318 342 L238 342" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
+
+            <text x="390" y="457" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">Execution is contained by the host. Results return to Neo.</text>
+          </svg>
+        </div>
+      </div>
+      <div class="slide-no">09 / 12</div>
+    </section>
+
+    <section class="slide" id="s10">
+      <div class="slide-inner">
+        <div class="eyebrow">Neo</div>
+        <h2>Four useful design choices in Neo</h2>
+        <p class="lead">These boundaries keep provider code, conversation state, the interface, and delegated work separate.</p>
+        <div class="comparison-grid">
+          <div class="repo-card">
+            <div class="repo"><strong>Transcript</strong><span>source of truth</span></div>
+            <h3>The agent owns history</h3>
+            <p>The TUI renders events but does not edit conversation state. Sessions save the agent's messages after each send.</p>
+          </div>
+          <div class="repo-card">
+            <div class="repo"><strong>Providers</strong><span>one protocol</span></div>
+            <h3>The loop is provider-neutral</h3>
+            <p>Adapters translate provider APIs into the same request, response, tool-call, and usage types. The loop does not change.</p>
+          </div>
+          <div class="repo-card featured">
+            <div class="repo"><strong>Prompt cache</strong><span>stable prefix</span></div>
+            <h3>Cache only what stays stable</h3>
+            <p>Base instructions and the skill catalog are cacheable. AGENTS.md stays separate because project context changes.</p>
+          </div>
+          <div class="repo-card">
+            <div class="repo"><strong>Subagents</strong><span>tools by mode</span></div>
+            <h3>Read-only agents get fewer tools</h3>
+            <p>Inspect agents receive read_file, grep, and glob. Work agents are writable and serial. Capabilities are enforced in code.</p>
+          </div>
+        </div>
+        <p class="small" style="margin-top:24px;">Neo also compacts before each provider call. Approvals are optional UI friction. The host VM or sandbox is the security boundary.</p>
+      </div>
+      <div class="slide-no">10 / 12</div>
+    </section>
+
+    <section class="slide" id="s11">
+      <div class="slide-inner">
+        <div class="eyebrow">Build order</div>
+        <h2>A practical build order</h2>
+        <div class="build-rail">
+          <div class="build-step">
+            <span class="stage">Stage 01</span>
+            <h3>Model call</h3>
+            <p>Interactive input and one text response.</p>
+          </div>
+          <div class="build-step">
+            <span class="stage">Stage 02</span>
+            <h3>One tool</h3>
+            <p>Send a schema and execute a read request.</p>
+          </div>
+          <div class="build-step">
+            <span class="stage">Stage 03</span>
+            <h3>Agent loop</h3>
+            <p>Append the result and call the model again.</p>
+          </div>
+          <div class="build-step">
+            <span class="stage">Stage 04</span>
+            <h3>Coding tools</h3>
+            <p>Add exact edit and shell execution.</p>
+          </div>
+          <div class="build-step">
+            <span class="stage">Stage 05</span>
+            <h3>Events + TUI</h3>
+            <p>Separate semantic facts from rendering.</p>
+          </div>
+          <div class="build-step">
+            <span class="stage">Stage 06</span>
+            <h3>Hard limits</h3>
+            <p>Bound paths, runtime, output size, turns, and cancellation.</p>
+          </div>
+          <div class="build-step">
+            <span class="stage">Stage 07</span>
+            <h3>Sessions</h3>
+            <p>Persist, resume, and compact valid history.</p>
+          </div>
+          <div class="build-step">
+            <span class="stage">Stage 08</span>
+            <h3>Add subagents last</h3>
+            <p>Delegate work only after one agent is reliable.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-no">11 / 12</div>
+    </section>
+
+    <section class="slide dark-slide" id="s12">
+      <div class="slide-inner takeaway">
+        <div>
+          <div class="eyebrow">Summary</div>
+          <h2>The main rules to preserve</h2>
+          <p class="lead">These rules let you add providers, tools, interfaces, sessions, and subagents without changing the basic loop.</p>
+        </div>
+        <div>
+          <div class="contracts">
+            <div class="contract">Keep the transcript valid</div>
+            <div class="contract">Validate every tool call</div>
+            <div class="contract">Build context in a fixed order</div>
+            <div class="contract">Emit events for state changes</div>
+            <div class="contract">Support cancellation and limits</div>
+            <div class="contract">Enforce safety outside the prompt</div>
+          </div>
+          <p class="source-note">SOURCE-GROUNDED IN OPENAI CODEX, NEO, PI, AND CLAUDE CODE PUBLIC DOCUMENTATION. SNAPSHOT: 30 JULY 2026.</p>
+        </div>
+      </div>
+      <div class="slide-no">12 / 12</div>
+    </section>
+  </main>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const links = Array.from(document.querySelectorAll(".nav a"));
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      const index = slides.indexOf(visible.target);
+      links.forEach((link, i) => link.classList.toggle("active", i === index));
+    }, { threshold: [0.35, 0.55, 0.75] });
+
+    slides.forEach((slide) => observer.observe(slide));
+
+    document.addEventListener("keydown", (event) => {
+      if (!["ArrowDown", "ArrowRight", "PageDown", "ArrowUp", "ArrowLeft", "PageUp"].includes(event.key)) return;
+      const current = links.findIndex((link) => link.classList.contains("active"));
+      const forward = ["ArrowDown", "ArrowRight", "PageDown"].includes(event.key);
+      const next = Math.max(0, Math.min(slides.length - 1, current + (forward ? 1 : -1)));
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      slides[next].scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      event.preventDefault();
+    });
+  </script>
+</body>
+</html>
