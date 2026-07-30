@@ -9,22 +9,22 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.14/dist/index.global.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
   <style>
     :root {
-      --paper: #f1eee5;
-      --paper-deep: #e5dfd2;
-      --ink: #17201e;
-      --muted: #66706b;
-      --line: #cbc4b7;
-      --rust: #b34e32;
-      --rust-soft: #ead0c7;
-      --teal: #176b67;
-      --teal-soft: #c9ded9;
-      --gold: #b78a38;
-      --dark: #17201e;
-      --dark-panel: #202b28;
-      --cream: #f8f5ed;
+      --paper: #f7f7f4;
+      --paper-deep: #efefeb;
+      --ink: #171918;
+      --muted: #676b68;
+      --line: #d7d8d3;
+      --rust: #a9462d;
+      --rust-soft: #f0ded8;
+      --teal: #285f5b;
+      --teal-soft: #dce9e6;
+      --gold: #8a7138;
+      --dark: #1d211f;
+      --dark-panel: #252b28;
+      --cream: #fafaf7;
     }
 
     * {
@@ -39,23 +39,13 @@
     body {
       margin: 0;
       color: var(--ink);
-      background:
-        radial-gradient(circle at 12% 18%, rgba(179, 78, 50, 0.07), transparent 28rem),
-        radial-gradient(circle at 88% 76%, rgba(23, 107, 103, 0.07), transparent 30rem),
-        var(--paper);
+      background: var(--paper);
       font-family: "Bricolage Grotesque", system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
     body::before {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      pointer-events: none;
-      content: "";
-      opacity: 0.16;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
-      mix-blend-mode: multiply;
+      display: none;
     }
 
     a {
@@ -70,10 +60,10 @@
       position: relative;
       display: flex;
       min-height: 100vh;
-      padding: clamp(36px, 6vw, 88px);
+      padding: clamp(36px, 5vw, 72px);
       border-bottom: 1px solid var(--line);
       align-items: center;
-      overflow: clip;
+      overflow: visible;
     }
 
     .slide-inner {
@@ -90,22 +80,19 @@
 
     .eyebrow {
       display: flex;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
       color: var(--teal);
       font-family: "Geist Mono", ui-monospace, monospace;
       font-size: 12px;
       font-weight: 600;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       align-items: center;
       gap: 10px;
     }
 
     .eyebrow::before {
-      width: 26px;
-      height: 1px;
-      content: "";
-      background: currentColor;
+      display: none;
     }
 
     .slide h1, .slide h2, .slide h3, .slide p {
@@ -117,21 +104,21 @@
     }
 
     .slide h1 {
-      max-width: 12ch;
-      margin-bottom: 30px;
-      font-size: clamp(58px, 9vw, 126px);
+      max-width: 13ch;
+      margin-bottom: 26px;
+      font-size: clamp(54px, 8vw, 108px);
       font-weight: 600;
-      letter-spacing: -0.065em;
-      line-height: 0.87;
+      letter-spacing: -0.05em;
+      line-height: 0.93;
     }
 
     .slide h2 {
-      max-width: 15ch;
-      margin-bottom: 28px;
-      font-size: clamp(40px, 6vw, 78px);
+      max-width: 18ch;
+      margin-bottom: 22px;
+      font-size: clamp(38px, 5vw, 66px);
       font-weight: 600;
-      letter-spacing: -0.045em;
-      line-height: 0.94;
+      letter-spacing: -0.035em;
+      line-height: 1;
     }
 
     .slide h3 {
@@ -143,17 +130,17 @@
     }
 
     .serif {
-      color: var(--rust);
-      font-family: "Instrument Serif", serif;
-      font-weight: 400;
-      font-style: italic;
-      letter-spacing: -0.025em;
+      color: inherit;
+      font-family: inherit;
+      font-weight: inherit;
+      font-style: normal;
+      letter-spacing: inherit;
     }
 
     .lead {
       max-width: 58ch;
       color: var(--muted);
-      font-size: clamp(19px, 1.8vw, 25px);
+      font-size: clamp(18px, 1.6vw, 22px);
       line-height: 1.5;
       text-wrap: pretty;
     }
@@ -186,9 +173,8 @@
       min-height: 76px;
       padding: 17px 21px;
       border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(248, 245, 237, 0.74);
-      box-shadow: 0 14px 40px rgba(23, 32, 30, 0.055);
+      border-radius: 6px;
+      background: var(--cream);
       align-items: center;
       justify-content: space-between;
       gap: 20px;
@@ -209,24 +195,24 @@
 
     .formula-card.core {
       border-color: var(--rust);
-      background: var(--rust);
-      color: var(--cream);
-      transform: translateX(-18px);
+      background: var(--rust-soft);
+      color: var(--ink);
     }
 
     .formula-card.core span {
-      color: rgba(255, 255, 255, 0.68);
+      color: var(--muted);
     }
 
     .rule-quote {
       max-width: 1100px;
       margin: 28px 0 0;
-      padding-left: 28px;
-      border-left: 3px solid var(--rust);
+      padding: 18px 0 0;
+      border-top: 1px solid var(--line);
+      border-left: 0;
       color: var(--ink);
-      font-family: "Instrument Serif", serif;
-      font-size: clamp(28px, 3vw, 42px);
-      line-height: 1.1;
+      font-family: inherit;
+      font-size: clamp(20px, 2vw, 26px);
+      line-height: 1.35;
     }
 
     .layer-grid {
@@ -240,8 +226,8 @@
       min-height: 145px;
       padding: 21px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(248, 245, 237, 0.72);
+      border-radius: 6px;
+      background: var(--cream);
     }
 
     .layer-number {
@@ -249,7 +235,7 @@
       width: 32px;
       height: 32px;
       margin-bottom: 16px;
-      border-radius: 50%;
+      border-radius: 4px;
       background: var(--teal-soft);
       color: var(--teal);
       font-family: "Geist Mono", ui-monospace, monospace;
@@ -269,27 +255,23 @@
     .diagram-card {
       padding: clamp(22px, 3vw, 38px);
       border: 1px solid var(--line);
-      border-radius: 22px;
-      background: rgba(248, 245, 237, 0.8);
-      box-shadow: 0 30px 90px rgba(23, 32, 30, 0.07);
+      border-radius: 6px;
+      background: var(--cream);
     }
 
     .dark-slide {
-      border-color: #35423e;
-      background:
-        radial-gradient(circle at 78% 24%, rgba(33, 123, 118, 0.26), transparent 30rem),
-        radial-gradient(circle at 12% 80%, rgba(179, 78, 50, 0.18), transparent 28rem),
-        var(--dark);
-      color: var(--cream);
+      border-color: var(--line);
+      background: var(--paper-deep);
+      color: var(--ink);
     }
 
     .dark-slide .lead,
     .dark-slide .small {
-      color: #aeb9b4;
+      color: var(--muted);
     }
 
     .dark-slide .eyebrow {
-      color: #75c2bc;
+      color: var(--teal);
     }
 
     .loop-layout {
@@ -322,7 +304,7 @@
       width: 24px;
       min-width: 24px;
       height: 24px;
-      border-radius: 50%;
+      border-radius: 4px;
       background: var(--rust-soft);
       color: var(--rust);
       font-family: "Geist Mono", ui-monospace, monospace;
@@ -336,8 +318,8 @@
       margin-top: 24px;
       padding: 18px;
       border: 1px solid #35423e;
-      border-radius: 20px;
-      background: rgba(32, 43, 40, 0.84);
+      border-radius: 6px;
+      background: var(--dark-panel);
     }
 
     .sequence-svg {
@@ -374,8 +356,8 @@
       position: relative;
       padding: 17px 19px;
       border: 1px solid var(--line);
-      border-radius: 13px;
-      background: rgba(248, 245, 237, 0.78);
+      border-radius: 6px;
+      background: var(--cream);
     }
 
     .message::before {
@@ -454,8 +436,8 @@
       min-height: 170px;
       padding: 20px 16px;
       border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(248, 245, 237, 0.76);
+      border-radius: 6px;
+      background: var(--cream);
     }
 
     .pipe-step::after {
@@ -512,10 +494,10 @@
 
     .event-pill {
       padding: 12px 14px;
-      border: 1px solid #3a4944;
-      border-radius: 9px;
-      background: rgba(32, 43, 40, 0.74);
-      color: #dce4df;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--cream);
+      color: var(--ink);
       font-family: "Geist Mono", ui-monospace, monospace;
       font-size: 12px;
     }
@@ -529,23 +511,20 @@
 
     .prompt-stack {
       display: grid;
-      perspective: 1000px;
     }
 
     .prompt-layer {
       position: relative;
       display: flex;
       min-height: 64px;
-      margin-top: -8px;
+      margin-top: 8px;
       padding: 15px 20px;
       border: 1px solid var(--line);
-      border-radius: 12px;
+      border-radius: 4px;
       background: var(--cream);
-      box-shadow: 0 13px 25px rgba(23, 32, 30, 0.06);
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-      transform: rotateX(2deg);
     }
 
     .prompt-layer:first-child {
@@ -565,12 +544,12 @@
 
     .prompt-layer.stable {
       border-color: var(--teal);
-      background: var(--teal);
-      color: var(--cream);
+      background: var(--teal-soft);
+      color: var(--ink);
     }
 
     .prompt-layer.stable span {
-      color: rgba(255, 255, 255, 0.68);
+      color: var(--muted);
     }
 
     .split-rule {
@@ -584,8 +563,8 @@
       min-height: 190px;
       padding: 25px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(248, 245, 237, 0.75);
+      border-radius: 6px;
+      background: var(--cream);
     }
 
     .split-card.code {
@@ -637,8 +616,8 @@
       min-height: 285px;
       padding: 24px;
       border: 1px solid var(--line);
-      border-radius: 17px;
-      background: rgba(248, 245, 237, 0.72);
+      border-radius: 6px;
+      background: var(--cream);
     }
 
     .repo-card .repo {
@@ -667,15 +646,14 @@
     }
 
     .repo-card.featured {
-      border-color: var(--rust);
-      background: var(--rust);
-      color: var(--cream);
-      transform: translateY(-10px);
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      color: var(--ink);
     }
 
     .repo-card.featured .repo span,
     .repo-card.featured p {
-      color: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
     }
 
     .build-rail {
@@ -749,7 +727,7 @@
     .slide .takeaway h2 {
       max-width: 14ch;
       margin-bottom: 34px;
-      font-size: clamp(50px, 8vw, 108px);
+      font-size: clamp(44px, 6vw, 78px);
     }
 
     .contracts {
@@ -761,10 +739,10 @@
     .contract {
       display: flex;
       padding: 14px 16px;
-      border: 1px solid #3b4844;
-      border-radius: 10px;
-      background: rgba(32, 43, 40, 0.68);
-      color: #d9e1dd;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--cream);
+      color: var(--ink);
       font-size: 14px;
       align-items: center;
       gap: 12px;
@@ -780,7 +758,7 @@
 
     .source-note {
       margin-top: 26px;
-      color: #83918b;
+      color: var(--muted);
       font-family: "Geist Mono", ui-monospace, monospace;
       font-size: 10px;
       line-height: 1.6;
@@ -824,7 +802,7 @@
     }
 
     .dark-slide .slide-no {
-      color: #697973;
+      color: var(--muted);
     }
 
     @media (min-width: 901px) {
@@ -1004,26 +982,26 @@
     <a href="#s7" aria-label="Events and TUI"></a>
     <a href="#s8" aria-label="Prompts"></a>
     <a href="#s9" aria-label="Safety"></a>
-    <a href="#s10" aria-label="Repositories"></a>
+    <a href="#s10" aria-label="Neo architecture"></a>
     <a href="#s11" aria-label="Build order"></a>
-    <a href="#s12" aria-label="Takeaway"></a>
+    <a href="#s12" aria-label="Summary"></a>
   </nav>
 
   <main class="deck">
     <section class="slide" id="s1">
       <div class="slide-inner title-grid">
         <div>
-          <div class="eyebrow">Micro Neo architecture guide</div>
-          <h1>How coding agents <span class="serif">work</span></h1>
-          <p class="lead">The loop is small. The product is the software that keeps the loop useful, observable, and safe.</p>
+          <div class="eyebrow">Micro Neo</div>
+          <h1>How coding agents work</h1>
+          <p class="lead">A coding agent calls a model, runs tools, adds the results to the conversation, and repeats.</p>
         </div>
         <div class="formula" aria-label="Coding agent formula">
-          <div class="formula-card"><strong>Model</strong><span>judgment</span></div>
-          <div class="formula-card"><strong>Transcript</strong><span>working memory</span></div>
-          <div class="formula-card core"><strong>Agent loop</strong><span>control</span></div>
-          <div class="formula-card"><strong>Tools</strong><span>capabilities</span></div>
-          <div class="formula-card"><strong>Runtime</strong><span>guarantees</span></div>
-          <div class="formula-card"><strong>Interface</strong><span>observation</span></div>
+          <div class="formula-card"><strong>Model</strong><span>decides</span></div>
+          <div class="formula-card"><strong>Transcript</strong><span>stores messages</span></div>
+          <div class="formula-card core"><strong>Agent loop</strong><span>repeats</span></div>
+          <div class="formula-card"><strong>Tools</strong><span>act</span></div>
+          <div class="formula-card"><strong>Runtime</strong><span>validates</span></div>
+          <div class="formula-card"><strong>Interface</strong><span>renders</span></div>
         </div>
       </div>
       <div class="slide-no">01 / 12</div>
@@ -1031,42 +1009,42 @@
 
     <section class="slide" id="s2">
       <div class="slide-inner">
-        <div class="eyebrow">The core model</div>
-        <h2>A small engine inside a <span class="serif">larger harness</span></h2>
-        <p class="lead">The model decides what it wants to do. The harness decides what can actually happen.</p>
+        <div class="eyebrow">Architecture</div>
+        <h2>The main parts of a coding agent</h2>
+        <p class="lead">The loop connects the model to context, tools, the interface, safety controls, and saved sessions.</p>
         <div class="layer-grid">
           <div class="layer">
             <span class="layer-number">01</span>
-            <h3>Control</h3>
+            <h3>Agent loop</h3>
             <p>Repeat model calls until there is a final answer or a stop condition.</p>
           </div>
           <div class="layer">
             <span class="layer-number">02</span>
-            <h3>Context</h3>
+            <h3>Prompt context</h3>
             <p>Assemble prompts, project instructions, transcript, and compacted history.</p>
           </div>
           <div class="layer">
             <span class="layer-number">03</span>
-            <h3>Capabilities</h3>
+            <h3>Tools</h3>
             <p>Expose tool schemas and route valid calls to executable code.</p>
           </div>
           <div class="layer">
             <span class="layer-number">04</span>
-            <h3>Observation</h3>
-            <p>Stream semantic events to a TUI, logs, JSON clients, and extensions.</p>
+            <h3>Events and TUI</h3>
+            <p>Send typed state changes to the TUI and other event consumers.</p>
           </div>
           <div class="layer">
             <span class="layer-number">05</span>
-            <h3>Safety</h3>
-            <p>Apply permissions, approvals, sandboxing, cancellation, and output limits.</p>
+            <h3>Safety controls</h3>
+            <p>Support approvals, cancellation, output limits, and the host sandbox boundary.</p>
           </div>
           <div class="layer">
             <span class="layer-number">06</span>
-            <h3>Session</h3>
-            <p>Persist transcript, usage, queues, model settings, and resumable state.</p>
+            <h3>Sessions</h3>
+            <p>Save the transcript, provider, model, usage, working directory, and timestamps.</p>
           </div>
         </div>
-        <blockquote class="rule-quote">The model provides judgment. The harness provides control.</blockquote>
+        <blockquote class="rule-quote">The model proposes actions. The agent runs tools, updates the transcript, and decides when to stop.</blockquote>
       </div>
       <div class="slide-no">02 / 12</div>
     </section>
@@ -1074,8 +1052,8 @@
     <section class="slide dark-slide" id="s3">
       <div class="slide-inner loop-layout">
         <div>
-          <div class="eyebrow">The control flow</div>
-          <h2>There are <span class="serif">two loops</span></h2>
+          <div class="eyebrow">Agent loop</div>
+          <h2>How the two loops work</h2>
           <p class="lead">The outer loop keeps the conversation alive. The inner loop keeps the model working through tools.</p>
           <div class="event-list">
             <div class="event-pill">outer: read user input</div>
@@ -1125,11 +1103,11 @@
 
     <section class="slide dark-slide" id="s4">
       <div class="slide-inner">
-        <div class="eyebrow">One user turn</div>
-        <h2>Observe. Act. <span class="serif">Observe again.</span></h2>
-        <p class="lead">Every tool result becomes fresh evidence for the next model call.</p>
+        <div class="eyebrow">Agent turn</div>
+        <h2>How one agent turn works</h2>
+        <p class="lead">The model sees each tool result before it decides what to do next.</p>
         <div class="sequence-wrap">
-          <svg class="sequence-svg" viewBox="0 0 1120 470" role="img" aria-label="Sequence from user to harness, model, tools, and workspace">
+          <svg class="sequence-svg" viewBox="0 0 1120 470" role="img" aria-label="Sequence from user to agent, model, tools, and workspace">
             <defs>
               <marker id="seq-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                 <path d="M 0 0 L 10 5 L 0 10 z" fill="#75c2bc"/>
@@ -1140,7 +1118,7 @@
             </defs>
             <g font-family="Bricolage Grotesque" font-weight="600" font-size="16" fill="#f8f5ed">
               <text x="80" y="33" text-anchor="middle">User</text>
-              <text x="330" y="33" text-anchor="middle">Harness</text>
+              <text x="330" y="33" text-anchor="middle">Agent</text>
               <text x="580" y="33" text-anchor="middle">Model</text>
               <text x="830" y="33" text-anchor="middle">Tool runtime</text>
               <text x="1050" y="33" text-anchor="middle">Workspace</text>
@@ -1160,7 +1138,7 @@
               <line x1="580" y1="165" x2="340" y2="165" stroke="#d47a60" stroke-width="2" marker-end="url(#seq-rust)"/>
               <text x="460" y="155" text-anchor="middle" fill="#d89a87">run_command("go test")</text>
               <line x1="330" y1="205" x2="820" y2="205" stroke="#75c2bc" stroke-width="2" marker-end="url(#seq-arrow)"/>
-              <text x="575" y="195" text-anchor="middle" fill="#aeb9b4">validate + authorize + execute</text>
+              <text x="575" y="195" text-anchor="middle" fill="#aeb9b4">validate + optionally confirm + execute</text>
               <line x1="830" y1="245" x2="1040" y2="245" stroke="#75c2bc" stroke-width="2" marker-end="url(#seq-arrow)"/>
               <text x="935" y="235" text-anchor="middle" fill="#aeb9b4">run command</text>
               <line x1="1050" y1="285" x2="840" y2="285" stroke="#d47a60" stroke-width="2" marker-end="url(#seq-rust)"/>
@@ -1181,8 +1159,8 @@
     <section class="slide" id="s5">
       <div class="slide-inner invariant-grid">
         <div>
-          <div class="eyebrow">The transcript invariant</div>
-          <h2>Every call needs a <span class="serif">matching result</span></h2>
+          <div class="eyebrow">Transcript</div>
+          <h2>Keep tool calls and results paired</h2>
           <div class="transcript">
             <div class="message">
               <span class="role">user</span>
@@ -1231,8 +1209,8 @@
     <section class="slide" id="s6">
       <div class="slide-inner">
         <div class="eyebrow">Tools</div>
-        <h2>The model requests. <span class="serif">Your code executes.</span></h2>
-        <p class="lead">A tool schema is an invitation. The runtime is the boundary that turns a request into a controlled side effect.</p>
+        <h2>How tool calls work</h2>
+        <p class="lead">The model returns a tool name and arguments. The agent validates the request, runs the tool, and records the result.</p>
         <div class="pipeline">
           <div class="pipe-step">
             <span class="n">01</span>
@@ -1246,8 +1224,8 @@
           </div>
           <div class="pipe-step">
             <span class="n">03</span>
-            <strong>Authorize</strong>
-            <p>Apply policy before any side effect.</p>
+            <strong>Confirm</strong>
+            <p>Ask the user when an optional approval rule matches.</p>
           </div>
           <div class="pipe-step">
             <span class="n">04</span>
@@ -1262,7 +1240,7 @@
           <div class="pipe-step">
             <span class="n">06</span>
             <strong>Emit</strong>
-            <p>Report lifecycle facts to interfaces and hooks.</p>
+            <p>Send tool-call and tool-result events to the interface.</p>
           </div>
           <div class="pipe-step">
             <span class="n">07</span>
@@ -1292,22 +1270,22 @@
             <text x="127" y="155" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">text + tool calls</text>
             <rect x="45" y="386" width="165" height="72" rx="13" fill="#2a3834" stroke="#53635e"/>
             <text x="127" y="417" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="20" font-weight="600">Tool runtime</text>
-            <text x="127" y="439" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">start + update + end</text>
+            <text x="127" y="439" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">tool call + tool result</text>
             <rect x="270" y="219" width="176" height="116" rx="18" fill="#b34e32" stroke="#d47a60"/>
-            <text x="358" y="262" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="23" font-weight="600">Event stream</text>
-            <text x="358" y="287" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="11">semantic lifecycle facts</text>
-            <text x="358" y="308" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="11">not rendered strings</text>
+            <text x="358" y="262" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="23" font-weight="600">agent.Event</text>
+            <text x="358" y="287" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="11">typed state changes</text>
+            <text x="358" y="308" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="11">sent to consumers</text>
             <path d="M210 138 C280 138 280 205 302 219" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
             <path d="M210 422 C280 422 280 349 302 335" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
             <g>
               <rect x="515" y="70" width="145" height="62" rx="12" fill="#2a3834" stroke="#53635e"/>
-              <text x="587" y="108" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="18" font-weight="600">TUI</text>
+              <text x="587" y="108" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="15" font-weight="600">Bubble Tea TUI</text>
               <rect x="515" y="180" width="145" height="62" rx="12" fill="#2a3834" stroke="#53635e"/>
-              <text x="587" y="218" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="18" font-weight="600">JSON client</text>
+              <text x="587" y="218" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="15" font-weight="600">Headless counters</text>
               <rect x="515" y="290" width="145" height="62" rx="12" fill="#2a3834" stroke="#53635e"/>
-              <text x="587" y="328" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="18" font-weight="600">Hooks</text>
+              <text x="587" y="328" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="15" font-weight="600">Subagent runner</text>
               <rect x="515" y="400" width="145" height="62" rx="12" fill="#2a3834" stroke="#53635e"/>
-              <text x="587" y="438" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="18" font-weight="600">Telemetry</text>
+              <text x="587" y="438" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="15" font-weight="600">Custom handler</text>
               <path d="M446 247 C485 200 485 115 515 101" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
               <path d="M446 267 L515 211" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
               <path d="M446 287 L515 321" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#evt-arrow)"/>
@@ -1316,18 +1294,18 @@
           </svg>
         </div>
         <div>
-          <div class="eyebrow">Events and the TUI</div>
-          <h2>The UI is a <span class="serif">reducer</span></h2>
-          <p class="lead"><span class="mono">new state = reduce(old state, event)</span></p>
+          <div class="eyebrow">Events and TUI</div>
+          <h2>How events drive the TUI</h2>
+          <p class="lead">Bubble Tea converts each agent event into new screen state.</p>
           <div class="event-list">
-            <div class="event-pill">message_delta → append text</div>
-            <div class="event-pill">tool_start → active row</div>
-            <div class="event-pill">tool_update → partial output</div>
-            <div class="event-pill">tool_end → receipt</div>
-            <div class="event-pill">agent_end → clear status</div>
-            <div class="event-pill">error → visible failure</div>
+            <div class="event-pill">assistant_text → append text</div>
+            <div class="event-pill">assistant_commentary → show status</div>
+            <div class="event-pill">parallel_start → create group</div>
+            <div class="event-pill">tool_call → show running tool</div>
+            <div class="event-pill">tool_result → show receipt</div>
+            <div class="event-pill">done / error → finish turn</div>
           </div>
-          <p class="small" style="margin-top:24px;">The transcript is durable state. Events are live notifications. The TUI never decides whether a tool runs.</p>
+          <p class="small" style="margin-top:24px;">The transcript is saved state. Events are live notifications. The TUI renders events and collects approvals, but it does not own the agent loop.</p>
         </div>
       </div>
       <div class="slide-no">07 / 12</div>
@@ -1336,9 +1314,9 @@
     <section class="slide" id="s8">
       <div class="slide-inner prompt-layout">
         <div>
-          <div class="eyebrow">Prompts and context</div>
-          <h2>A prompt is an <span class="serif">ordered stack</span></h2>
-          <p class="lead">Each layer has a different owner and lifetime.</p>
+          <div class="eyebrow">Prompts</div>
+          <h2>How prompts are assembled</h2>
+          <p class="lead">Neo combines stable instructions, skills, project rules, tool schemas, conversation history, and the current message.</p>
           <div class="split-rule">
             <div class="split-card">
               <span class="label">Prompt</span>
@@ -1362,12 +1340,11 @@
         </div>
         <div class="prompt-stack" aria-label="Prompt context layers">
           <div class="prompt-layer stable"><strong>Base instructions</strong><span>stable + cacheable</span></div>
-          <div class="prompt-layer"><strong>Project instructions</strong><span>workspace scoped</span></div>
-          <div class="prompt-layer"><strong>Tool schemas</strong><span>sampling scoped</span></div>
-          <div class="prompt-layer"><strong>Skills and extensions</strong><span>task scoped</span></div>
+          <div class="prompt-layer stable"><strong>Skill catalog</strong><span>stable + cacheable</span></div>
+          <div class="prompt-layer"><strong>AGENTS.md</strong><span>workspace scoped</span></div>
+          <div class="prompt-layer"><strong>Tool schemas</strong><span>request scoped</span></div>
           <div class="prompt-layer"><strong>Transcript</strong><span>session scoped</span></div>
-          <div class="prompt-layer"><strong>Runtime context</strong><span>turn scoped</span></div>
-          <div class="prompt-layer"><strong>Current user message</strong><span>now</span></div>
+          <div class="prompt-layer"><strong>Current user message</strong><span>turn scoped</span></div>
         </div>
       </div>
       <div class="slide-no">08 / 12</div>
@@ -1376,55 +1353,56 @@
     <section class="slide dark-slide" id="s9">
       <div class="slide-inner safety-layout">
         <div>
-          <div class="eyebrow">Safety boundary</div>
-          <h2>Prompts are not a <span class="serif">sandbox</span></h2>
-          <p class="lead">Treat every model-generated tool call as untrusted input.</p>
-          <div class="annotation" style="color:#aeb9b4;">
+          <div class="eyebrow">Safety</div>
+          <h2>Where safety is enforced</h2>
+          <p class="lead">Neo treats model tool calls as untrusted input. The host VM or sandbox provides the real security boundary.</p>
+          <div class="annotation">
             <span class="mark">1</span>
-            <span>Permissions decide whether an action should run.</span>
+            <span>Neo can ask for confirmation when a tool name or shell prefix matches.</span>
           </div>
-          <div class="annotation" style="color:#aeb9b4;">
+          <div class="annotation">
             <span class="mark">2</span>
-            <span>Sandboxing limits what the action can reach.</span>
+            <span>The host sandbox limits access to files, processes, the network, and credentials.</span>
           </div>
         </div>
         <div class="diagram-card" style="background:#202b28;border-color:#3b4945;">
-          <svg class="safety-svg" viewBox="0 0 780 510" role="img" aria-label="Safety pipeline from model through runtime policy to the outside world">
+          <svg class="safety-svg" viewBox="0 0 780 510" role="img" aria-label="Neo validates a tool request, runs the tool inside the host sandbox, bounds the result, and adds it to the transcript">
             <defs>
               <marker id="safe-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                 <path d="M 0 0 L 10 5 L 0 10 z" fill="#75c2bc"/>
               </marker>
             </defs>
-            <rect x="34" y="193" width="130" height="86" rx="15" fill="#b34e32" stroke="#d47a60"/>
-            <text x="99" y="229" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Model</text>
-            <text x="99" y="252" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="10">untrusted decision</text>
-            <rect x="218" y="79" width="310" height="314" rx="26" fill="#17201e" stroke="#75c2bc" stroke-width="2"/>
-            <text x="246" y="116" fill="#75c2bc" font-family="Geist Mono" font-size="11" letter-spacing="2">AGENT RUNTIME</text>
-            <g font-family="Bricolage Grotesque" font-size="18" font-weight="600" text-anchor="middle">
-              <rect x="260" y="145" width="226" height="51" rx="10" fill="#2a3834" stroke="#53635e"/>
-              <text x="373" y="176" fill="#f8f5ed">Validate arguments</text>
-              <rect x="260" y="213" width="226" height="51" rx="10" fill="#2a3834" stroke="#53635e"/>
-              <text x="373" y="244" fill="#f8f5ed">Permission policy</text>
-              <rect x="260" y="281" width="226" height="51" rx="10" fill="#2a3834" stroke="#53635e"/>
-              <text x="373" y="312" fill="#f8f5ed">Approval when needed</text>
-              <rect x="260" y="349" width="226" height="51" rx="10" fill="#176b67" stroke="#75c2bc"/>
-              <text x="373" y="380" fill="#f8f5ed">Sandbox + limits</text>
+            <rect x="32" y="78" width="134" height="86" rx="10" fill="#b34e32" stroke="#d47a60"/>
+            <text x="99" y="113" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Model</text>
+            <text x="99" y="137" fill="#f2d5cc" text-anchor="middle" font-family="Geist Mono" font-size="10">tool request</text>
+
+            <rect x="228" y="58" width="224" height="126" rx="10" fill="#2a3834" stroke="#75c2bc"/>
+            <text x="340" y="94" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Neo</text>
+            <text x="340" y="124" fill="#aeb9b4" text-anchor="middle" font-family="Geist Mono" font-size="11">validate arguments</text>
+            <text x="340" y="148" fill="#aeb9b4" text-anchor="middle" font-family="Geist Mono" font-size="11">optional approval</text>
+
+            <rect x="524" y="38" width="220" height="166" rx="10" fill="#17201e" stroke="#75c2bc" stroke-width="2"/>
+            <text x="634" y="76" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Host sandbox</text>
+            <text x="634" y="105" fill="#75c2bc" text-anchor="middle" font-family="Geist Mono" font-size="11">run the tool</text>
+            <g fill="#aeb9b4" font-family="Geist Mono" font-size="10" text-anchor="middle">
+              <text x="634" y="135">files · processes</text>
+              <text x="634" y="158">network · credentials</text>
             </g>
-            <path d="M164 236 L218 236" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
-            <path d="M373 196 L373 213" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
-            <path d="M373 264 L373 281" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
-            <path d="M373 332 L373 349" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
-            <rect x="592" y="135" width="152" height="202" rx="20" fill="#2a3834" stroke="#53635e"/>
-            <text x="668" y="175" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Outside world</text>
-            <g fill="#aeb9b4" font-family="Geist Mono" font-size="11" text-anchor="middle">
-              <text x="668" y="216">files</text>
-              <text x="668" y="243">processes</text>
-              <text x="668" y="270">network</text>
-              <text x="668" y="297">credentials</text>
-            </g>
-            <path d="M528 374 C565 374 565 236 592 236" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
-            <path d="M592 313 C558 434 201 449 117 279" fill="none" stroke="#d47a60" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#safe-arrow)"/>
-            <text x="363" y="466" fill="#d89a87" text-anchor="middle" font-family="Geist Mono" font-size="11">bounded result returns to the transcript</text>
+
+            <rect x="318" y="294" width="224" height="96" rx="10" fill="#176b67" stroke="#75c2bc"/>
+            <text x="430" y="334" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Neo</text>
+            <text x="430" y="361" fill="#d8eeeb" text-anchor="middle" font-family="Geist Mono" font-size="11">bound the result</text>
+
+            <rect x="48" y="294" width="190" height="96" rx="10" fill="#2a3834" stroke="#53635e"/>
+            <text x="143" y="334" fill="#f8f5ed" text-anchor="middle" font-family="Bricolage Grotesque" font-size="21" font-weight="600">Transcript</text>
+            <text x="143" y="361" fill="#aeb9b4" text-anchor="middle" font-family="Geist Mono" font-size="11">matching tool result</text>
+
+            <path d="M166 121 L228 121" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
+            <path d="M452 121 L524 121" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
+            <path d="M634 204 C634 252 542 252 500 294" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
+            <path d="M318 342 L238 342" fill="none" stroke="#75c2bc" stroke-width="2" marker-end="url(#safe-arrow)"/>
+
+            <text x="390" y="457" fill="#98a7a1" text-anchor="middle" font-family="Geist Mono" font-size="11">Execution is contained by the host. Results return to Neo.</text>
           </svg>
         </div>
       </div>
@@ -1433,32 +1411,32 @@
 
     <section class="slide" id="s10">
       <div class="slide-inner">
-        <div class="eyebrow">Architecture evidence</div>
-        <h2>Same mechanism. <span class="serif">Different emphasis.</span></h2>
-        <p class="lead">The strongest lesson comes from comparing where each product chooses to put complexity.</p>
+        <div class="eyebrow">Neo</div>
+        <h2>How Neo is structured</h2>
+        <p class="lead">Neo keeps the loop small and adds product features around it.</p>
         <div class="comparison-grid">
           <div class="repo-card">
-            <div class="repo"><strong>Neo</strong><span>Go</span></div>
-            <h3>Direct boundaries</h3>
-            <p>A policy-light core loop emits semantic events into a capable Bubble Tea interface.</p>
+            <div class="repo"><strong>Agent core</strong><span>internal/agent</span></div>
+            <h3>Loop and transcript</h3>
+            <p>Owns messages, model calls, tool execution, events, steering, compaction, and turn limits.</p>
           </div>
           <div class="repo-card featured">
-            <div class="repo"><strong>Micro Neo</strong><span>Go</span></div>
-            <h3>Teachable core</h3>
-            <p>The provider, tools, transcript, loop, events, and interactive UI fit in one file.</p>
+            <div class="repo"><strong>Providers</strong><span>internal/llm</span></div>
+            <h3>Model adapters</h3>
+            <p>Anthropic, OpenAI, OpenRouter, and Google use the same internal request and response types.</p>
           </div>
           <div class="repo-card">
-            <div class="repo"><strong>Pi</strong><span>TypeScript</span></div>
-            <h3>Explicit lifecycle</h3>
-            <p>A reusable low-level loop feeds session persistence, extensions, and UI components.</p>
+            <div class="repo"><strong>Product layer</strong><span>cmd + tui + session</span></div>
+            <h3>CLI, TUI, and sessions</h3>
+            <p>The CLI starts chat or headless runs. Bubble Tea renders events. Sessions save transcript, model, provider, and usage.</p>
           </div>
           <div class="repo-card">
-            <div class="repo"><strong>Codex</strong><span>Rust</span></div>
-            <h3>Product protocol</h3>
-            <p>Typed events, request-scoped context, tool routing, safety, and multiple clients.</p>
+            <div class="repo"><strong>Context</strong><span>skills + projectctx + factory</span></div>
+            <h3>Rules and subagents</h3>
+            <p>Skills and AGENTS.md add task context. The agent tool starts supervised work or inspect subagents.</p>
           </div>
         </div>
-        <p class="small" style="margin-top:24px;">Claude Code adds public evidence for the same boundaries through documented hooks, permissions, sandboxing, project instructions, and isolated subagents.</p>
+        <p class="small" style="margin-top:24px;">Tools, approvals, configuration, and prompt caching are separate packages that are wired together at startup.</p>
       </div>
       <div class="slide-no">10 / 12</div>
     </section>
@@ -1466,7 +1444,7 @@
     <section class="slide" id="s11">
       <div class="slide-inner">
         <div class="eyebrow">Build order</div>
-        <h2>Add complexity only when the <span class="serif">next problem</span> requires it</h2>
+        <h2>A practical build order</h2>
         <div class="build-rail">
           <div class="build-step">
             <span class="stage">Stage 01</span>
@@ -1505,8 +1483,8 @@
           </div>
           <div class="build-step">
             <span class="stage">Stage 08</span>
-            <h3>Extensions</h3>
-            <p>Add hooks, skills, and subagents last.</p>
+            <h3>Skills + subagents</h3>
+            <p>Add reusable instructions and delegated work last.</p>
           </div>
         </div>
       </div>
@@ -1516,18 +1494,18 @@
     <section class="slide dark-slide" id="s12">
       <div class="slide-inner takeaway">
         <div>
-          <div class="eyebrow">The takeaway</div>
-          <h2>The loop is easy. <span class="serif">Contracts make it dependable.</span></h2>
-          <p class="lead">Once the contracts are clear, every advanced feature becomes an understandable addition around the same small engine.</p>
+          <div class="eyebrow">Summary</div>
+          <h2>The main rules to preserve</h2>
+          <p class="lead">These rules let you add providers, tools, interfaces, sessions, and subagents without changing the basic loop.</p>
         </div>
         <div>
           <div class="contracts">
-            <div class="contract">Valid transcript</div>
-            <div class="contract">Exact tool boundary</div>
-            <div class="contract">Consistent request context</div>
-            <div class="contract">Typed lifecycle events</div>
-            <div class="contract">Cancellation and recovery</div>
-            <div class="contract">Runtime enforcement</div>
+            <div class="contract">Keep the transcript valid</div>
+            <div class="contract">Validate every tool call</div>
+            <div class="contract">Build context in a fixed order</div>
+            <div class="contract">Emit events for state changes</div>
+            <div class="contract">Support cancellation and limits</div>
+            <div class="contract">Enforce safety outside the prompt</div>
           </div>
           <p class="source-note">SOURCE-GROUNDED IN OPENAI CODEX, NEO, PI, AND CLAUDE CODE PUBLIC DOCUMENTATION. SNAPSHOT: 30 JULY 2026.</p>
         </div>
