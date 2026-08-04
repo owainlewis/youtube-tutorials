@@ -1,168 +1,222 @@
 # Give Your AI Agents a Database (Airtable MCP)
 
-Companion guide for the video. Connect Claude Code to Airtable through MCP so your AI agents can read and write persistent data.
+Last verified against the official Airtable and Claude Code documentation: 2026-08-04.
 
-## The Problem
+Airtable's hosted MCP server lets supported AI tools work with Airtable data through the permissions of the connected user. The safest current setup for Claude Code is the official Airtable plugin and OAuth. You do not need to paste a bearer token into a shell command.
 
-AI coding agents like Claude Code don't have persistent memory. Every session starts fresh. That makes it hard to use them for day-to-day tasks like project management - tracking ideas, updating statuses, knowing what you're working on.
+## Opening Script
 
-The fix: connect Claude Code to an external database through MCP. Your agents can read from it, write to it, and build on previous work across sessions.
+This is a practical guide to connecting an AI coding agent to Airtable with MCP.
 
-## What You'll Set Up
+The useful result is not magical agent memory. It is a shared, structured data source that survives one chat and can be inspected by people as well as agents.
 
-1. An Airtable personal access token with the right scopes
-2. The official Airtable MCP server connected to Claude Code
-3. A working workflow where Claude queries, filters, and updates your data
+In this lesson, I will show you the current OAuth setup, how permissions work, a safe read-before-write workflow, and how to turn the connection into one focused skill.
+
+So, let's get into it.
+
+## What You Are Building
+
+```mermaid
+flowchart LR
+    A[Claude Code or Codex] -->|MCP tool call| B[Airtable hosted MCP server]
+    B -->|Connected user permissions| C[Airtable workspace]
+    C --> D[Base and records]
+```
+
+MCP provides the connection and tools. Airtable remains the source of truth for the data and permissions. A skill can provide the repeatable workflow that uses those tools.
+
+This is persistent shared data, but it is not the same as automatic model memory. The agent sees only what the host, connection, and current permissions make available.
 
 ## Prerequisites
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed (v2.17+)
-- An [Airtable](https://airtable.com) account (free tier works)
-- An Airtable base with at least one table you want Claude to interact with
+- An Airtable account with access to the data you need.
+- Claude Code or Codex with plugin support.
+- Permission to use third-party integrations in your Airtable organization.
 
-## Step 1: Create a Personal Access Token
+If your organization restricts integrations, an Airtable administrator may need to allow the connection.
 
-1. Go to [airtable.com/create/tokens/new](https://airtable.com/create/tokens/new)
-2. Give the token a name (e.g. "Claude Code")
-3. Add these scopes:
-   - `schema.bases:read` - lets Claude see your table structure
-   - `data.records:read` - lets Claude query records
-   - `data.records:write` - lets Claude create and update records
-4. Under **Access**, select the specific base(s) you want Claude to reach. Don't give it access to everything.
-5. Copy the token. You'll only see it once.
+## Recommended Claude Code Setup
 
-## Step 2: Connect the MCP Server
+Airtable's current documentation recommends its official Claude Code plugin. It bundles the hosted MCP server and skills for Airtable's data model.
 
-Run this in your terminal:
+Install it:
 
 ```bash
-claude mcp add --scope user --transport http airtable \
-  https://mcp.airtable.com/mcp \
-  --header "Authorization: Bearer YOUR_TOKEN_HERE"
+claude plugin install airtable@claude-plugins-official
 ```
 
-Replace `YOUR_TOKEN_HERE` with the token from Step 1.
+Restart Claude Code, then open:
 
-This connects to Airtable's official hosted MCP server. Nothing to install locally - no npm, no npx, no Node.js required.
-
-### Verify the connection
-
-Start a new Claude Code session and run:
-
+```text
+/plugin
 ```
+
+Open the **Installed** tab, choose the Airtable plugin, open its MCP server details, and select **Authenticate**. Complete the OAuth flow in the browser.
+
+OAuth keeps the credential out of your shell history and lets Airtable show the permissions you are granting.
+
+## Manual Claude Code Setup
+
+Use the manual path when the official plugin is not suitable:
+
+```bash
+claude mcp add --transport http airtable https://mcp.airtable.com/mcp
+```
+
+Restart Claude Code and open:
+
+```text
 /mcp
 ```
 
-You should see the Airtable server listed with its tools.
+Choose Airtable, select **Authenticate**, and complete OAuth in the browser.
 
-Then try:
+Do not add a copied token to the command line. If a development case genuinely requires a personal access token, store it in an environment variable or secret manager and follow Airtable's current PAT instructions. Do not commit it to `.mcp.json`, a skill, or this repository.
 
-```
-> List all my Airtable bases
-```
+## Recommended Codex Setup
 
-If you see your bases, the connection is working.
+Airtable also documents an official Codex plugin:
 
-## Step 3: Use It
-
-Once connected, you can talk to your Airtable data naturally:
-
-```
-> Show me all records in my [table name]
-> Which items have status "In Progress"?
-> Update the status of [record] to "Done"
-> Add a new record with title "My New Idea" and status "Idea"
+```bash
+codex plugin add airtable@openai-curated
 ```
 
-Claude discovers the table schema automatically and maps your natural language to the right MCP tool calls.
+In the desktop app, you can open **Plugins**, search for Airtable, and add it there. Follow the OAuth connection flow presented by the plugin.
 
-## Context Management
+For a manual Codex MCP connection:
 
-If you've tried MCP servers before and noticed they slowed things down, that's been fixed.
-
-Claude Code v2.17+ uses **on-demand tool loading**. MCP tool definitions are no longer preloaded into your context window. Instead, Claude searches for the right tool when it needs one.
-
-Check it with:
-
-```
-/context
+```bash
+codex mcp add airtable --url https://mcp.airtable.com/mcp
+codex mcp login airtable
 ```
 
-MCP tools show as "deferred" - available but not loaded until actually needed. This means you can connect multiple MCP servers without burning context.
+Use the official plugin when you want Airtable-specific skills as well as the connection.
 
-## Limitations
+## Verify With A Read
 
-Be honest about what this can and can't do:
+Start with a non-destructive request:
 
-- **Cannot create bases.** You create the base in Airtable.
-- **Cannot create tables or fields.** You design the schema yourself - field types, relationships, views. Claude works within that structure.
-- **Primarily reads and writes records.** Think of it as a data layer, not a database builder.
-- **Permission prompts on every write.** By default, Claude asks for approval on each MCP tool call. You can add tools to `allowedTools` in your project settings to skip this.
+```text
+List the Airtable bases I can access. Do not make changes.
+```
 
-For most workflows, these limitations are fine. Set up the table once, and let Claude handle the data.
+Then inspect one base:
 
-## Example: Content Pipeline Skill
+```text
+Show the tables and fields in the Content Pipeline base. Do not create or update anything.
+```
 
-You can pair MCP with a Claude Code skill to automate a specific workflow. Here's an example that researches video ideas and writes them to Airtable.
+If a base is missing, check the Airtable account used during OAuth and that user's permissions. MCP mirrors the connected user's Airtable access.
 
-Create `.claude/skills/research/SKILL.md`:
+## Permissions And Capability
 
-```markdown
+Airtable permissions decide what the connection can do.
+
+| Airtable access | Typical MCP capability |
+| --- | --- |
+| Read-only or commenter | Read data the user can access. |
+| Editor, creator, or owner | Read and update records within the user's access. |
+| Workspace owner or creator | May create bases when the workspace permissions allow it. |
+
+The hosted server can do more than the old record-only examples. Airtable's current documentation includes searching and analyzing data, creating and updating records, working with bases and interfaces where permissions allow, and managing automation drafts.
+
+Capabilities can change. Ask for the smallest action needed and verify important writes in Airtable.
+
+## A Safe Read-Before-Write Workflow
+
+### 1. Name the exact target
+
+```text
+Use the Content Pipeline base and Ideas table.
+```
+
+### 2. Read the schema
+
+```text
+Show the field names and types. Do not make changes.
+```
+
+### 3. Preview the intended write
+
+```text
+Prepare one record for the title "Agent Memory Explained" with status "Idea".
+Show the exact field values before creating it.
+```
+
+### 4. Approve one bounded change
+
+```text
+Create only that record, then return its Airtable record ID and final values.
+```
+
+### 5. Verify the result
+
+Open Airtable or read the record back through MCP. Do not treat a natural-language success message as the only proof.
+
+## Use A Skill For One Repeatable Job
+
+MCP gives the agent tools. A skill defines how to use them for a particular outcome.
+
+An example skill lives at [`resources/claude/skills/research/SKILL.md`](./resources/claude/skills/research/SKILL.md).
+
+The important boundaries are:
+
+- exact base and table
+- required fields
+- allowed write action
+- duplicate handling
+- preview or approval rule
+- final evidence
+
+A focused version might say:
+
+```md
 ---
-name: research
-description: "Research video ideas for a topic and add them to the Airtable content pipeline."
+name: capture-content-idea
+description: Add one reviewed content idea to the configured Airtable table.
 ---
 
-# Research Skill
-
-Generate video ideas for a given topic and push them into Airtable.
-
-## Airtable Configuration
-
-- Base: [Your Base Name] ([your-base-id])
-- Table: [Your Table Name] ([your-table-id])
-
-## Process
-
-1. Research the given topic using web search
-2. Generate 10 video ideas with concise, YouTube-optimized titles
-3. Assign each idea to a content category
-4. Use the Airtable MCP to create records in the table
-5. Return a summary of what was added
+1. Read the target table schema.
+2. Draft one record using only existing fields.
+3. Search for an existing record with the same title.
+4. Show the proposed values and ask before writing.
+5. Create one record after approval.
+6. Return the record ID and values read back from Airtable.
 ```
 
-Then trigger it:
+The skill should not contain credentials. Authentication belongs to the MCP connection.
 
-```
-> Research 10 video ideas about building AI agents and add them to my content pipeline
-```
+## Common Failure Modes
 
-Claude reads the skill, generates ideas, calls the Airtable MCP, and writes the records. One command, full pipeline.
+### The server appears but is not authenticated
 
-## Other Use Cases
+Open `/mcp` in Claude Code or run the relevant Codex login flow. Complete OAuth with the intended Airtable account.
 
-This pattern - MCP for the connection, a skill for the workflow - works for any structured data:
+### A base or field is missing
 
-| Use Case | What Claude Does |
-|----------|-----------------|
-| Content pipeline | Research ideas, track status, manage publishing |
-| Client tracker | Log interactions, update project status |
-| Research database | Store competitor analysis, tool evaluations |
-| Knowledge base | Save reusable configs, decision logs, prompts |
+Check Airtable permissions and confirm the exact base. Do not ask the agent to invent a field name.
 
-## Project Structure
+### A write targets the wrong table
 
-```
-your-project/
-  .claude/
-    skills/
-      research/
-        SKILL.md            # Defines what Claude does with the data
-    settings.local.json     # MCP config (auto-generated by claude mcp add)
-```
+Name the base and table, read the schema, and preview the payload before writing.
 
-## Links
+### The organization blocks the connection
 
-- [Airtable MCP Server docs](https://support.airtable.com/docs/using-the-airtable-mcp-server)
-- [Claude Code MCP docs](https://docs.anthropic.com/en/docs/claude-code/mcp)
-- [Create Airtable API tokens](https://airtable.com/create/tokens)
+Ask the Airtable administrator whether third-party integrations are allowed and whether this integration must be allow-listed.
+
+### A token was pasted into a command
+
+Revoke it in Airtable and replace the setup with OAuth. Shell history, terminal logs, and configuration files are poor places for long-lived secrets.
+
+## References
+
+- [Official Airtable MCP guide](https://support.airtable.com/docs/using-the-airtable-mcp-server)
+- [Official Claude Code MCP guide](https://docs.anthropic.com/en/docs/claude-code/mcp)
+- [Airtable permission overview](https://support.airtable.com/docs/airtable-permissions-overview)
+- [Airtable plugin skills](https://github.com/Airtable/skills/tree/main/plugins/airtable/skills)
+
+## Summary
+
+- The one thing to remember: use OAuth and let Airtable permissions define the boundary.
+- The honest limitation: an MCP connection does not make every action safe or give an agent automatic memory.
+- What to try next: connect with OAuth, run one read-only schema query, then make one previewed write.

@@ -1,168 +1,236 @@
 # 7 Codex Skills I Use As An AI Engineer
 
-Companion notes for the YouTube tutorial. This version focuses on seven skills I use as a practical engineering workflow rather than a giant library of agent tricks.
+Last verified against the official OpenAI documentation: 2026-08-04.
 
-> The thesis: skills are most useful when they encode repeatable ways of working. A small set of sharp skills can move an idea from vague feature request to spec, plan, issues, clear human-facing writing, implementation cleanup, review, and deeper design thinking.
+Skills are useful when they encode a repeatable way of working. I do not want hundreds of vague prompts. I want a small set of workflows that help me make decisions, build the change, and check the result.
 
-## The Workflow
+## Opening Script
 
-The demo uses **Dispatch**, a local task execution app, as the running example. The feature is making Dispatch task execution portable across multiple workers.
+These are seven types of Codex skills I use in my AI engineering workflow.
 
-| # | Skill | Command | Demo Moment |
-|---|---|---|---|
-| 1 | Spec | `$spec` | Write a spec for portable Dispatch task execution. |
-| 2 | Plan | `$plan` | Break the spec into concrete implementation tasks, then push them to GitHub Issues. |
-| 3 | Explain Visually | `$explain-visually` | Explain the new worker/task model in a browser-friendly visual artifact. |
-| 4 | Clarify | `$clarify` | Turn a vague ask into a clean, self-contained prompt. Grill out the unknowns one question at a time, then output the final prompt as the deliverable. |
-| 5 | PR Feedback | `$address-pr-feedback` | Walk through an open PR, triage comments, fix valid issues, and prepare replies. |
-| 6 | Refactor | `$refactor` | Clean up implementation code without changing behavior. |
-| 7 | Design Doc | `$design-doc` | Discuss when a spec is not enough and the design needs tradeoff analysis. |
+If you spend time looking at agent setups, it can feel as if you need a huge skill library before you can do useful work. I think the opposite is true. A small number of focused skills can cover most of the path from a rough idea to reviewed code.
 
-## Demo Script
+In this lesson, I will show you the seven jobs, where each one fits, how Codex discovers skills, and how to decide whether a workflow should become a skill at all.
 
-### 1. Spec
+So, let's get into it.
 
-Start by quickly showing the Dispatch app: tasks, workers, runs, and the current working-directory field. Then use the spec skill to shape the feature.
+## What A Skill Is
+
+A skill is a directory with a required `SKILL.md` file. It can also include scripts, references, assets, and optional metadata.
 
 ```text
-$spec
-
-Write a spec for making Dispatch task execution portable across multiple workers.
-
-Right now tasks can include a working directory, but that is brittle because the control plane does not know which host/worker will run the task or what paths exist on that machine. We want workers to create a fresh isolated workspace for every run, and we want tasks to be scheduled to eligible workers using labels and optional host/worker pinning.
-
-The design should make tasks portable by default. Checkout/setup should happen as explicit task steps inside the run workspace. Absolute local paths should not be part of normal task creation because they break when tasks move across hosts.
-
-Focus on the data model, worker behavior, claim/routing rules, UI changes, migration from existing workDir behavior, and the smallest implementation path for the current local JSON-store prototype.
+my-skill/
+  SKILL.md
+  scripts/       # optional
+  references/    # optional
+  assets/        # optional
+  agents/        # optional metadata
 ```
 
-The useful thing to show is not that the agent writes a long document. It is that the skill forces alignment before implementation: requirements, data model, migration, UI behavior, and the smallest path through the current prototype.
+The smallest useful `SKILL.md` is:
 
-### 2. Plan
+```md
+---
+name: focused-review
+description: Review a code change without editing it. Use before a commit or pull request.
+---
 
-Use the plan skill on the completed spec.
+Read the task and current diff.
+Report only actionable correctness, security, regression, and test findings.
+Do not edit files.
+```
+
+Codex can invoke a skill when its description matches the task. You can also invoke one explicitly. In the CLI, run `/skills` or type `$` to find installed skills.
+
+Skill names depend on what is installed in your environment. The command names below describe my current setup. If your names differ, choose the skill that performs the same job.
+
+## The Seven Jobs
+
+| # | Job | Example invocation | Output |
+| --- | --- | --- | --- |
+| 1 | Design | `$design` | A decided feature or system specification. |
+| 2 | Plan | `$plan` | Ordered implementation tasks and checks. |
+| 3 | Explain visually | `$explain-visually` | A source-grounded visual explanation. |
+| 4 | Clarify | `$clarify` | A clean prompt from a vague request. |
+| 5 | Address PR feedback | `$github:gh-address-comments` | Triaged findings, verified fixes, and replies. |
+| 6 | Improve | `$improve` | Simpler code with behavior preserved. |
+| 7 | Architecture review | `$architecture-review` | Risks and missing decisions in a proposal. |
+
+The names are less important than the boundaries. Each skill should do one job and produce one clear artifact.
+
+## 1. Design Before Code
+
+Use a design skill when important product or technical choices are still open.
 
 ```text
-$plan docs/portable-task-execution/spec.md
+$design
+
+Design portable task execution for a worker system.
+Tasks should not depend on absolute paths from the control-plane machine.
+Cover workspace creation, worker eligibility, migration, and failure handling.
 ```
 
-Show how the skill turns the spec into task-sized chunks with context, relevant files, acceptance criteria, and verification steps.
+The result should decide goals, non-goals, behavior, and tradeoffs. It should not hide an unresolved product decision inside implementation detail.
 
-Then push those tasks to GitHub Issues. The important point is that each issue should be self-contained enough for a human or agent to pick up later without needing the original chat.
+## 2. Turn A Decision Into A Plan
 
-Example issue flow:
+Use a plan skill after the direction is decided.
 
 ```text
-Create GitHub issues from this plan. Keep each issue scoped to one task, include acceptance criteria and verification, and link back to the spec.
+$plan docs/portable-task-execution/design.md
 ```
 
-### 3. Explain Visually
+A good plan creates tasks that another developer or agent can run without the original chat. Each task needs:
 
-Use this after the spec or plan exists, when you want the system to be easy to explain.
+- one concrete outcome
+- relevant context and files
+- acceptance criteria
+- exact verification
+- dependencies on earlier tasks
+
+Planning too early creates a detailed list for an undecided design. Design first, plan second.
+
+## 3. Explain The System Visually
+
+Use a visual explanation when prose makes a relationship hard to see.
 
 ```text
-$explain-visually docs/portable-task-execution/spec.md
+$explain-visually docs/portable-task-execution/design.md
 ```
 
-For the Dispatch feature, the visual explanation should make the portability shift obvious:
+For portable task execution, the visual should show the before and after:
 
-- before: a task points at a local path that might only exist on one machine
-- after: a worker claims an eligible task, creates a fresh workspace, and runs checkout/setup steps inside that workspace
-- routing: labels and optional host/worker pins decide which workers may claim the task
+```mermaid
+flowchart LR
+    subgraph Before
+        A[Task with local path] --> B[One matching host]
+    end
+    subgraph After
+        C[Portable task] --> D[Eligible worker]
+        D --> E[Fresh workspace]
+        E --> F[Checkout and setup]
+    end
+```
 
-### 4. Clarify
+Use a diagram when it reduces explanation. Do not create a visual just because the skill exists.
 
-Use clarify when the ask is vague, voice-dictated, or a plan you want stress-tested before you start writing code. The skill turns your messy intent into a **clean, self-contained prompt** as its deliverable - not a side effect of execution, but the artifact itself. You can run it now, save it, or hand it to another agent.
+## 4. Clarify A Vague Ask
 
-Most failed agent work comes from acting on an unclear brief. The skill source is here: [clarify/SKILL.md](https://github.com/owainlewis/agent-skills/blob/main/skills/clarify/SKILL.md).
+Use clarify when the request contains hidden decisions:
 
 ```text
 $clarify
 
-I want a script in this repo that takes any MP3 and runs it through the Auphonic API to enhance the audio. API key is in .env already.
+Add a command that sends an MP3 to an audio enhancement API.
+The API key already exists in the environment.
 ```
 
-What the skill does:
+The useful output is a self-contained prompt. It should resolve questions the repository cannot answer, state assumptions, and preserve the user's intent.
 
-1. Reads the codebase first - never asks a question the project conventions already answer.
-2. Interviews you one question at a time, recommending an answer with reasoning for each.
-3. Walks down the decision tree - each answer reshapes the next question.
-4. Outputs a `Final prompt:` block - self-contained, imperative, ready to run cold by any agent.
-5. Asks what's next: execute now, save to a file, or stop (you'll use it elsewhere).
+The skill should inspect the codebase before asking questions. A neutral menu is not enough. It should recommend an answer with reasoning when a real choice remains.
 
-Good demo targets:
+## 5. Address Pull Request Feedback
 
-- A voice-dictated feature request with hidden decisions (file location, output naming, failure behavior).
-- A pull from the plan in step 2 that's underspecified at the edges.
-- "Grill me on this design before I start coding" - the stress-test mode.
-
-The point to show is the contrast: ask the agent the same vague question with and without `$clarify`. Without it, the agent picks defaults and ships the wrong thing. With it, the agent surfaces every hidden decision upfront - one question, one recommended answer at a time - and the output is a portable prompt you can use anywhere, not a one-shot conversation.
-
-Two rules that make the skill work:
-
-- **Always recommend an answer.** A neutral menu of options dumps the work back on you. A recommendation with reasoning lets you accept and move on, or push back if the agent missed something.
-- **The deliverable is the prompt, not the build.** Execution is optional. The clean prompt is the thing - that's what makes it reusable across agents and sessions.
-
-### 5. PR Feedback
-
-Show an open PR and use the PR feedback skill as a review triage loop.
+Review comments are evidence to inspect, not commands to apply blindly.
 
 ```text
-$address-pr-feedback <PR URL>
+$github:gh-address-comments <pull-request-url>
 ```
 
-The point is judgment. Review comments are input, not commands. The skill should classify feedback, inspect the current code, implement valid fixes, verify them, and draft concise replies.
+The workflow should:
 
-### 6. Refactor
+1. Read unresolved comments.
+2. Inspect the current code and tests.
+3. Decide which findings are valid.
+4. Fix the cause, not only the visible symptom.
+5. Run the relevant checks.
+6. Reply with evidence.
 
-Use refactor once behavior is working and tests give you a safety net.
+A good feedback skill preserves judgment. It does not turn every comment into scope.
+
+## 6. Improve Working Code
+
+Use an improvement skill after behavior works and tests provide a safety net.
 
 ```text
-$refactor
+$improve
+
+Simplify the worker eligibility logic without changing behavior.
+Run the focused tests before and after the change.
 ```
 
-For this Dispatch feature, good refactor targets might be worker eligibility checks, run workspace creation, or JSON-store migration helpers. The skill should preserve behavior while making the code easier to read and change.
+The skill should remove duplication, improve names, and simplify structure. It should not quietly redesign the feature.
 
-### 7. Design Doc
+## 7. Review Architecture Before Implementation
 
-Use a design doc when the problem has real ambiguity, tradeoffs, cross-cutting concerns, or a need for consensus before code.
-
-The reference for this section is [Design Docs at Google](https://www.industrialempathy.com/posts/design-docs-at-google/). The key lesson for the tutorial: a design doc is not an implementation manual. It is where you record context, goals, non-goals, alternatives, tradeoffs, cross-cutting concerns, and why one design wins.
+Use architecture review for a proposal with cross-cutting risk:
 
 ```text
-$design-doc
-
-Write a lightweight design doc for Dispatch portable task execution. Focus on the tradeoffs between host-pinned local execution, label-routed worker execution, and fully remote workspace provisioning.
+$architecture-review docs/portable-task-execution/design.md
 ```
 
-## Skill List
+The reviewer should look for:
 
-| Skill | Use It When |
-|---|---|
-| Spec | You know the feature direction, but the agent needs a precise implementation brief before coding. |
-| Plan | You have a spec and want executable tasks for GitHub Issues, Linear, or delegated agents. |
-| Explain Visually | You need to teach a system, concept, PR, or architecture in a visual HTML artifact. |
-| Clarify | The ask is vague, dictated, or multi-part, and you want a clean, portable prompt - not a one-shot conversation - as the output. |
-| PR Feedback | You have an open PR with review comments and need to separate real fixes from noise. |
-| Refactor | The behavior works, but the implementation needs to become simpler and easier to maintain. |
-| Design Doc | The design is ambiguous enough that tradeoffs and consensus matter before implementation. |
+- missing requirements
+- unclear ownership or boundaries
+- unsafe failure modes
+- migration and rollback gaps
+- operational cost
+- decisions that cannot be reversed cheaply
 
-## Notes
+This review belongs before implementation. A code review cannot repair a missing system decision cheaply.
 
-This tutorial no longer bundles local `resources/skills` files. It is a companion walkthrough for using the skills already installed in your Codex environment.
+## The Workflow
 
-To see available skills in Codex:
+The seven jobs form a simple path:
 
-```bash
-codex
+```mermaid
+flowchart LR
+    A[Clarify] --> B[Design]
+    B --> C[Architecture review]
+    C --> D[Plan]
+    D --> E[Build]
+    E --> F[Improve]
+    F --> G[PR feedback]
+    B -. explain .-> H[Visual]
 ```
 
-Then run:
+You will not use every skill on every task. A small bug may need only implementation and review. A new system boundary may need the full sequence.
 
-```text
-/skills
-```
+## Where Skills Live
 
-## Watch the video
+Codex scans repository and personal locations for skills.
 
-(Link added after publication.)
+| Scope | Location | Use |
+| --- | --- | --- |
+| Repository | `.agents/skills/<name>/SKILL.md` | A workflow shared with this codebase. |
+| Personal | `~/.agents/skills/<name>/SKILL.md` | A workflow you use across projects. |
+
+Repository skills can also live in applicable parent directories. Codex supports symlinked skill folders.
+
+The description matters because Codex uses it to decide when the skill applies. Write the trigger and boundary near the start.
+
+## When Not To Create A Skill
+
+Do not create a skill when:
+
+- the task happened once
+- the process changes every time
+- the repository already has an executable command
+- the instructions cannot define a clear output
+- the workflow is still untested
+
+Run the workflow manually first. Turn it into a skill after the repeated shape is visible.
+
+## References
+
+- [Official Codex skills documentation](https://developers.openai.com/codex/skills)
+- [Owain's public agent skill examples](https://github.com/owainlewis/agent-skills)
+- [Clarify skill source](https://github.com/owainlewis/agent-skills/blob/main/skills/clarify/SKILL.md)
+- [Explain visually skill source](https://github.com/owainlewis/agent-skills/blob/main/skills/explain-visually/SKILL.md)
+
+## Summary
+
+- The one thing to remember: organize skills around stable jobs, not product tricks.
+- The honest limitation: exact installed skill names vary by environment.
+- What to try next: find one workflow you have repeated three times and write the smallest skill that captures it.

@@ -1,4 +1,4 @@
-# justfile — Codex automation targets
+# justfile: Codex automation targets
 # Copy relevant targets into your project's justfile.
 
 # Run Codex non-interactively on a task description.

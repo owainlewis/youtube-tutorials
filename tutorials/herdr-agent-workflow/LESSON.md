@@ -1,606 +1,304 @@
 # Herdr: The Agent Multiplexer AI Developers Need
 
-Free resource included: my `/ticket` slash command for orchestrating GitHub issue work inside Herdr.
+Last verified against the official Herdr documentation and repository: 2026-08-04.
 
-This is a simple recording guide for the video.
+Herdr is a terminal workspace manager for coding agents. It keeps real terminal processes running in a background server, lets clients attach again later, and shows recognized agent state in a sidebar.
 
-The goal is not to explain every Herdr feature. The goal is to help people understand Herdr in plain English, then see enough of the workflow to try it themselves.
-
-The video should feel like this:
-
-1. Why normal terminals get messy with many agents.
-2. What Herdr is.
-3. How to install and open it.
-4. How workspaces, tabs, and panes fit together.
-5. How to run coding agents inside it.
-6. How to customize it with AI.
-7. How agents can control Herdr itself with a real `/ticket` slash command.
-
-## Title Options
-
-Recommended title: Herdr: The Agent Multiplexer AI Developers Need
-
-Giveaway line: My Herdr `/ticket` slash command is linked for free below.
-
-1. Herdr: The Agent Multiplexer AI Developers Need
-2. Herdr Complete Guide for AI Coding Agents
-3. How to Run Multiple Coding Agents Without Losing Control
-4. My Herdr Workflow for Claude Code, Codex, Tests, and Logs
-5. Stop Losing Track of Your AI Coding Agents
-6. Herdr vs tmux for AI Developers
-7. The Terminal Runtime for AI Coding Agents
-8. Herdr: My Setup for Running Multiple Coding Agents
+The useful idea is simple: give each job a visible place and keep long-running work separate.
 
 ## Opening Script
 
-This is a complete guide to Herdr for AI developers.
+This is a practical guide to Herdr for developers working with coding agents.
 
-The reason this matters is that normal terminals were not really designed for the way many of us work now. We are running multiple coding agents, servers, test runners, logs, and project sessions that can last for hours.
+Normal terminal windows become hard to manage when several agents, servers, test runners, and logs are active at once. Herdr keeps those processes in persistent workspaces and makes their state visible without hiding the real terminal.
 
-I have tried tmux and cmux, and both are interesting, but Herdr is the one that has felt best to me for this kind of work. It is mouse-first, it is easy to look around, and it helps me stay organised when I have multiple agents running at the same time.
+In this lesson, I will show you the basic model, the current installation path, a small workspace layout, agent integrations, and the safe way an agent can control Herdr itself.
 
-In this video, I will show you what Herdr is, how to install it, how the UI works, how to create workspaces, tabs, and panes, and how to run coding agents inside it.
-
-Then at the end, I will show you the really interesting part: using an AI agent to control Herdr itself with a `/ticket` slash command that creates a worktree, opens a tab, starts an agent, and hands it a GitHub issue.
-
-The slash command is linked for free in the description below.
+The setup helper and ticket workflow are included in this tutorial.
 
 So, let's get into it.
 
-## What Herdr Is
+## The Four Pieces
 
-Herdr is a terminal workspace manager.
+Learn these in order:
 
-The simple version is:
+| Piece | Meaning |
+| --- | --- |
+| Session | A persistent background server namespace. Most people need only the default session. |
+| Workspace | A project, task, or investigation. It owns tabs and panes. |
+| Tab | A layout inside a workspace, such as `agents`, `dev`, or `logs`. |
+| Pane | A real terminal process inside a tab. |
 
-```text
-Herdr keeps your terminal work visible, persistent, and organised.
+```mermaid
+flowchart TD
+    S[Session] --> W1[Workspace: app]
+    S --> W2[Workspace: docs]
+    W1 --> T1[Tab: agents]
+    W1 --> T2[Tab: dev]
+    T1 --> P1[Pane: Codex]
+    T1 --> P2[Pane: shell]
+    T2 --> P3[Pane: test runner]
 ```
 
-If you know tmux, the basic idea will feel familiar. A Herdr server keeps processes running in the background, and the Herdr client shows the UI.
+Herdr recognizes supported coding agents running in panes. The sidebar can show lifecycle states such as `working`, `blocked`, `done`, `idle`, and `unknown`.
 
-The important difference is that Herdr is designed around coding agents.
-
-It gives you:
-
-- workspaces for projects or tasks
-- tabs for different modes of work
-- panes for real terminal processes
-- a sidebar that shows agent state
-- mouse-first controls
-- integrations for agents like Claude Code and Codex
-- a CLI that agents can use to control the workspace
-
-Do not overcomplicate this section.
-
-The viewer only needs one mental model:
-
-```text
-Workspace = project or task
-Tab = layout inside that project
-Pane = terminal inside that layout
-Agent = coding agent running in a pane
-```
-
-## Why AI Developers Should Care
-
-Running one agent is easy.
-
-Running several agents is where the workflow starts to break.
-
-You end up with:
-
-- one agent editing files
-- one agent waiting for permission
-- one server running somewhere
-- one test runner failing somewhere else
-- one log pane you forgot about
-- one completed agent that still needs review
-
-That is the real problem Herdr solves.
-
-It gives you one place to see what is running, what is blocked, what is done, and what still needs your attention.
-
-The lesson is not "run as many agents as possible."
-
-The lesson is:
-
-```text
-Give each agent a clear job.
-Keep the work visible.
-Make review easier.
-```
+`unknown` does not mean finished. It means Herdr cannot classify the current state confidently.
 
 ## Install Herdr
 
-Keep this part short.
-
-Show the main install path:
+The current installer for Linux and macOS is:
 
 ```bash
 curl -fsSL https://herdr.dev/install.sh | sh
 herdr --version
 ```
 
-Then open Herdr from a real project:
-
-```bash
-cd ~/Code/my-project
-herdr
-```
-
-Mention that there are other install paths:
+The official repository also lists Homebrew and mise:
 
 ```bash
 brew install herdr
 mise use -g herdr
-nix run github:ogulcancelik/herdr
 ```
 
-For the video, do not spend too long here. The install is not the interesting part. The interesting part is seeing how the workspace fits together.
+Use the [official install page](https://herdr.dev/docs/install/) for Windows preview, Nix, manual downloads, and current platform notes.
 
-## Open Herdr And Explain The UI
-
-Start Herdr from a project folder:
+For an installation managed by Herdr's own installer, update with:
 
 ```bash
-cd ~/Code/my-project
+herdr update
+```
+
+Update Homebrew, mise, or Nix installations through the package manager that installed Herdr.
+
+## Start From A Project
+
+Run Herdr from the directory where the work lives:
+
+```bash
+cd /path/to/project
 herdr
 ```
 
-Then pause and explain the screen.
+Herdr launches or attaches to the default session and creates a workspace when needed.
 
-Show these four ideas in order:
-
-| Element | Plain English Meaning | What To Show |
-| --- | --- | --- |
-| Workspace | A project, task, or investigation. | The current project Herdr opened into. |
-| Tab | A layout inside the workspace. | A tab for `agents`, `dev`, `logs`, or `review`. |
-| Pane | A real terminal process. | A shell, agent, server, test runner, or log stream. |
-| Sidebar | The place where agent state is visible. | Working, blocked, done, idle. |
-
-Say this simply:
-
-```text
-Herdr is not difficult once you understand the pieces.
-A workspace contains tabs.
-A tab contains panes.
-An agent runs inside a pane.
-The sidebar helps you see agent state.
-```
-
-Also mention the mouse-first point:
-
-```text
-One thing I like about Herdr is that you can click around.
-You can click panes, tabs, workspaces, and agents.
-That makes it feel much more approachable than a pure keyboard-only terminal setup.
-```
-
-## Create Two Workspaces
-
-This is the first real demo.
-
-Show that Herdr can manage more than one project or task.
-
-Create two workspaces:
-
-1. One for the main app.
-2. One for docs, review, or a second repo.
-
-Useful commands:
+If `HERDR_ENV=1` is already set, you are inside a Herdr pane. Do not start nested Herdr from that pane. Herdr blocks nested launches by design.
 
 ```bash
-herdr workspace list
-herdr workspace create --cwd ~/Code/my-project --label "app"
-herdr workspace create --cwd ~/Code/my-docs --label "docs"
+test "${HERDR_ENV:-}" = 1 && echo "already inside Herdr"
 ```
 
-What to say:
+## Learn The Mouse First
 
-```text
-I like to think of a workspace as one unit of work.
-That might be a repo, a bug, a feature, or an investigation.
-The point is that I can keep separate jobs separate without losing the running processes.
-```
+You can click panes and tabs, drag split borders, use right-click menus, and drag-select text. You do not need to learn keybindings before Herdr is useful.
 
-What to show:
+The default prefix is `ctrl+b`. Press the prefix, release it, then press the next key.
 
-- switch between workspaces
-- rename a workspace if useful
-- explain that long-running agents can live inside a workspace
-- show that this is how you avoid mixing projects together
+| Action | Default binding |
+| --- | --- |
+| Show active bindings | `ctrl+b`, then `?` |
+| New tab | `ctrl+b`, then `c` |
+| Split right | `ctrl+b`, then `v` |
+| Split down | `ctrl+b`, then `-` |
+| Detach | `ctrl+b`, then `q` |
 
-## Create Tabs
+Use the [keyboard guide](https://herdr.dev/docs/keyboard/) before changing bindings. Operating systems and outer terminals can consume some key combinations before Herdr sees them.
 
-Tabs are layouts inside a workspace.
+## Build A Small Layout
 
-Do not make this abstract. Use a practical layout:
+Start with fewer panes than you think you need:
 
 ```text
 workspace: app
   tab: agents
+    pane: one coding agent
+    pane: review shell
   tab: dev
+    pane: development server
+    pane: focused tests
   tab: logs
-  tab: review
+    pane: application logs
 ```
 
-Create a tab:
+Give each pane one job. A random collection of shells is still hard to understand, even when a multiplexer keeps them visible.
 
-```text
-ctrl+b, then c
-```
-
-Useful commands:
-
-```bash
-herdr tab list --workspace w1
-herdr tab create --workspace w1 --label "agents"
-herdr tab create --workspace w1 --label "dev"
-herdr tab create --workspace w1 --label "logs"
-```
-
-What to say:
-
-```text
-Tabs are useful because each project has different modes of work.
-I usually want one place for agents, one for the dev server and tests, one for logs, and one for final review.
-```
-
-## Split Panes
-
-Panes are the real terminals.
-
-This is where you run:
-
-- coding agents
-- dev servers
-- tests
-- logs
-- git commands
-- background checks
-
-Show the two basic splits:
-
-```text
-ctrl+b, then v      # split right
-ctrl+b, then minus  # split down
-```
-
-Then create a simple layout:
-
-```text
-tab: agents
-  pane 1: Claude Code or Codex
-  pane 2: shell or second agent
-
-tab: dev
-  pane 1: dev server
-  pane 2: test runner
-
-tab: logs
-  pane 1: logs or git diff
-```
-
-What to say:
-
-```text
-The important habit is separation.
-Do not let every pane become a random terminal.
-Give each pane a job.
-```
-
-## Run Agents
-
-Now run a coding agent inside a pane:
-
-```bash
-claude
-```
-
-Or:
-
-```bash
-codex
-```
-
-Herdr can show supported agents in the sidebar.
-
-Explain the states in plain English:
-
-| State | Meaning |
-| --- | --- |
-| `working` | The agent is doing work. |
-| `blocked` | The agent needs input, permission, or a decision. |
-| `done` | The agent has finished and needs review. |
-| `idle` | The agent is ready or not currently doing much. |
-
-What to say:
-
-```text
-This is the part I really care about.
-I do not just want terminals.
-I want to know which agent needs attention.
-```
-
-## Detach And Reattach
-
-This is a good practical tip.
-
-Detach the client:
-
-```text
-ctrl+b, then q
-```
-
-Then reattach:
+Detach with `ctrl+b`, then `q`, or close the terminal window. Reattach later:
 
 ```bash
 herdr
 ```
 
-What to say:
-
-```text
-This is the difference between closing the UI and stopping the work.
-When I detach, the panes keep running.
-That means the agents, servers, tests, and logs can keep going while I step away.
-```
-
-Important distinction:
-
-```text
-Detach keeps panes running.
-Stopping the server ends the session.
-```
-
-Stop the server only when you want to terminate the running panes:
+To stop the server and its pane processes, run this only when you intend to stop the whole session:
 
 ```bash
 herdr server stop
 ```
 
-## Customize Herdr With AI
+## Run A Coding Agent
 
-This is a key point for the video.
-
-We are agentic developers, so we should not be hand-editing every config file.
-
-Use AI to manage the config.
-
-Prompt:
-
-```text
-Read the Herdr configuration docs:
-https://herdr.dev/docs/configuration/
-
-Update my Herdr config at `~/.config/herdr/config.toml` to:
-
-1. Use the `rose-pine` theme.
-2. Keep the prefix key as `ctrl+b`.
-3. Make the sidebar useful for managing coding agents.
-4. Show agent labels on pane borders.
-5. Disable sound notifications for recording.
-6. Validate the TOML.
-7. Reload Herdr with `herdr server reload-config`.
-
-Before changing anything, show me the current config and the planned diff.
-```
-
-Useful config shape:
-
-```toml
-[theme]
-name = "rose-pine"
-
-[bindings]
-prefix = "ctrl+b"
-toggle_sidebar = "prefix+b"
-help = "prefix+?"
-new_workspace = "prefix+shift+n"
-workspace_picker = "prefix+w"
-new_tab = "prefix+c"
-split_vertical = "prefix+v"
-split_horizontal = "prefix+minus"
-zoom = "prefix+z"
-detach = "prefix+q"
-
-[ui]
-pane_borders = true
-pane_gaps = true
-show_agent_labels_on_pane_borders = true
-agent_panel_sort = "priority"
-prompt_new_tab_name = true
-
-[notifications]
-sound = false
-```
-
-What to say:
-
-```text
-The human decides the taste and constraints.
-The agent makes the boring edit, validates it, and reports what changed.
-```
-
-For this tutorial, the main resource is not a big config pack. It is the real slash command used in the final demo.
-
-## Install Agent Integrations
-
-Herdr can integrate with supported coding agents.
-
-Show this as setup, not as a long technical section.
+Start the agent normally inside a pane:
 
 ```bash
-herdr integration install claude
+codex
+```
+
+or:
+
+```bash
+claude
+```
+
+Herdr can detect supported agents. Installing the matching integration improves state detection:
+
+```bash
 herdr integration install codex
-herdr integration install pi
-herdr integration install opencode
+herdr integration install claude
+herdr integration status
 ```
 
-Then install the Herdr skill for agents:
+The included helper checks the installation, installs the integrations you request, and offers the official Herdr skill:
 
 ```bash
-npx skills add https://herdr.dev/skills/herdr/SKILL.md
+./code/setup-herdr.sh codex claude
 ```
 
-Also mention the agent guide:
+Inspect the script before running it. It writes to agent configuration when an integration or global skill is installed.
+
+## Let An Agent Control Herdr
+
+Herdr exposes a CLI and local socket API. Its official skill teaches a coding agent how to inspect and control the current Herdr session.
+
+For agents supported by the open skills CLI, install it globally with:
+
+```bash
+npx skills add herdrdev/herdr --skill herdr -g
+```
+
+The skill requires `HERDR_ENV=1`. It should refuse to control a focused Herdr session from outside a Herdr-managed pane.
+
+Useful discovery commands are:
+
+```bash
+herdr --help
+herdr workspace
+herdr tab
+herdr pane
+herdr agent
+```
+
+Do not run a mutating nested command without checking its help. Some create commands have valid defaults and will execute immediately.
+
+## A Safe Control Example
+
+From an agent already inside Herdr, inspect the current context:
+
+```bash
+printf '%s\n' "$HERDR_WORKSPACE_ID" "$HERDR_TAB_ID" "$HERDR_PANE_ID"
+herdr pane current --current
+herdr agent list
+```
+
+Create a background pane in the current tab while keeping focus where it is:
+
+```bash
+herdr pane split --current --direction right --cwd "$PWD" --no-focus
+```
+
+Read the returned JSON and use `.result.pane.pane_id` as the target. Do not guess an ID from the sidebar order.
+
+Run an ordinary command in that pane:
+
+```bash
+herdr pane run <pane-id> "just test"
+herdr pane read <pane-id> --source recent-unwrapped --lines 120
+```
+
+Start a supported agent in an available shell pane:
+
+```bash
+herdr agent start reviewer --kind codex --pane <pane-id>
+herdr agent prompt reviewer \
+  "Review the current diff and report only actionable findings." \
+  --wait --timeout 120000
+```
+
+An available shell pane must be at an interactive prompt. `agent start` does not create or split layout for you.
+
+## Ticket Workflow
+
+The included [`/ticket` command](./resources/commands/ticket.md) shows the larger pattern:
+
+1. Read one GitHub issue.
+2. Create a fresh worktree from the default branch.
+3. Create a background tab with that worktree as its directory.
+4. Read the returned root pane ID.
+5. Start a named agent in the pane.
+6. Prompt the agent with the full task and checks.
+7. Leave the result for human review.
+
+The command is an example, not a reason to delegate every task. Parallel work is useful only when the jobs are independent and the result remains reviewable.
+
+## Configuration
+
+Herdr works without a config file. The default config location is:
 
 ```text
-https://herdr.dev/agent-guide.md
+~/.config/herdr/config.toml
 ```
 
-What to say:
+Print the full default configuration:
 
-```text
-This gives the agent better instructions for understanding Herdr.
-It means the agent can inspect panes, create helper panes, run commands, and read output without me manually copying everything around.
+```bash
+herdr --default-config
 ```
 
-## The Killer Demo: Agents Control Herdr
+After editing the file, reload a running server:
 
-This is the payoff at the end.
-
-Tease this in the intro:
-
-```text
-Stick around to the end, because I will show you how an AI agent can control Herdr itself and use it to orchestrate more complex workflows.
+```bash
+herdr server reload-config
 ```
 
-Then show it for real.
+Use the [configuration reference](https://herdr.dev/docs/configuration/) for current keys. Do not copy guessed tmux settings into Herdr.
 
-Start with the simplest version:
+## Troubleshooting
 
-```text
-Can you open a Herdr pane for me, run the project's test suite inside it, wait for the result, and then tell me what happened?
+### An agent is not detected
 
-Create the pane without stealing focus.
-Do not close the pane when you are done.
+```bash
+herdr agent list
+herdr integration status
 ```
 
-Then show the real slash command:
+For one target, inspect why Herdr classified it:
 
-```md
----
-description: Take a GitHub issue end to end - worktree, implement, test, PR - running in its own Herdr tab.
-argument-hint: <github issue number or URL>
----
-
-Issue: $ARGUMENTS
-
-Do this yourself, you already know how - worktrees, testing, and PRs aren't new to you. Steps are here only to pin down the Herdr wiring, not to teach you the engineering. This works in any repo's current workspace:
-
-1. `gh issue view $ARGUMENTS` to pull the issue.
-2. Create a worktree + branch for it, always based off the repo's main branch.
-3. Find your current workspace: `herdr pane current` -> workspace_id.
-4. Create a new tab for this ticket with `herdr tab create`.
-5. Start an agent in that tab with `herdr agent start`.
-6. Hand it the task with `herdr agent send`.
-7. Tell me the tab label and branch name.
+```bash
+herdr agent explain <target> --json
 ```
 
-The full command is in:
+### A key does nothing
 
-```text
-resources/commands/ticket.md
+The operating system or outer terminal may own the chord. Check the [keyboard guide](https://herdr.dev/docs/keyboard/).
+
+### You need runtime evidence
+
+```bash
+herdr status
+herdr status server
+herdr status client
 ```
 
-What this proves:
+Herdr logs live under `~/.config/herdr/`, including `herdr.log`, `herdr-client.log`, and `herdr-server.log`.
 
-```text
-Herdr is not only a workspace for humans.
-It can become part of the agent's working environment.
-```
+## References
 
-That is the moment where the viewer should understand why Herdr is interesting.
+- [Herdr quick start](https://herdr.dev/docs/quick-start/)
+- [Herdr concepts](https://herdr.dev/docs/concepts/)
+- [Herdr agent guide](https://herdr.dev/agent-guide.md)
+- [Herdr CLI reference](https://herdr.dev/docs/cli-reference/)
+- [Herdr source repository](https://github.com/herdrdev/herdr)
+- [Official Herdr skill](https://raw.githubusercontent.com/herdrdev/herdr/master/skills/herdr/SKILL.md)
 
-## Useful Keyboard Shortcuts
+## Summary
 
-The prefix key is:
-
-```text
-ctrl+b
-```
-
-The useful shortcuts to cover are:
-
-| Action | Config Key | Shortcut |
-| --- | --- | --- |
-| Toggle sidebar | `toggle_sidebar` | `prefix+b` |
-| Show help | `help` | `prefix+?` |
-| New workspace | `new_workspace` | `prefix+shift+n` |
-| Workspace picker | `workspace_picker` | `prefix+w` |
-| New tab | `new_tab` | `prefix+c` |
-| Previous tab | `previous_tab` | `prefix+p` |
-| Next tab | `next_tab` | `prefix+n` |
-| Split right | `split_vertical` | `prefix+v` |
-| Split down | `split_horizontal` | `prefix+minus` |
-| Zoom pane | `zoom` | `prefix+z` |
-| Close pane | `close_pane` | `prefix+x` |
-| Detach | `detach` | `prefix+q` |
-
-Do not make the viewer memorize everything.
-
-For the video, focus on:
-
-- sidebar
-- new workspace
-- new tab
-- split panes
-- zoom
-- detach
-- help
-
-## Simple Demo Flow
-
-Use this order when recording:
-
-1. Say the opening script.
-2. Install Herdr.
-3. Open Herdr in a real project.
-4. Explain workspace, tab, pane, sidebar.
-5. Create two workspaces.
-6. Create the `agents`, `dev`, `logs`, and `review` tabs.
-7. Split panes inside the `dev` tab.
-8. Run an agent in the `agents` tab.
-9. Show agent state in the sidebar.
-10. Detach with `ctrl+b q`.
-11. Reattach with `herdr`.
-12. Ask AI to update the config.
-13. Show the rose-pine theme and useful bindings.
-14. Install the agent integrations and Herdr skill.
-15. Run the simple AI-controlled pane demo.
-16. Run the `/ticket` slash command demo.
-17. Show the free slash command file.
-18. Close with the practical takeaway.
-
-This should feel like a guided walkthrough, not a complete encyclopedia.
-
-## What To Give Away
-
-Link these in the description:
-
-- slash command: `resources/commands/ticket.md`
-- Herdr install docs: https://herdr.dev/docs/install/
-- Herdr work docs: https://herdr.dev/docs/how-to-work/
-- Herdr config docs: https://herdr.dev/docs/configuration/
-- Herdr agent guide: https://herdr.dev/agent-guide.md
-
-## Outro
-
-Herdr is useful because it gives AI developers one place to manage long-running agent work.
-
-You can start simple:
-
-```text
-one project
-one agent pane
-one test pane
-one log pane
-```
-
-Then, once that makes sense, you can move to the advanced pattern where agents control Herdr directly.
-
-The `/ticket` slash command is linked below.
-
-If you are building serious projects with AI coding agents, this is the kind of workflow that helps you stay organised without slowing down.
+- The one thing to remember: one visible job per workspace, tab, or pane keeps agent work understandable.
+- The honest limitation: Herdr shows agent state, but `unknown` is not proof that work finished correctly.
+- What to try next: run one agent and one test pane, detach, reattach, and review what survived.

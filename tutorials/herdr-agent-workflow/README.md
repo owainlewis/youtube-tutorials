@@ -1,22 +1,21 @@
 # Herdr: The Agent Multiplexer AI Developers Need
 
-This is the supporting material for a practical Herdr tutorial for developers using Claude Code, Codex, Pi, OpenCode, or other terminal coding agents.
+This tutorial explains how to keep coding agents, tests, servers, and logs visible in Herdr.
 
-Includes the Herdr slash command I use to orchestrate GitHub issue work from inside a Herdr workspace.
+Last verified against the official Herdr documentation and repository: 2026-08-04.
 
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Run the setup helper: [code/setup-herdr.sh](./code/setup-herdr.sh)
-- Copy the slash command: [resources/commands/ticket.md](./resources/commands/ticket.md)
+- Inspect the setup helper: [code/setup-herdr.sh](./code/setup-herdr.sh)
+- Adapt the ticket workflow: [resources/commands/ticket.md](./resources/commands/ticket.md)
 
 ## What You Get
 
-- A plain explanation of what Herdr is and why AI developers should care.
-- Install commands for Linux, macOS, Windows beta, Homebrew, mise, and Nix.
-- A practical workspace layout for agents, tests, servers, and logs.
-- A safe agent setup path using Herdr integrations, Herdr's agent skill, and `herdr.dev/agent-guide.md`.
-- A real `/ticket` slash command that creates a worktree, opens a Herdr tab, starts an agent, and hands it the GitHub issue.
+- The session, workspace, tab, and pane model.
+- Current install and agent integration commands.
+- A safe path for agent-driven Herdr control.
+- A GitHub issue workflow using current Herdr CLI syntax.
 
 ## Go Deeper
 
