@@ -1,4 +1,4 @@
-# Only tutorials/ is public - everything else is gitignored
+# Only tutorials and repository maintenance files are public.
 
 # Ignore everything by default
 /*
@@ -9,10 +9,10 @@
 !.gitignore
 !AGENTS.md
 !Justfile
+!/scripts/
 
 # Private working folders (root-level only)
 /staging/
-/scripts/
 /projects/
 /output/
 /transcripts/
