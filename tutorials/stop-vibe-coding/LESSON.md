@@ -1,159 +1,202 @@
-# Stop Vibe Coding - How to Build Software With AI Like a Senior Engineer
+# Stop Vibe Coding: A Practical AI Development Workflow
 
-> The tools are free. The judgement isn't.
+AI coding tools can help across the software lifecycle. They can draft requirements, explore designs, break down work, write code, review changes, prepare deployment configuration, and analyse failures.
 
-Most people using AI coding agents are only using them for one thing: generating code. That's like buying a Swiss Army knife and only using the bottle opener.
+The tool does not own the engineering decision. You still need clear scope, verification, review, and approval at the points where mistakes become expensive.
 
-This tutorial walks through the full software development lifecycle and shows where AI fits at every stage - not just the build step.
+This lesson shows a seven-stage workflow you can adapt to the risk of the change.
 
----
+## The seven stages
 
-## The 7 Stages
-
-Every piece of software ever built went through some version of this lifecycle. AI doesn't replace it. It accelerates every step.
-
-### 1. Requirements - What are we building?
-
-Before you write a single line of code, get clear on what you're building, why, and what's out of scope.
-
-Produce a short requirements doc (PRD):
-
+```mermaid
+flowchart LR
+    R[Requirements] --> D[Design]
+    D --> P[Plan]
+    P --> B[Build]
+    B --> V[Review]
+    V --> X[Deploy]
+    X --> M[Monitor]
+    M -.feedback.-> R
 ```
+
+The stages are not a promise that every project will be safe or successful. They are places to make decisions and collect evidence.
+
+## 1. Requirements: what are we building?
+
+Before writing code, get clear on the outcome, audience, constraints, and what is out of scope.
+
+A short requirements document can be enough:
+
+```text
 What: User authentication system
 Why: Users need accounts to save preferences
 Who: End users of the web app
-In scope: Email/password login, signup page
-Out of scope: OAuth, password reset (v1), admin roles
+In scope: Email and password login, signup page
+Out of scope: OAuth, password reset in v1, admin roles
+Success checks: Documented login flow, tested failure cases,
+and review against the project's security requirements
 ```
 
-AI can help you draft this, challenge your assumptions, and even prototype quickly to test ideas before committing.
+AI can help draft this document and point out unanswered questions. Treat its output as a proposal. The product owner still decides what should be built.
 
-**Key insight:** Prototyping is now fast enough to be a planning tool. Build throwaway versions to learn, not to ship.
+Small throwaway prototypes can help you test an interaction or technical assumption. Keep them separate from production code until you have reviewed what should carry forward.
 
-### 2. Technical Design - How are we building it?
+## 2. Technical design: how are we building it?
 
-Requirements are what and why. Technical design is how.
+Requirements describe what and why. Technical design describes how.
 
-Decide upfront:
-- Database choice and data model
-- Architecture (monolith, microservices, serverless)
-- Auth strategy
-- Key constraints and tradeoffs
+Decide the important constraints before implementation:
 
-These decisions are hard to undo. Don't let an agent make them unchecked. Use AI to think through tradeoffs, but own the decisions yourself.
+- database choice and data model
+- application boundaries and deployment shape
+- authentication and authorization approach
+- failure handling and observability
+- privacy, security, and compliance requirements
+- tradeoffs that would be costly to reverse
 
-### 3. Task Breakdown - Plan the work
+Ask the agent to compare options and identify risks. Do not let it silently choose consequential architecture or security controls. Record the decision and the reason a person approved it.
 
-Break the project into small, clear, bounded tasks. This is project management - and it maps directly onto how you should work with coding agents.
+## 3. Task breakdown: plan the work
 
-**Don't:** Hand an agent your entire application and say "build this."
+Break the design into small, bounded tasks that can be implemented and reviewed independently.
 
-**Do:** Give it one specific task with all the context it needs.
+Avoid a prompt such as:
 
-```
-Task: Create the login API endpoint
-Context: We're using FastAPI with SQLAlchemy async.
-Auth is JWT tokens in httpOnly cookies.
-User model is already defined in app/models/user.py.
-Follow the existing pattern in app/routers/health.py.
+```text
+Build the whole application.
 ```
 
-The difference in output quality is dramatic.
+Prefer a task with concrete context and checks:
 
-**Example prompt for breaking down a spec:**
+```text
+Task: Add the login endpoint described in docs/auth-design.md.
 
+Context:
+- Follow the existing route pattern in app/routers/health.py.
+- Use the project's existing session and authorization helpers.
+- Do not change session semantics or add a new auth scheme.
+
+Checks:
+- Add tests for valid credentials, invalid credentials, locked users,
+  and missing input.
+- Run the focused auth tests and the repository's standard checks.
+- Report any security decision that is not covered by the design.
 ```
+
+Specific context reduces guessing. It does not guarantee a correct result, so keep the review and test steps.
+
+You can also ask an agent to propose the work breakdown:
+
+```text
 Read the spec in .ai/specs/auth.md.
 
-Break it down into independent work items that can be completed
-one at a time. Each work item should have a clear title, a short
-description of what needs to be done, and any dependencies on
-other work items.
+Propose independent work items that can be completed and reviewed
+one at a time. Give each item a title, scope, dependencies,
+acceptance criteria, and verification commands.
 
-Once you have the list, push each work item to Linear as a new task.
+Do not create or update tracker items yet. Show the proposed plan
+and wait for human approval.
 ```
 
-### 4. Build - Write the code
+## 4. Build: write the code
 
-Brief the agent properly. Give it:
-- Background on what you're building
-- Your technical design decisions
-- The specific task
-- Constraints and preferences
+Give the agent:
 
-An LLM makes hundreds of small decisions as it writes code. Context makes those decisions well-informed. Without it, the agent guesses.
+- the approved requirements and technical design
+- one specific task
+- relevant files and existing patterns
+- constraints and forbidden changes
+- acceptance criteria and verification commands
 
-### 5. Review - The most important step
+The agent will still make implementation choices. Keep the change small enough that a reviewer can understand those choices.
 
-This is the step most people skip. Don't.
+## 5. Review: check the result
 
-**Self-review:** Ask the agent to review its own code. Generation and review are different cognitive tasks. Almost every time, the agent finds issues it missed on the first pass.
+Review is a set of different checks, not one prompt.
 
-```
-Look at the code you just wrote. Find any bugs, edge cases,
-security issues, or potential problems.
-```
+### Agent self-review
 
-Common things caught on review:
-- Edge cases and error handling
-- Security vulnerabilities
-- Missing input validation
-- Performance issues
+Ask the implementation agent to inspect its own diff:
 
-**Human review:** You don't need to read every line, but understand what was built. Does it match your design? Are there obvious issues?
+```text
+Review the current diff against the task and technical design.
+Look for incorrect behaviour, missing failure cases, unsafe data handling,
+security-sensitive changes, and tests that do not prove their claim.
 
-**Automated review:** Layer in CI/CD checks, static analysis, and AI-powered PR review tools.
-
-### 6. Deploy - Ship it
-
-Get your code to production. AI can help you set up deployment pipelines, CI/CD, and infrastructure if you're not familiar with them.
-
-**Example prompt:**
-
-```
-Commit and save these changes with a clear commit message.
-Then push the latest version to GCP Cloud Run.
+Report findings first. Do not edit until I approve the findings.
 ```
 
-### 7. Monitor - Know when things break
+Self-review may find issues. It is not independent evidence because the same system produced the code.
 
-Set up monitoring before your users tell you something is broken.
+### Independent review
 
-Minimum monitoring stack:
-- **Error tracking** (e.g. Sentry) - real-time errors with stack traces
-- **Uptime monitoring** - know when your app goes down
-- **Alerts** - get notified immediately
-- **Logs** - understand what happened and why
+Use a separate reviewer, automated analysis, or both. Ask for findings tied to exact files and lines. Verify each finding before changing code.
 
----
+### Human review
 
-## The Presentation
+A person should review the full diff and understand its effect before approval. Security-sensitive, data, billing, infrastructure, and destructive changes need extra care from someone qualified to assess them.
 
-The slide deck lives at `resources/slides/presentation.html`.
-Open it in any browser.
-It is a self-contained HTML file with keyboard navigation.
+### Automated checks
 
-**Controls:**
-- Arrow keys or click to navigate between slides
-- Works in any modern browser
-- No dependencies or build step required
+Run the repository's tests, linters, type checks, security checks, and build. A passing check proves only the property that check covers.
 
----
+## 6. Deploy: prepare, approve, then ship
 
-## Key Takeaways
+An agent can prepare deployment configuration and a rollout plan. Do not combine preparation and production deployment in one unattended prompt.
 
-1. **AI accelerates the entire lifecycle, not just coding.** Use it for planning, design, task breakdown, review, deployment, and monitoring.
+Use a review gate:
 
-2. **Never accept the first output.** Ask the agent to self-review. Nine times out of ten, it finds real issues.
+```text
+Prepare this change for deployment.
 
-3. **Small tasks beat big prompts.** One task per session with clear context produces dramatically better code than "build me an app."
+1. Run the documented tests and build.
+2. Show the exact diff and changed infrastructure.
+3. Describe configuration and secret requirements.
+4. Provide rollout, health-check, and rollback steps.
+5. List unresolved risks or assumptions.
 
-4. **The framework doesn't matter.** Claude Code, Cursor, Codex - they all send text to a language model. The quality of your thinking before the prompt is what matters.
+Do not commit, push, merge, or deploy. Stop and wait for explicit
+human approval after the evidence is reviewed.
+```
 
-5. **Vibe coding isn't the enemy. Skipping the thinking is.** A senior engineer who has done the design work can move fast within that structure. Skipping it produces a mess, no matter how good the tools are.
+After approval, use the project's documented deployment command or pipeline. Keep production credentials out of the agent context where possible, use least-privilege access, and record who approved the release.
 
----
+## 7. Monitor: check the production result
 
-## Watch the Video
+Deployment is not the final proof. Monitor the behaviour that matters to users and the failure modes identified in the design.
 
-📺 [Watch on YouTube](https://youtube.com/@owainlewis)
+A baseline may include:
+
+- error tracking with enough context to diagnose failures
+- service health and availability checks
+- alerts with an owner and a response path
+- structured logs with sensitive data removed
+- product or business signals that show whether the feature works as intended
+
+Test alerts and rollback steps before relying on them. Tune thresholds using real system behaviour rather than copying generic values.
+
+## Match the process to the risk
+
+A typo fix and an authentication change should not need the same ceremony.
+
+| Change | Useful process |
+| --- | --- |
+| Small, reversible docs change | Clear task, focused check, diff review |
+| Isolated code change | Design note, tests, independent review, human merge |
+| Security, user data, billing, or infrastructure | Written design, threat or failure analysis, specialist review, staged rollout, explicit approval, tested rollback |
+
+The constant is not the number of documents. It is that the scope, evidence, and approval should match the possible impact.
+
+## The presentation
+
+The slide deck lives at [`resources/slides/presentation.html`](./resources/slides/presentation.html). Open it in a browser. It is a self-contained HTML file with keyboard navigation and no build step.
+
+## Summary
+
+- Use AI across the lifecycle when it helps, not only for code generation.
+- Keep consequential product, architecture, security, merge, and deployment decisions with a person.
+- Break work into changes that can be understood and verified.
+- Treat self-review as one check, not proof.
+- Require tests, review, and explicit approval before production deployment.
+
+Repository tutorials and code samples are licensed under the [MIT License](../../LICENSE).

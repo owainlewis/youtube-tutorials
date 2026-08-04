@@ -1,8 +1,8 @@
-# Content Repurposer — Requirements
+# Content Repurposer: Requirements
 
 ## What It Does
 
-A web app that takes a YouTube video URL and generates short-form social content from it. The user pastes a link, picks a mode (tweets or longer-form notes), and gets back N pieces of ready-to-post content that matches their writing style.
+A web app that takes a YouTube video URL and drafts short-form social content from it. The user pastes a link, picks a mode (tweets or longer-form notes), and gets back N drafts that use their saved writing examples as prompt context. The user reviews and edits every draft before publishing.
 
 ## Why It Exists
 
@@ -33,7 +33,7 @@ This app is built by a team of AI agents (backend, frontend, code reviewer) to d
 - Add/remove examples freely, each in its own text area
 - Persisted to localStorage so they survive page reloads
 - These examples are injected into the Claude prompt as few-shot examples
-- This is the key quality lever — without examples the output is generic, with 3-5 good examples Claude matches the user's voice
+- Examples give the model evidence about the requested style. The user should review the result because examples do not guarantee an accurate voice match.
 
 ### Results
 
@@ -105,17 +105,17 @@ The quality of the output depends heavily on the prompt. Key principles:
 - When user provides style examples, wrap them in a clear instruction: "Match the tone, structure, and rhythm of these examples. Your output should feel like it was written by the same person."
 - Generate all N items in a single Claude API call, return as JSON array
 - For tweets, validate length and instruct Claude to stay under 280 chars
-- Use claude-sonnet-4-5-20250929 for speed + quality balance
+- Read the model identifier from configuration and use a model currently supported by the Anthropic API
 
 ---
 
 ## Environment Variables
 
-A `.env` file is already provided at the project root with the required API keys. The backend should load variables from this file (e.g. using `python-dotenv` or Pydantic settings).
+Create a committed `.env.example` at the project root with placeholder values only. The user copies it to an untracked `.env` and fills in real values locally. The backend may load those variables with `python-dotenv` or Pydantic settings. Agents must not read, print, commit, or expose values from `.env`.
 
 ```
-OPENAI_API_KEY=...       # Whisper transcription
-ANTHROPIC_API_KEY=...    # Claude generation
+OPENAI_API_KEY=replace-with-your-key       # Whisper transcription
+ANTHROPIC_API_KEY=replace-with-your-key    # Claude generation
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
@@ -125,8 +125,8 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 | Agent | Role |
 |-------|------|
-| **backend** | Builds the FastAPI backend — audio download, transcription, generation services, API endpoint |
-| **frontend** | Builds the Next.js frontend — sidebar layout, generate page, examples page, API integration |
+| **backend** | Builds the FastAPI backend: audio download, transcription, generation services, API endpoint |
+| **frontend** | Builds the Next.js frontend: sidebar layout, generate page, examples page, API integration |
 | **reviewer** | Reviews code from both agents, ensures API contract alignment, catches bugs |
 
 Backend and frontend work in parallel. Reviewer checks work as it's completed.
@@ -135,9 +135,9 @@ Backend and frontend work in parallel. Reviewer checks work as it's completed.
 
 ## Constraints
 
-- No database — stateless
-- No auth — demo app
-- No caching — keep it simple
+- No database: stateless
+- No auth: demo app, local use only
+- No caching: keep it simple
 - yt-dlp must be available on the system
-- Whisper API has a 25MB file limit — chunk larger files if needed
+- Check the current transcription provider's documented file limit before upload, and handle oversized files without silently truncating them
 - Minimal dependencies

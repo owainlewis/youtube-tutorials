@@ -1,6 +1,6 @@
-# Stop Vibe Coding - How to Build Software With AI Like a Senior Engineer
+# Stop Vibe Coding: A Practical AI Development Workflow
 
-This is the supporting material for the video: Stop Vibe Coding - How to Build Software With AI Like a Senior Engineer.
+This is the supporting material for the video: Stop Vibe Coding: A Practical AI Development Workflow.
 
 ## Start Here
 
