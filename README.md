@@ -11,8 +11,13 @@ Each tutorial uses the same public shape:
 - `code/` - runnable code, sample apps, fixtures, or setup files.
 - `resources/` - prompts, slides, configs, references, images, and other loose assets.
 
+<!-- tutorial-catalog:start -->
+31 published tutorials:
+
 - [6 Types of RAG, Clearly Explained](./tutorials/6-types-of-rag/)
+- [Agent Goals and Loops Explained Simply](./tutorials/agent-goals-and-loops/)
 - [Claude Code Agent Teams](./tutorials/agent-teams/)
+- [AI Agent Memory Explained Simply](./tutorials/ai-agent-memory/)
 - [How I Review AI-Generated Code](./tutorials/ai-code-review/)
 - [AI Git Workflow](./tutorials/ai-git-workflow/)
 - [My Autonomous AI Coding Workflow](./tutorials/autonomous-ai-coding-workflow/)
@@ -21,14 +26,16 @@ Each tutorial uses the same public shape:
 - [OpenAI Codex For Developers](./tutorials/codex-for-developers/)
 - [7 Codex Skills I Use As An AI Engineer](./tutorials/codex-skills-i-use/)
 - [Deploy AI Systems on Google Cloud With OpenAI Codex](./tutorials/deploy-ai-on-gcp/)
+- [Docker Sandboxes for Developers](./tutorials/docker-sandboxes-for-developers/)
 - [GitHub AI Workflow](./tutorials/github-ai-workflow/)
-- [Herdr for AI Coding Agents](./tutorials/herdr-agent-workflow/)
+- [Herdr: The Agent Multiplexer AI Developers Need](./tutorials/herdr-agent-workflow/)
 - [How I'd Learn Software Engineering (When AI Writes the Code)](./tutorials/how-id-learn-software-engineering/)
 - [Intent-Based Query Routing for RAG](./tutorials/intent-based-classification/)
 - [Linear as Your Agent's Control Plane](./tutorials/linear-workflow/)
 - [Loop Engineering: A Practical Example](./tutorials/loop-engineering/)
 - [Give Your AI Agents a Database (Airtable MCP)](./tutorials/mcp-airtable/)
 - [Micro Agents Demo](./tutorials/micro-agents-demo/)
+- [Micro Neo](./tutorials/micro-neo/)
 - [Multica Turns Claude Code Into a Remote Teammate](./tutorials/multi-agent-teams/)
 - [Nano Agent](./tutorials/nano-agent/)
 - [Nested subagents in Claude Code: one agent, one concern](./tutorials/nested-subagents-claude-code/)
@@ -38,6 +45,7 @@ Each tutorial uses the same public shape:
 - [Spec-Driven Development](./tutorials/spec-driven-development/)
 - [Stop Vibe Coding - How to Build Software With AI Like a Senior Engineer](./tutorials/stop-vibe-coding/)
 - [How I Test AI-Generated Code](./tutorials/testing-ai-generated-code/)
+<!-- tutorial-catalog:end -->
 
 ## Tutorial Standard
 
@@ -55,6 +63,14 @@ Run repository checks with:
 
 ```bash
 just check
+```
+
+The root tutorial list is generated from
+[`tutorials/catalog.json`](./tutorials/catalog.json). After changing catalog
+metadata, update the list with:
+
+```bash
+just update-tutorial-catalog
 ```
 
 ## About

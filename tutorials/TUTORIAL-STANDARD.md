@@ -1,6 +1,8 @@
 # Tutorial Consistency Review
 
-This repo has 26 top-level tutorial folders.
+Published and draft tutorial status is tracked in
+[`catalog.json`](./catalog.json). The generated tutorial count in the root README
+is checked against that catalog.
 
 The standard is one clear lesson with a predictable repo shape around it.
 

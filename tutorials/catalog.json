@@ -1,0 +1,221 @@
+{
+  "tutorials": [
+    {
+      "slug": "6-types-of-rag",
+      "title": "6 Types of RAG, Clearly Explained",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "agent-goals-and-loops",
+      "title": "Agent Goals and Loops Explained Simply",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "agent-teams",
+      "title": "Claude Code Agent Teams",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "ai-agent-memory",
+      "title": "AI Agent Memory Explained Simply",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "ai-code-review",
+      "title": "How I Review AI-Generated Code",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "ai-git-workflow",
+      "title": "AI Git Workflow",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "autonomous-ai-coding-workflow",
+      "title": "My Autonomous AI Coding Workflow",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "background-agents",
+      "title": "Background Agent Workers: A Pull-Based Architecture",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "codex-automations",
+      "title": "Codex Automations: Bug Fix and Bug Scan",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "codex-for-developers",
+      "title": "OpenAI Codex For Developers",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "codex-skills-i-use",
+      "title": "7 Codex Skills I Use As An AI Engineer",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "deploy-ai-on-gcp",
+      "title": "Deploy AI Systems on Google Cloud With OpenAI Codex",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "docker-sandboxes-for-developers",
+      "title": "Docker Sandboxes for Developers",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "github-ai-workflow",
+      "title": "GitHub AI Workflow",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "herdr-agent-workflow",
+      "title": "Herdr: The Agent Multiplexer AI Developers Need",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "how-id-learn-software-engineering",
+      "title": "How I'd Learn Software Engineering (When AI Writes the Code)",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "intent-based-classification",
+      "title": "Intent-Based Query Routing for RAG",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "linear-workflow",
+      "title": "Linear as Your Agent's Control Plane",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "loop-engineering",
+      "title": "Loop Engineering: A Practical Example",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "mcp-airtable",
+      "title": "Give Your AI Agents a Database (Airtable MCP)",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "micro-agents-demo",
+      "title": "Micro Agents Demo",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "micro-neo",
+      "title": "Micro Neo",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "multi-agent-teams",
+      "title": "Multica Turns Claude Code Into a Remote Teammate",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "nano-agent",
+      "title": "Nano Agent",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "nested-subagents-claude-code",
+      "title": "Nested subagents in Claude Code: one agent, one concern",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "pi-agent-workflow",
+      "title": "Harness Engineering: Building a Custom Pi Agent Workflow",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "pi-coding-agent-guide",
+      "title": "Pi Coding Agent (Full Course)",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "postgresql-only-database-ai",
+      "title": "PostgreSQL for RAG",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "spec-driven-development",
+      "title": "Spec-Driven Development",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "stop-vibe-coding",
+      "title": "Stop Vibe Coding - How to Build Software With AI Like a Senior Engineer",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
+      "slug": "testing-ai-generated-code",
+      "title": "How I Test AI-Generated Code",
+      "status": "published",
+      "video_url": "",
+      "last_verified": ""
+    }
+  ]
+}
