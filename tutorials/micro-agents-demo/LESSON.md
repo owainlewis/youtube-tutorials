@@ -192,12 +192,15 @@ From `tutorials/micro-agents-demo/code`:
 bash tests/run.sh
 ```
 
+The runner resolves the declared packages into a temporary isolated
+environment. It does not create `.venv` or a lockfile in the tutorial folder.
+
 The suite covers core parsing, CLI parsing, command dispatch, failure behavior, and upload loop termination. A passing test run proves those local boundaries. It does not prove that current YouTube credentials, API quota, or remote videos will work.
 
 Run a syntax check for the executable:
 
 ```bash
-.venv/bin/python -m py_compile tools/youtube.py
+uv run --isolated python -m py_compile tools/youtube.py
 ```
 
 ## Use It with a Terminal Agent

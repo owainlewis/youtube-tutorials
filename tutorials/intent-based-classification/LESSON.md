@@ -203,6 +203,19 @@ These checks prove that every allowed intent selects the expected strategy and
 that an out-of-scope query performs no search. They do not measure classifier
 accuracy. That requires labelled queries and live model calls.
 
+## Reset the sample
+
+From `tutorials/intent-based-classification/code`, remove the local environment
+and ignored resolution file created by `uv sync`:
+
+```bash
+rm -rf .venv uv.lock
+unset OPENAI_API_KEY OPENAI_MODEL
+```
+
+The command removes only generated files inside this tutorial. The source and
+offline tests remain unchanged.
+
 ## Evaluate the classifier before using it
 
 Build a test set from real queries for your domain. Give each query the intent

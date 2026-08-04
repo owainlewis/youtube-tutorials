@@ -84,6 +84,7 @@ You can also run them in fake-model mode when you only want to inspect the memor
 
 ```bash
 cd tutorials/ai-agent-memory/code
+uv sync
 AI_MEMORY_DEMO_FAKE_MODEL=1 uv run 02_static_memory.py
 ```
 
@@ -572,6 +573,27 @@ For a production workflow, store task state in a real database.
 For a customer support agent, start with the customer's actual account, plan, tickets, and permissions.
 
 Then add more memory only when forgetting is the problem.
+
+## Test And Reset
+
+The default checks need no credentials or model calls. From
+`tutorials/ai-agent-memory/code`, run:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+Reset the session database, local environment, ignored resolution file, and
+shell variables with:
+
+```bash
+uv run reset_demo.py
+rm -rf .venv uv.lock
+unset OPENAI_API_KEY MEM0_API_KEY AI_MEMORY_DEMO_FAKE_MODEL
+```
+
+These commands remove only generated tutorial state. They leave all tracked
+source and memory fixtures unchanged.
 
 ## Summary
 

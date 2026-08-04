@@ -1,25 +1,55 @@
 {
   "tutorials": {
     "6-types-of-rag": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/6-types-of-rag/LESSON.md",
+          "heading": "Run the Live Examples"
+        },
+        "run": {
+          "path": "tutorials/6-types-of-rag/LESSON.md",
+          "heading": "Run the Live Examples"
+        },
+        "test": {
+          "path": "tutorials/6-types-of-rag/LESSON.md",
+          "heading": "Test Without Credentials"
+        },
+        "reset": {
+          "path": "tutorials/6-types-of-rag/LESSON.md",
+          "heading": "Run the Live Examples"
+        }
+      },
       "commands": [
         {
           "name": "six retrieval strategy tests",
           "cwd": "tutorials/6-types-of-rag/code",
-          "run": [
-            "python3",
-            "-m",
-            "unittest",
-            "discover",
-            "-s",
-            "tests",
-            "-v"
-          ]
+          "run": ["python3", "-m", "unittest", "discover", "-s", "tests", "-v"]
         }
       ]
     },
     "ai-agent-memory": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/ai-agent-memory/code/README.md",
+          "heading": "Setup"
+        },
+        "run": {
+          "path": "tutorials/ai-agent-memory/code/README.md",
+          "heading": "Run"
+        },
+        "test": {
+          "path": "tutorials/ai-agent-memory/code/README.md",
+          "heading": "Test"
+        },
+        "reset": {
+          "path": "tutorials/ai-agent-memory/code/README.md",
+          "heading": "Reset"
+        }
+      },
       "commands": [
         {
           "cwd": "tutorials/ai-agent-memory/code",
@@ -28,6 +58,8 @@
       ]
     },
     "ai-code-review": {
+      "classification": "snippet-only",
+      "reason": "The code verifies copyable review templates. It is not a standalone application.",
       "kind": "offline",
       "commands": [
         {
@@ -37,16 +69,43 @@
       ]
     },
     "deploy-ai-on-gcp": {
-      "kind": "offline",
+      "classification": "infrastructure-only",
+      "reason": "The primary artifact is Terraform for an opt-in cloud deployment. Default checks format the module and test the classifier without deploying it.",
+      "kind": "static",
       "commands": [
         {
+          "name": "Terraform format check",
+          "cwd": "tutorials/deploy-ai-on-gcp/code/terraform",
+          "run": ["terraform", "fmt", "-check", "-diff"]
+        },
+        {
+          "name": "email classifier dry-run unit tests",
           "cwd": "tutorials/deploy-ai-on-gcp/code/email-classifier",
           "run": ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]
         }
       ]
     },
     "docker-sandboxes-for-developers": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/docker-sandboxes-for-developers/code/README.md",
+          "heading": "Install"
+        },
+        "run": {
+          "path": "tutorials/docker-sandboxes-for-developers/code/README.md",
+          "heading": "Run the server"
+        },
+        "test": {
+          "path": "tutorials/docker-sandboxes-for-developers/code/README.md",
+          "heading": "Run the tests"
+        },
+        "reset": {
+          "path": "tutorials/docker-sandboxes-for-developers/code/README.md",
+          "heading": "Reset"
+        }
+      },
       "commands": [
         {
           "cwd": "tutorials/docker-sandboxes-for-developers/code",
@@ -55,16 +114,43 @@
       ]
     },
     "herdr-agent-workflow": {
+      "classification": "snippet-only",
+      "reason": "The shell helper configures installed command-line tools. It is not a standalone application.",
       "kind": "static",
       "commands": [
         {
+          "name": "setup helper shell syntax",
           "cwd": "tutorials/herdr-agent-workflow",
           "run": ["bash", "-n", "code/setup-herdr.sh"]
+        },
+        {
+          "name": "setup helper usage path",
+          "cwd": "tutorials/herdr-agent-workflow",
+          "run": ["bash", "code/setup-herdr.sh", "--help"]
         }
       ]
     },
     "intent-based-classification": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/intent-based-classification/LESSON.md",
+          "heading": "Run the sample"
+        },
+        "run": {
+          "path": "tutorials/intent-based-classification/LESSON.md",
+          "heading": "Run the sample"
+        },
+        "test": {
+          "path": "tutorials/intent-based-classification/LESSON.md",
+          "heading": "Verify routing without credentials"
+        },
+        "reset": {
+          "path": "tutorials/intent-based-classification/LESSON.md",
+          "heading": "Reset the sample"
+        }
+      },
       "commands": [
         {
           "cwd": "tutorials/intent-based-classification/code",
@@ -73,7 +159,26 @@
       ]
     },
     "micro-agents-demo": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/micro-agents-demo/LESSON.md",
+          "heading": "Install the Tool"
+        },
+        "run": {
+          "path": "tutorials/micro-agents-demo/LESSON.md",
+          "heading": "Run the Research Commands"
+        },
+        "test": {
+          "path": "tutorials/micro-agents-demo/LESSON.md",
+          "heading": "Run the Offline Tests"
+        },
+        "reset": {
+          "path": "tutorials/micro-agents-demo/LESSON.md",
+          "heading": "Reset the Demo"
+        }
+      },
       "commands": [
         {
           "name": "YouTube tool unit tests",
@@ -83,7 +188,26 @@
       ]
     },
     "micro-neo": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/micro-neo/LESSON.md",
+          "heading": "Install the Requirements"
+        },
+        "run": {
+          "path": "tutorials/micro-neo/LESSON.md",
+          "heading": "See It Working"
+        },
+        "test": {
+          "path": "tutorials/micro-neo/LESSON.md",
+          "heading": "Tests"
+        },
+        "reset": {
+          "path": "tutorials/micro-neo/LESSON.md",
+          "heading": "Reset the Demo"
+        }
+      },
       "commands": [
         {
           "cwd": "tutorials/micro-neo/code",
@@ -96,47 +220,66 @@
       ]
     },
     "nano-agent": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/nano-agent/LESSON.md",
+          "heading": "Install"
+        },
+        "run": {
+          "path": "tutorials/nano-agent/LESSON.md",
+          "heading": "Run"
+        },
+        "test": {
+          "path": "tutorials/nano-agent/LESSON.md",
+          "heading": "Test"
+        },
+        "reset": {
+          "path": "tutorials/nano-agent/LESSON.md",
+          "heading": "Reset"
+        }
+      },
       "commands": [
         {
           "cwd": "tutorials/nano-agent/code",
           "env": {"PYTHONPATH": "src"},
-          "run": [
-            "uv",
-            "run",
-            "--no-project",
-            "--with",
-            "pytest",
-            "--with",
-            "anthropic",
-            "--with",
-            "pyyaml",
-            "--with",
-            "rich",
-            "pytest"
-          ]
+          "run": ["uv", "run", "--no-project", "--with", "pytest", "--with", "anthropic", "--with", "pyyaml", "--with", "rich", "pytest"]
         }
       ]
     },
     "pi-agent-workflow": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/pi-agent-workflow/LESSON.md",
+          "heading": "Install"
+        },
+        "run": {
+          "path": "tutorials/pi-agent-workflow/LESSON.md",
+          "heading": "Run"
+        },
+        "test": {
+          "path": "tutorials/pi-agent-workflow/LESSON.md",
+          "heading": "Test"
+        },
+        "reset": {
+          "path": "tutorials/pi-agent-workflow/LESSON.md",
+          "heading": "Reset"
+        }
+      },
       "commands": [
         {
           "name": "nano harness unit tests",
           "cwd": "tutorials/pi-agent-workflow/code",
-          "run": [
-            "python3",
-            "-m",
-            "unittest",
-            "discover",
-            "-s",
-            "tests",
-            "-v"
-          ]
+          "run": ["python3", "-m", "unittest", "discover", "-s", "tests", "-v"]
         }
       ]
     },
     "pi-coding-agent-guide": {
+      "classification": "snippet-only",
+      "reason": "The executable code checks the tutorial's copyable configuration and extension resources. It is not a standalone application.",
       "kind": "static",
       "commands": [
         {
@@ -147,7 +290,26 @@
       ]
     },
     "postgresql-only-database-ai": {
+      "classification": "runnable",
       "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/postgresql-only-database-ai/LESSON.md",
+          "heading": "1. Configure The Application"
+        },
+        "run": {
+          "path": "tutorials/postgresql-only-database-ai/LESSON.md",
+          "heading": "6. Run And Inspect The App"
+        },
+        "test": {
+          "path": "tutorials/postgresql-only-database-ai/LESSON.md",
+          "heading": "7. Verify Without Credentials"
+        },
+        "reset": {
+          "path": "tutorials/postgresql-only-database-ai/LESSON.md",
+          "heading": "Reset And Repeat"
+        }
+      },
       "commands": [
         {
           "name": "PostgreSQL RAG static verification",
@@ -157,20 +319,14 @@
       ]
     },
     "testing-ai-generated-code": {
+      "classification": "snippet-only",
+      "reason": "The code is a focused session-policy unit example. It does not provide a standalone application.",
       "kind": "offline",
       "commands": [
         {
           "name": "session policy unit tests",
           "cwd": "tutorials/testing-ai-generated-code/code",
-          "run": [
-            "python3",
-            "-m",
-            "unittest",
-            "discover",
-            "-s",
-            "tests",
-            "-v"
-          ]
+          "run": ["python3", "-m", "unittest", "discover", "-s", "tests", "-v"]
         }
       ]
     }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run credential-free tests already provided by tutorial samples."""
+"""Run the repository's tutorial verification matrix."""
 
 from __future__ import annotations
 
@@ -16,15 +16,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 MANIFEST_PATH = ROOT / "scripts" / "tutorial_verification.json"
+DEFAULT_KINDS = frozenset({"offline", "static"})
+
+
+def selected_entries(
+    entries: dict[str, dict[str, object]], requested_kind: str
+) -> list[tuple[str, dict[str, object]]]:
+    """Return stable manifest entries for a requested verification group."""
+    kinds = DEFAULT_KINDS if requested_kind == "offline" else {requested_kind}
+    return [
+        (slug, entry)
+        for slug, entry in sorted(entries.items())
+        if entry["kind"] in kinds
+    ]
 
 
 def run(kind: str) -> int:
     entries = json.loads(MANIFEST_PATH.read_text())["tutorials"]
-    selected = [
-        (slug, entry)
-        for slug, entry in sorted(entries.items())
-        if entry["kind"] == kind
-    ]
+    selected = selected_entries(entries, kind)
+    if not selected:
+        print(f"No {kind} tutorial checks are configured.")
+        return 0
     for tutorial, entry in selected:
         for item in entry["commands"]:
             command = list(item["run"])
@@ -33,6 +45,8 @@ def run(kind: str) -> int:
             executable = command[0]
             directory = ROOT / item["cwd"]
             environment = os.environ.copy()
+            environment.setdefault("PYTHONDONTWRITEBYTECODE", "1")
+            environment.setdefault("PYTEST_ADDOPTS", "-p no:cacheprovider")
             environment.update(item.get("env", {}))
             printable = " ".join(command)
             if not shutil.which(executable):

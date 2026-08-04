@@ -126,6 +126,8 @@ history. That gives the session short-term memory. Press Ctrl-C to exit.
 
 You need Python 3.12 or newer, `uv`, and an Anthropic API key.
 
+### Install
+
 From the repository root:
 
 ```bash
@@ -135,6 +137,8 @@ cp .env.example .env
 
 Edit `.env` and replace the placeholder key. You may also change
 `ANTHROPIC_MODEL` to a model available to your account.
+
+### Run
 
 Run the harness:
 
@@ -151,11 +155,15 @@ Read README.md and explain the three tools in this harness.
 The harness asks for approval before every tool call. Read the command or file
 operation before entering `y`.
 
+### Test
+
 Run the offline tests without installing the model SDK:
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
+
+### Reset
 
 Reset the local configuration:
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -94,6 +95,207 @@ class RepositoryChecksTest(unittest.TestCase):
         self.assertEqual(
             errors,
             ["verification manifest missing code-bearing tutorials: ['alpha']"],
+        )
+
+    def test_verification_manifest_requires_runnable_documentation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            code = root / "tutorials/alpha/code"
+            code.mkdir(parents=True)
+            (code / "main.py").write_text("print('ok')\n")
+            manifest = root / "verification.json"
+            manifest.write_text(
+                """{
+  "tutorials": {
+    "alpha": {
+      "classification": "runnable",
+      "kind": "offline",
+      "commands": [{"cwd": "tutorials/alpha/code", "run": ["python", "main.py"]}]
+    }
+  }
+}
+"""
+            )
+
+            errors = repository_checks.check_verification_manifest(
+                root,
+                [Path("tutorials/alpha/code/main.py")],
+                manifest,
+            )
+
+        self.assertEqual(
+            errors,
+            [
+                "alpha: runnable tutorials need install, run, test, and reset documentation"
+            ],
+        )
+
+    def test_verification_manifest_validates_documentation_headings(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tutorial = root / "tutorials/alpha"
+            code = tutorial / "code"
+            code.mkdir(parents=True)
+            (code / "main.py").write_text("print('ok')\n")
+            (tutorial / "LESSON.md").write_text(
+                "# Alpha\n\n## Install\n\n## Run\n\n## Test\n\n## Reset\n\n"
+                "```markdown\n## Missing Test Heading\n```\n"
+            )
+            manifest = root / "verification.json"
+            references = {
+                action: {
+                    "path": "tutorials/alpha/LESSON.md",
+                    "heading": heading,
+                }
+                for action, heading in {
+                    "install": "Install",
+                    "run": "Run",
+                    "test": "Missing Test Heading",
+                    "reset": "Reset",
+                }.items()
+            }
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "tutorials": {
+                            "alpha": {
+                                "classification": "runnable",
+                                "kind": "offline",
+                                "documentation": references,
+                                "commands": [
+                                    {
+                                        "cwd": "tutorials/alpha/code",
+                                        "run": ["python", "main.py"],
+                                    }
+                                ],
+                            }
+                        }
+                    }
+                )
+            )
+
+            errors = repository_checks.check_verification_manifest(
+                root,
+                [
+                    Path("tutorials/alpha/LESSON.md"),
+                    Path("tutorials/alpha/code/main.py"),
+                ],
+                manifest,
+            )
+
+        self.assertEqual(
+            errors,
+            [
+                "alpha: test documentation heading 'Missing Test Heading' not found in tutorials/alpha/LESSON.md"
+            ],
+        )
+
+    def test_verification_manifest_requires_static_infrastructure_checks(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            code = root / "tutorials/alpha/code"
+            code.mkdir(parents=True)
+            (code / "main.tf").write_text("terraform {}\n")
+            manifest = root / "verification.json"
+            manifest.write_text(
+                """{
+  "tutorials": {
+    "alpha": {
+      "classification": "infrastructure-only",
+      "reason": "Terraform example.",
+      "kind": "offline",
+      "commands": [{"cwd": "tutorials/alpha/code", "run": ["terraform", "fmt", "-check"]}]
+    }
+  }
+}
+"""
+            )
+
+            errors = repository_checks.check_verification_manifest(
+                root,
+                [Path("tutorials/alpha/code/main.tf")],
+                manifest,
+            )
+
+        self.assertEqual(
+            errors,
+            ["alpha: infrastructure-only tutorials need static verification"],
+        )
+
+    def test_verification_manifest_rejects_cross_tutorial_references(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            alpha = root / "tutorials/alpha"
+            beta = root / "tutorials/beta"
+            (alpha / "code").mkdir(parents=True)
+            (beta / "code").mkdir(parents=True)
+            (alpha / "code/main.py").write_text("print('alpha')\n")
+            (beta / "code/main.py").write_text("print('beta')\n")
+            lesson = "# Lesson\n\n## Install\n\n## Run\n\n## Test\n\n## Reset\n"
+            (alpha / "LESSON.md").write_text(lesson)
+            (beta / "LESSON.md").write_text(lesson)
+            documentation = {
+                action: {
+                    "path": "tutorials/alpha/LESSON.md",
+                    "heading": heading,
+                }
+                for action, heading in {
+                    "install": "Install",
+                    "run": "Run",
+                    "test": "Test",
+                    "reset": "Reset",
+                }.items()
+            }
+            documentation["test"]["path"] = "tutorials/beta/LESSON.md"
+            manifest = root / "verification.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "tutorials": {
+                            "alpha": {
+                                "classification": "runnable",
+                                "kind": "offline",
+                                "documentation": documentation,
+                                "commands": [
+                                    {
+                                        "cwd": "tutorials/beta/code",
+                                        "run": ["python", "main.py"],
+                                    }
+                                ],
+                            },
+                            "beta": {
+                                "classification": "snippet-only",
+                                "reason": "Fixture.",
+                                "kind": "offline",
+                                "commands": [
+                                    {
+                                        "cwd": "tutorials/beta/code",
+                                        "run": ["python", "main.py"],
+                                    }
+                                ],
+                            },
+                        }
+                    }
+                )
+            )
+
+            errors = repository_checks.check_verification_manifest(
+                root,
+                [
+                    Path("tutorials/alpha/LESSON.md"),
+                    Path("tutorials/alpha/code/main.py"),
+                    Path("tutorials/beta/LESSON.md"),
+                    Path("tutorials/beta/code/main.py"),
+                ],
+                manifest,
+            )
+
+        self.assertEqual(
+            errors,
+            [
+                "alpha: test documentation must stay inside tutorials/alpha",
+                "alpha: command 1 cwd must stay inside tutorials/alpha",
+            ],
         )
 
     def test_junk_check_rejects_common_lockfiles(self) -> None:

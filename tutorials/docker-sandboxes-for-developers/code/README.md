@@ -2,6 +2,14 @@
 
 A dependency-free Python HTTP server used by the Docker Sandboxes lesson.
 
+## Install
+
+Use Python 3.11 or newer. There are no packages to install.
+
+```bash
+python3 --version
+```
+
 ## Run the tests
 
 ```bash
