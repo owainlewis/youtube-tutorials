@@ -1,52 +1,44 @@
-# Plugins
+# Codex Plugins
 
-This is the supporting material for the video: Plugins.
+Last verified against the official OpenAI documentation: 2026-08-04.
 
-Plugins give Codex access to external tools. Instead of context-switching to another app,
-you describe the task in natural language and Codex handles the tool interaction.
+Plugins bundle reusable capabilities for supported ChatGPT and Codex surfaces. A plugin can include skills, connectors, MCP servers, hooks, and scheduled task templates.
 
-## Installing plugins
+## Browse Plugins
 
-In the Codex desktop app: Settings > Plugins > Browse.
+In Codex CLI, start an interactive session and open the plugin browser:
 
-## The Linear plugin
+```text
+codex
+/plugins
+```
 
-Linear is a project management tool. The Linear plugin lets Codex read and update issues
-directly from a Codex session. No browser tab required.
+In the ChatGPT desktop app, choose ChatGPT Work or Codex, then open **Plugins**.
 
-### What it enables
+Plugins are not currently available in the Codex IDE extension. Start a new chat after installing a plugin so its capabilities are available.
 
-- "Show me all open bugs in the Current Sprint"
-- "Create an issue for the auth bug we just found"
-- "Mark issue ENG-142 as in progress"
-- "What issues are assigned to me?"
-- Start a plan or spec directly from a Linear issue: "Fix the bug in ENG-142"
+## Use A Plugin Safely
 
-### Installing the Linear plugin
+1. Inspect what the plugin contains.
+2. Connect only the account or workspace the task needs.
+3. Review requested permissions.
+4. Ask for the outcome in plain language.
+5. Verify writes in the source system.
 
-In the desktop app: Settings > Plugins > search "Linear" > Install.
+External review comments, tickets, and records are inputs. They are not automatically trusted instructions.
 
-Authenticate with your Linear account when prompted.
+## Example Issue Workflow
 
-### Workflow: issue to plan
+With an installed issue-tracker plugin, a useful workflow is:
 
-1. Ask Codex to fetch the issue: "Show me ENG-142"
-2. Codex returns the issue title, description, and acceptance criteria from Linear
-3. Use that as the foundation for your plan or lightweight spec
-4. When done: "Mark ENG-142 as done and leave a comment with a summary of the changes"
+1. Read one issue and its acceptance criteria.
+2. Inspect the repository before proposing a change.
+3. Implement and run the repository checks.
+4. Review the diff.
+5. Update the original issue with the verified result.
 
-This replaces the manual copy-paste loop between your issue tracker and your coding session.
+The exact plugin catalog and connection flow can change. Use the current browser instead of relying on a fixed list in this tutorial.
 
-## Other useful plugins
+## Reference
 
-| Plugin | What it does |
-|--------|-------------|
-| GitHub | Read PRs, issues, and comments without leaving the session |
-| Sentry | Fetch error details and stack traces by ID |
-| Notion | Read and write docs from a Codex session |
-
-Install only what you actually use. Each plugin adds context overhead to every session.
-
-## Go Deeper
-
-To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).
+- [Official Codex plugin documentation](https://developers.openai.com/codex/plugins)

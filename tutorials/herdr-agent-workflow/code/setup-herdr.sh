@@ -83,12 +83,12 @@ fi
 echo
 if command -v npx >/dev/null 2>&1; then
   echo "Installing Herdr skill globally for supported agents..."
-  if ! npx skills add ogulcancelik/herdr --skill herdr -g; then
+  if ! npx skills add herdrdev/herdr --skill herdr -g; then
     cat <<'EOF'
 The Herdr skill install failed.
 
 Manual skill source:
-  https://github.com/ogulcancelik/herdr/blob/master/SKILL.md
+  https://raw.githubusercontent.com/herdrdev/herdr/master/skills/herdr/SKILL.md
 EOF
   fi
 else
@@ -96,7 +96,7 @@ else
 npx was not found, so the Herdr skill was not installed.
 
 Manual skill source:
-  https://github.com/ogulcancelik/herdr/blob/master/SKILL.md
+  https://raw.githubusercontent.com/herdrdev/herdr/master/skills/herdr/SKILL.md
 EOF
 fi
 

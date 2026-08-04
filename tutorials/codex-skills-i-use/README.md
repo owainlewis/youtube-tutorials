@@ -2,6 +2,8 @@
 
 This is the supporting material for the video: 7 Codex Skills I Use As An AI Engineer.
 
+Last verified against the official OpenAI documentation: 2026-08-04.
+
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)

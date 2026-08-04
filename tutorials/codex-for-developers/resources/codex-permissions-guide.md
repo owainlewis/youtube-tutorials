@@ -1,106 +1,67 @@
 # Codex Permissions Guide
 
-This is the simple version.
+Last verified against the official OpenAI documentation: 2026-08-04.
 
-If you only remember one thing, remember this:
+If you remember one thing, remember this:
 
-> Sandbox is where Codex can act. Network is whether commands can go online. Approval is whether Codex asks first.
+> The sandbox controls what Codex can do. The approval policy controls when Codex pauses to ask.
 
----
+## The Main Settings
 
-## The 3 Settings
+| Setting | What it controls | Normal starting point |
+| --- | --- | --- |
+| `sandbox_mode` | Filesystem and command boundaries. | `workspace-write` in a trusted Git repository. |
+| `approval_policy` | When Codex pauses for approval. | `on-request` for interactive work. |
+| `sandbox_workspace_write.network_access` | Whether commands in the workspace-write sandbox can reach the network. | `false` unless the task needs it. |
 
-| Setting | What it controls | Best default |
-|---|---|---|
-| `sandbox_mode` | Where Codex can read/write and what it can run safely | `workspace-write` |
-| `network_access` | Whether shell commands can use the internet | Only on when needed |
-| `approval_policy` | Whether Codex asks before crossing a boundary | `on-request` |
-
----
-
-## The Simple Matrix
-
-This is the easiest way to explain it:
-
-| Situation | Sandbox | Network | Approval |
-|---|---|---|---|
-| Review only | `read-only` | Off | `on-request` |
-| Normal coding | `workspace-write` | Off or on if needed | `on-request` |
-| Installing packages or calling APIs | `workspace-write` | On | `on-request` |
-| Fully hands-off in a trusted environment | `workspace-write` or `danger-full-access` | On if needed | `never` |
-
----
-
-## What The Sandbox Modes Mean
-
-| Mode | Plain English | Use it when |
-|---|---|---|
-| `read-only` | Codex can inspect, but not really change things | Review, explain, analyze |
-| `workspace-write` | Codex can edit inside the project | Normal day-to-day coding |
-| `danger-full-access` | Codex can do anything your user account can do | Only in a trusted disposable environment |
-
-Good default:
+OpenAI calls workspace write with on-request approvals the Auto combination:
 
 ```toml
 sandbox_mode = "workspace-write"
 approval_policy = "on-request"
 ```
 
----
+## Sandbox Modes
 
-## What Approval Actually Means
+| Mode | Plain meaning | Useful for |
+| --- | --- | --- |
+| `read-only` | Inspect without making normal workspace edits. | Explanation, audit, and review. |
+| `workspace-write` | Read and edit inside the active workspace. | Normal repository work. |
+| `danger-full-access` | Run without the local sandbox boundary. | A controlled environment that already provides isolation. |
 
-| Codex approval policy | Behavior | Claude equivalent |
-|---|---|---|
-| `untrusted` | Always ask before actions | Normal safe mode |
-| `on-request` | Ask only when escalation is needed | Partial guardrails (default) |
-| `on-failure` | Ask only if something breaks | No direct equivalent |
-| `never` | Never ask, just execute | `--dangerously-skip-permissions` |
+Use `/permissions` to inspect or change the active mode. Use `/status` to inspect the workspace roots and current configuration.
 
-Important:
+## Approval Policies
 
-> Approval does not create permission. It only decides whether Codex asks before trying.
+| Policy | Behavior |
+| --- | --- |
+| `untrusted` | Ask before commands that are not classified as known-safe reads. |
+| `on-request` | Work inside the sandbox and ask when an action needs a wider boundary. |
+| `never` | Never show an approval prompt. The sandbox still limits the run. |
 
-Setting `approval_policy = "never"` is YOLO mode. Commands run immediately, file edits happen without confirmation, no "are you sure?" checkpoints. The agent decides and executes in one loop.
+`on-failure` is deprecated. Use `on-request` for interactive work or `never` for non-interactive runs.
 
----
+Approval does not grant access by itself. For example, `never` with `read-only` remains read-only.
 
-## Common Examples
+## Network Access
 
-| Action | Result in normal setup |
-|---|---|
-| Edit a file in the repo | Usually allowed |
-| Run tests in the repo | Usually allowed |
-| Edit a file on the Desktop | Usually asks or needs escalation |
-| Run `npm install` | Needs network access |
-| Run `curl ...` | Needs network access |
-| Ask Codex to search the web | Separate from shell network access |
+Command network access is off by default in the workspace-write sandbox. Enable it only when the task needs package installation or an external API:
 
----
+```toml
+[sandbox_workspace_write]
+network_access = true
+```
 
-## The One Confusing Bit
+This setting controls programs launched by commands, such as `curl`, package managers, and test code that calls external services. Codex web search has separate controls.
 
-There are two different internet paths:
+## Useful Combinations
 
-| Thing | Controlled by |
-|---|---|
-| `npm install`, `uv sync`, `curl`, scripts calling APIs | command `network_access` |
-| Codex using built-in web search/fetch tools | web/search settings inside Codex |
-
-That is why shell `curl` can be blocked while Codex can still look something up with its own web tools.
-
----
-
-## Good Defaults
-
-### Safe everyday coding
+### Normal coding
 
 ```toml
 sandbox_mode = "workspace-write"
 approval_policy = "on-request"
 ```
-
-Turn network on only if you actually need installs or API calls.
 
 ### Review only
 
@@ -109,77 +70,38 @@ sandbox_mode = "read-only"
 approval_policy = "on-request"
 ```
 
-### Trusted automation
+### Read-only automation
 
-Use `never` only when you understand the tradeoff.
-
-Do not jump to full access unless you really need it.
-
----
-
-## One Good Rule
-
-If Codex needs another directory, do this:
-
-```bash
-codex --add-dir /path/to/other/folder
+```toml
+sandbox_mode = "read-only"
+approval_policy = "never"
 ```
 
-Do not jump straight to:
+Only use full access when the surrounding machine, container, or VM already provides the boundary you need. The one-off full-access flag is deliberately named:
 
 ```bash
 codex --dangerously-bypass-approvals-and-sandbox
 ```
 
----
+Do not use it as a shortcut around a configuration problem.
 
-## Matching Claude Code's "Dangerously Skip Permissions"
+## Add One Extra Directory
 
-If you already use Claude Code, you may know the `--dangerously-skip-permissions` flag. It bypasses safety confirmations so the agent proceeds with all actions without asking. Here is the Codex equivalent.
-
-| | Claude Code | Codex |
-|---|---|---|
-| One-off flag | `claude --dangerously-skip-permissions` | `codex --dangerously-bypass-approvals-and-sandbox` |
-| Config equivalent | Flag only, not configurable | `sandbox_mode = "danger-full-access"` + `approval_policy = "never"` |
-| Scope | Full system access as current user | Full system access as current user |
-
-The config equivalent in Codex:
-
-```toml
-sandbox_mode = "danger-full-access"
-approval_policy = "never"
-```
-
-Or as a named profile you can switch to without changing the default:
-
-```toml
-[profiles.yolo]
-sandbox_mode = "danger-full-access"
-approval_policy = "never"
-```
-
-Activate with:
+If the task needs another directory, grant that directory instead of removing the whole sandbox:
 
 ```bash
-codex --profile yolo
+codex --add-dir /path/to/other/folder
 ```
 
-**Key differences.**
+## References
 
-- Claude's mode is a flag you type each time and cannot be set as a default in config. Codex lets you bake it into a named profile — more convenient for scripts and automation, but easier to leave on by accident.
-- Codex with `never` is still constrained by sandbox mode and environment permissions. Claude's `--dangerously-skip-permissions` more explicitly disables all permission prompts with fewer guardrails underneath.
-- For day-to-day use they are functionally equivalent: the agent decides and executes without asking.
+- [Agent approvals and security](https://developers.openai.com/codex/agent-approvals-security)
+- [Configuration reference](https://developers.openai.com/codex/config-reference)
 
-Use either only in a trusted, disposable environment — a Docker container, a CI sandbox, a VM you can discard. Not on your main machine where the agent can touch anything your user account can touch.
+## Short Explanation
 
----
-
-## 20-Second Explanation
-
-If you need a quick way to say it in the video:
-
-1. `workspace-write` is the normal default.
-2. `on-request` is the normal approval mode.
-3. Turn network on only when you actually need it.
-4. Use `read-only` for review.
-5. Avoid full access unless the environment is already safe.
+1. Start with workspace write and on-request approvals for normal repository work.
+2. Use read-only for explanation and review.
+3. Keep command network access off until a task needs it.
+4. Expand one boundary at a time.
+5. Use full access only inside an environment you already trust for that level of access.
