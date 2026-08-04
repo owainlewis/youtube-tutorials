@@ -194,4 +194,4 @@ Realistic baseline: $10-15/month plus inference. The database is the only fixed 
 
 ## License
 
-MIT. Fork it, ship it, modify it. Credit appreciated but not required.
+Licensed under the [MIT License](../../LICENSE).

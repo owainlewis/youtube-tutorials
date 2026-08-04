@@ -70,4 +70,4 @@ video. ~6,500 words covering:
 
 ## License
 
-MIT.
+Licensed under the [MIT License](../../LICENSE).

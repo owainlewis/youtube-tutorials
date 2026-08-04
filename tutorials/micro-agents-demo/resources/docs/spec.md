@@ -1,7 +1,7 @@
 # Micro Agent Specification
 
 **Version**: 1.0.0
-**License**: CC0 1.0 (Public Domain)
+**License**: [MIT](../../../../LICENSE)
 
 ---
 

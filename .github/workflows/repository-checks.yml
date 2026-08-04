@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    - cron: "17 6 * * 1"
 
 permissions:
   contents: read
@@ -48,3 +50,15 @@ jobs:
       - uses: astral-sh/setup-uv@v9.0.0
       - name: Run dependency-backed tests without a project lockfile
         run: python3 scripts/run_offline_tests.py --kind network
+
+  dependency-resolution:
+    name: Resolve current Python dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v9.0.0
+      - name: Resolve every Python tutorial manifest without lockfiles
+        run: python3 scripts/check_python_dependencies.py

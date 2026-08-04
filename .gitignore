@@ -6,6 +6,7 @@
 # Allow these to be tracked
 !tutorials/
 !README.md
+!LICENSE
 !.gitignore
 !AGENTS.md
 !Justfile
@@ -84,6 +85,14 @@ cython_debug/
 **/env/
 **/.uv/
 **/uv.lock
+**/package-lock.json
+**/pnpm-lock.yaml
+**/yarn.lock
+**/bun.lock
+**/bun.lockb
+**/Pipfile.lock
+**/poetry.lock
+**/Cargo.lock
 **/.ipynb_checkpoints/
 
 # Java

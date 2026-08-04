@@ -24,7 +24,9 @@ REQUIRED_TUTORIAL_PREFIXES = {"code/", "resources/", "resources/slides/"}
 JUNK_PATTERN = re.compile(
     r"(^|/)(\.venv|venv|__pycache__|\.pytest_cache|\.ruff_cache|\.mypy_cache|"
     r"\.DS_Store|\.git/|node_modules|dist/|build/|\.lsp|\.clj-kondo|"
-    r"\.ipynb_checkpoints|uv\.lock$|.*\.log$|\.env$|\.env\.local$)"
+    r"\.ipynb_checkpoints|uv\.lock$|package-lock\.json$|pnpm-lock\.yaml$|"
+    r"yarn\.lock$|bun\.lockb?$|Pipfile\.lock$|poetry\.lock$|Cargo\.lock$|"
+    r".*\.log$|\.env$|\.env\.local$)"
 )
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 FENCED_BLOCK_PATTERN = re.compile(r"(^|\n)(```|~~~).*?\n\2", re.DOTALL)

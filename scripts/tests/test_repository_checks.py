@@ -96,6 +96,22 @@ class RepositoryChecksTest(unittest.TestCase):
             ["verification manifest missing code-bearing tutorials: ['alpha']"],
         )
 
+    def test_junk_check_rejects_common_lockfiles(self) -> None:
+        files = [
+            Path("tutorials/python/uv.lock"),
+            Path("tutorials/node/package-lock.json"),
+            Path("tutorials/rust/Cargo.lock"),
+        ]
+
+        self.assertEqual(
+            repository_checks.check_junk(files),
+            [
+                "tutorials/python/uv.lock: tracked junk",
+                "tutorials/node/package-lock.json: tracked junk",
+                "tutorials/rust/Cargo.lock: tracked junk",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

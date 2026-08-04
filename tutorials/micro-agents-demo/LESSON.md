@@ -105,4 +105,4 @@ The key insight: if it runs from a terminal, it's a tool. No wrappers. No schema
 
 ## License
 
-MIT
+Licensed under the [MIT License](../../LICENSE).

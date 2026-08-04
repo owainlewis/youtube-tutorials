@@ -236,4 +236,4 @@ The system is wrong if:
 
 ## License
 
-MIT. Take any of this and use it however you want.
+Licensed under the [MIT License](../../LICENSE).

@@ -14,12 +14,12 @@ nano-agent = "nano_agent.main:main"
 
 [dependency-groups]
 dev = [
-    "pytest",
-    "ipykernel",
+    "pytest>=9.0.2",
+    "ipykernel>=7.1.0",
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.31.0"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]

@@ -77,6 +77,10 @@ just update-tutorial-catalog
 
 These tutorials demonstrate practical AI automation patterns. Each one is a complete, working example you can use and adapt.
 
+## License
+
+This repository is licensed under the [MIT License](./LICENSE).
+
 ## Go Deeper
 
 To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).

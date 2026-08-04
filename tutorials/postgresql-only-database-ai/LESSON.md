@@ -94,4 +94,4 @@ graph TD
 
 ## License
 
-MIT
+Licensed under the [MIT License](../../LICENSE).
