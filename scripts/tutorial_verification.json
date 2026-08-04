@@ -67,7 +67,7 @@
       ]
     },
     "nano-agent": {
-      "kind": "network",
+      "kind": "offline",
       "commands": [
         {
           "cwd": "tutorials/nano-agent/code",

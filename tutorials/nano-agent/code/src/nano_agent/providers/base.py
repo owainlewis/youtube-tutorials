@@ -22,9 +22,6 @@ class ToolUseBlock:
     type: str = "tool_use"
 
 
-ContentBlock = TextBlock | ToolUseBlock
-
-
 @dataclass
 class ThinkingBlock:
     """A thinking/reasoning block from the model response."""
@@ -35,10 +32,20 @@ class ThinkingBlock:
 
 
 @dataclass
+class RedactedThinkingBlock:
+    """An encrypted thinking block that must be preserved unchanged."""
+
+    data: str
+    type: str = "redacted_thinking"
+
+
+ContentBlock = TextBlock | ThinkingBlock | RedactedThinkingBlock | ToolUseBlock
+
+
+@dataclass
 class ProviderResponse:
     """Normalized response from an LLM provider."""
 
-    thinking: ThinkingBlock | None
     content: list[ContentBlock]
 
 

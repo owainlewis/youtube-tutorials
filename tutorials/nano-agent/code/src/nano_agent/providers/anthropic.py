@@ -6,6 +6,7 @@ from .base import (
     Provider,
     ProviderError,
     ProviderResponse,
+    RedactedThinkingBlock,
     TextBlock,
     ThinkingBlock,
     ToolUseBlock,
@@ -13,16 +14,38 @@ from .base import (
 
 
 class AnthropicProvider(Provider):
-    """Anthropic API implementation with extended thinking support."""
+    """Anthropic API implementation with configurable thinking support."""
 
     def __init__(
         self,
         model: str = "claude-sonnet-4-6",
         max_tokens: int = 16000,
+        thinking_mode: str = "adaptive",
+        thinking_budget_tokens: int | None = None,
         api_key: str | None = None,
     ) -> None:
+        if thinking_mode not in {"adaptive", "enabled", "disabled"}:
+            raise ValueError(
+                "thinking_mode must be one of: adaptive, enabled, disabled"
+            )
+        if thinking_mode == "enabled":
+            if thinking_budget_tokens is None:
+                raise ValueError(
+                    "thinking_budget_tokens is required when thinking_mode is enabled"
+                )
+            if thinking_budget_tokens < 1024:
+                raise ValueError("thinking_budget_tokens must be at least 1024")
+            if thinking_budget_tokens >= max_tokens:
+                raise ValueError("thinking_budget_tokens must be less than max_tokens")
+        elif thinking_budget_tokens is not None:
+            raise ValueError(
+                "thinking_budget_tokens is only valid when thinking_mode is enabled"
+            )
+
         self.model = model
         self.max_tokens = max_tokens
+        self.thinking_mode = thinking_mode
+        self.thinking_budget_tokens = thinking_budget_tokens
         self.client = AsyncAnthropic(api_key=api_key)
 
     async def send(
@@ -38,11 +61,15 @@ class AnthropicProvider(Provider):
                 "max_tokens": self.max_tokens,
                 "system": system_prompt,
                 "messages": messages,
-                "thinking": {
-                    "type": "enabled",
-                    "budget_tokens": self.max_tokens // 2,
-                },
             }
+
+            if self.thinking_mode == "enabled":
+                kwargs["thinking"] = {
+                    "type": "enabled",
+                    "budget_tokens": self.thinking_budget_tokens,
+                }
+            else:
+                kwargs["thinking"] = {"type": self.thinking_mode}
 
             if tools:
                 kwargs["tools"] = tools
@@ -52,12 +79,20 @@ class AnthropicProvider(Provider):
         except Exception as e:
             raise ProviderError(str(e)) from e
 
-        thinking: ThinkingBlock | None = None
-        content: list[TextBlock | ToolUseBlock] = []
+        content: list[
+            TextBlock | ThinkingBlock | RedactedThinkingBlock | ToolUseBlock
+        ] = []
 
         for block in response.content:
             if block.type == "thinking":
-                thinking = ThinkingBlock(thinking=block.thinking, signature=block.signature)
+                content.append(
+                    ThinkingBlock(
+                        thinking=block.thinking,
+                        signature=block.signature,
+                    )
+                )
+            elif block.type == "redacted_thinking":
+                content.append(RedactedThinkingBlock(data=block.data))
             elif block.type == "text":
                 content.append(TextBlock(text=block.text))
             elif block.type == "tool_use":
@@ -65,4 +100,4 @@ class AnthropicProvider(Provider):
                     ToolUseBlock(id=block.id, name=block.name, input=block.input)
                 )
 
-        return ProviderResponse(thinking=thinking, content=content)
+        return ProviderResponse(content=content)

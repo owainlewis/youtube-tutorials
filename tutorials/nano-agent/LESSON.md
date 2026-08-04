@@ -1,12 +1,12 @@
 # Nano Agent
 
-A working AI coding agent that runs in the terminal like Claude Code etc.
+Nano Agent is a small terminal coding agent written in Python. It is designed to make the core agent loop easy to inspect.
 
-This was built as part of a YouTube tutorial and is for educational purposes only.
+The runnable project uses the Anthropic API, seven tools, an explicit tool registry, approval events, and a configurable turn limit. It is a teaching project, not a production sandbox.
 
-## Run The Code
+## Run the project
 
-The runnable project lives in [code/](./code/).
+You need Python 3.12 or newer, `uv`, and an Anthropic API key.
 
 From this tutorial folder:
 
@@ -14,289 +14,227 @@ From this tutorial folder:
 cd code
 uv sync
 cp nano-agent.example.yml nano-agent.yml
-export ANTHROPIC_API_KEY="sk-..."
+export ANTHROPIC_API_KEY="sk-ant-..."
 uv run nano-agent
 ```
 
-Run the tests from the same folder:
+The agent starts a terminal prompt. Ask it to inspect a file or make a small change. It will ask before each tool call unless `skip_approval` is enabled in the config file.
+
+Run the full credential-free test suite from `code/`:
 
 ```bash
 uv run pytest
 ```
 
-## How Coding Agents Work
+Reset generated local files from `code/`:
 
-A coding agent is a loop. Strip away the frameworks and abstractions and you're left with this:
-
-1. Send a task to an LLM
-2. The LLM responds with text (done) or tool calls (keep going)
-3. Execute the tools, send results back
-4. Go to step 2
-
-```
-         ┌──────────────┐
-         │  User Task   │
-         └──────┬───────┘
-                │
-         ┌──────▼───────┐
-    ┌───►│   Call LLM    │
-    │    └──────┬───────┘
-    │           │
-    │    ┌──────▼───────┐
-    │    │  stop_reason  │
-    │    └──┬────────┬──┘
-    │       │        │
-    │  tool_use   end_turn
-    │       │        │
-    │  ┌────▼────┐   │
-    │  │Execute  │   │
-    │  │tools    │   │
-    │  └────┬────┘   │
-    │       │        │
-    └───────┘   ┌────▼────┐
-                │  Done   │
-                └─────────┘
+```bash
+rm -f nano-agent.yml nano-agent.log nano-agent.log.*
 ```
 
-The entire agent is built from three pieces: a message list, a set of tools, and a stop reason check.
+## The basic loop
 
----
+A coding agent is a model inside a loop:
 
-## The Message List
+1. Add the user's request to the message history.
+2. Send the history, system prompt, and tool schemas to the model.
+3. Execute approved tool calls and append their results.
+4. Ask the model what to do next.
+5. Stop when the model returns text without another tool call, or when the turn limit is reached.
 
-The message list is the agent's memory. Every user message, assistant response, tool call, and tool result gets appended here. The LLM sees the full history on every call.
+```mermaid
+flowchart TD
+    A[User request] --> B[Call the model]
+    B --> C{Tool calls?}
+    C -->|No| D[Return final text]
+    C -->|Yes| E{Approved?}
+    E -->|No| F[Return denial as a tool result]
+    E -->|Yes| G[Execute tool]
+    F --> H[Append tool results]
+    G --> H
+    H --> I{Turn limit reached?}
+    I -->|No| B
+    I -->|Yes| J[Stop with a limit message]
+```
 
-LLMs are stateless. If you don't pass the conversation history, the model has no memory of previous turns. So the message list grows over time. In long sessions this becomes a problem because the context window fills up with old tool results and irrelevant context, and agent performance degrades.
+The implementation is in [`code/src/nano_agent/agent.py`](./code/src/nano_agent/agent.py). It keeps conversation history, calls the provider, dispatches tools, and emits events. Terminal rendering and approval prompts live outside the loop.
 
-Production agents like Claude Code use intelligent context compression strategies. A naive approach is to keep only the latest N messages. We skip compression in nano-agent to keep things simple.
+## Message history is the agent's memory
 
-A conversation with tool use looks like this:
+The model does not remember earlier API calls. Nano Agent sends the full in-memory message history on every model call.
+
+A tool exchange has three parts:
 
 ```python
 messages = [
-    # User's task
-    {"role": "user", "content": "Create a hello.py file"},
-
-    # Assistant responds with a tool call
-    {"role": "assistant", "content": [
-        {"type": "text", "text": "I'll create that file for you."},
-        {"type": "tool_use", "id": "toolu_01ABC", "name": "write_file",
-         "input": {"file_path": "hello.py", "content": "print('hello')"}}
-    ]},
-
-    # Tool result goes back as a user message
-    {"role": "user", "content": [
-        {"type": "tool_result", "tool_use_id": "toolu_01ABC",
-         "content": "Wrote 15 bytes to hello.py"}
-    ]},
-
-    # Assistant sees the result and continues
-    {"role": "assistant", "content": [
-        {"type": "text", "text": "Done. Created hello.py."}
-    ]}
+    {"role": "user", "content": "Read hello.py"},
+    {
+        "role": "assistant",
+        "content": [
+            {
+                "type": "tool_use",
+                "id": "toolu_01ABC",
+                "name": "read_file",
+                "input": {"file_path": "hello.py"},
+            }
+        ],
+    },
+    {
+        "role": "user",
+        "content": [
+            {
+                "type": "tool_result",
+                "tool_use_id": "toolu_01ABC",
+                "content": "print('hello')",
+            }
+        ],
+    },
 ]
 ```
 
-Key rules: every `tool_result` must reference the matching `tool_use_id`. Tool results use the `user` role because they're new information from the outside world. The assistant's response can contain multiple blocks (text, tool_use, thinking).
+The `tool_result` must refer to the matching `tool_use_id`. Nano Agent does not compact or persist this history, so long sessions can eventually exceed the model's context window.
 
----
+## Seven tools in one explicit registry
 
-## Tools
-
-Tools are how the agent interacts with the world. Each tool has a JSON schema the LLM sees and a Python function that runs. The LLM never sees the implementation.
-
-We use a decorator to keep schema and implementation together:
+Each tool module exports an async function and an Anthropic-compatible schema. [`code/src/nano_agent/tools/__init__.py`](./code/src/nano_agent/tools/__init__.py) imports those values and builds a plain dictionary:
 
 ```python
-TOOL_REGISTRY: dict[str, tuple[dict, Callable]] = {}
-
-def tool(name: str, description: str, parameters: dict):
-    def decorator(fn):
-        schema = {
-            "name": name,
-            "description": description,
-            "input_schema": {
-                "type": "object",
-                "properties": parameters,
-                "required": list(parameters.keys()),
-            },
-        }
-        TOOL_REGISTRY[name] = (schema, fn)
-        return fn
-    return decorator
-```
-
-nano-agent ships with five tools:
-
-| Tool | Purpose |
-|------|---------|
-| bash | Run shell commands |
-| read_file | Read file contents |
-| write_file | Create or modify files |
-| grep | Search for patterns |
-| list_directory | Navigate the filesystem |
-
-These five are enough for real coding tasks. Claude Code has more, but the pattern is identical.
-
-Tool descriptions matter. The LLM picks tools based entirely on the description and parameter names. A vague description leads to wrong tool choices.
-
-Errors are returned as strings, not raised. The LLM needs to see what went wrong so it can try a different approach.
-
----
-
-## The Agent Loop
-
-The core loop is about 50 lines. Here's the logic:
-
-```python
-async def run(task, config, emit=None, is_subagent=False):
-    messages = [{"role": "user", "content": task}]
-    tools = get_tool_schemas(include_subagents=not is_subagent)
-
-    for turn in range(config.get("max_turns", 20)):
-        response = call_llm(messages, tools, config)
-
-        if response.stop_reason == "end_turn":
-            text = next((b.text for b in response.content if b.type == "text"), "")
-            return text
-
-        if response.stop_reason == "tool_use":
-            messages.append({"role": "assistant", "content": response.content})
-            tool_results = []
-
-            for block in response.content:
-                if block.type == "tool_use":
-                    result = await execute_tool(block.name, block.input)
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": block.id,
-                        "content": result,
-                    })
-
-            messages.append({"role": "user", "content": tool_results})
-
-    return "Max turns reached."
-```
-
-Two exit conditions: Claude returns `end_turn` (task complete), or we hit `max_turns` (safety valve). There's no planning step, no reflection step. Claude decides what to do, does it, sees the result, and decides again.
-
-The loop calls `call_llm()` from a provider module that wraps the Anthropic API. Swapping models means changing one file.
-
----
-
-## Events
-
-Without events, adding features like logging, approval gates, or UI means embedding logic directly into the loop. Events keep the loop clean.
-
-The loop emits typed events. Listeners subscribe and respond:
-
-```python
-@dataclass
-class ToolCall:
-    name: str
-    input: dict
-    tool_use_id: str
-
-@dataclass
-class ToolResult:
-    name: str
-    output: str
-    tool_use_id: str
-```
-
-The emit function is simple:
-
-```python
-def make_emit(*listeners):
-    def emit(event):
-        for listener in listeners:
-            listener(event)
-    return emit
-```
-
-Want to log every tool call? Write a listener. Want to block dangerous commands? Write a listener that raises `PermissionError`. The loop never changes.
-
-This is the same pattern Claude Code uses for hooks:
-
-| nano-agent | Claude Code |
-|-----------|------------|
-| ToolCall event | PreToolUse hook |
-| ToolResult event | PostToolUse hook |
-| listener function | hook shell command |
-| raise PermissionError | exit code 2 (deny) |
-
----
-
-## Approval Gate
-
-The approval gate is a listener that intercepts tool calls and asks the user for permission:
-
-```python
-def approval_listener(auto_approve: list[str]):
-    def listener(event):
-        if not isinstance(event, ToolCall):
-            return
-        if event.name in auto_approve:
-            return
-        answer = input(f"Allow {event.name}? [y/n] ").strip().lower()
-        if answer != "y":
-            raise PermissionError(f"User denied {event.name}")
-    return listener
-```
-
-Read-only tools (read_file, grep, list_directory) auto-approve. Write operations (bash, write_file) prompt. When denied, the loop sends "Tool call denied by user" back to Claude as a tool result. Claude sees the denial and adapts.
-
----
-
-## Sub-Agents
-
-Sub-agents run independent tasks in parallel. They're recursive calls to the same loop:
-
-```python
-async def _run_subagents(tasks, config, emit=None):
-    results = await asyncio.gather(
-        *[run(t["task"], config, emit=emit, is_subagent=True) for t in tasks],
-        return_exceptions=True,
-    )
-```
-
-The LLM decides when to delegate via a `run_subagents` tool. Sub-agents don't get access to this tool themselves, which prevents infinite recursion. Each sub-agent gets its own message list and runs independently.
-
----
-
-## Extended Thinking
-
-One API parameter makes Claude's reasoning visible:
-
-```python
-if thinking_enabled:
-    kwargs["thinking"] = {
-        "type": "enabled",
-        "budget_tokens": 10000,
+def get_tools() -> dict:
+    return {
+        "read_file": {"function": read_file, "schema": READ_FILE_SCHEMA},
+        "edit_file": {"function": edit_file, "schema": EDIT_FILE_SCHEMA},
+        "write_file": {"function": write_file, "schema": WRITE_FILE_SCHEMA},
+        "find_files": {"function": find_files, "schema": FIND_FILES_SCHEMA},
+        "list_directory": {
+            "function": list_directory,
+            "schema": LIST_DIRECTORY_SCHEMA,
+        },
+        "run_bash": {"function": run_bash, "schema": RUN_BASH_SCHEMA},
+        "spawn_agent": {"function": None, "schema": SPAWN_AGENT_SCHEMA},
     }
 ```
 
-The response includes `thinking` blocks alongside `text` and `tool_use`. The loop emits these as events and the UI renders them.
+There are no registration decorators or hidden discovery rules.
 
----
+| Tool | Purpose |
+| --- | --- |
+| `read_file` | Read a text file. |
+| `edit_file` | Replace one exact string in a file. |
+| `write_file` | Create or overwrite a file. |
+| `find_files` | Find paths with a glob pattern. |
+| `list_directory` | List files and folders. |
+| `run_bash` | Run a shell command with a configurable timeout. |
+| `spawn_agent` | Run one or more independent child tasks. |
 
-## What's Deliberately Left Out
+`spawn_agent` has no normal function because the loop handles it specially. That lets multiple child tasks run concurrently and prevents children from receiving the `spawn_agent` tool themselves.
 
-nano-agent is a teaching tool. Things we skipped:
+## The turn limit is a safety boundary
 
-- **Streaming** - synchronous calls keep the message structure visible
-- **Context compaction** - no summarizing or trimming the message list
-- **Session persistence** - each run starts fresh
-- **MCP** - no external tool servers
-- **Retry logic** - one API failure stops the agent
-- **Cost tracking** - no token counting or budget limits
+An agent can keep requesting tools without producing a final answer. Nano Agent limits the number of model calls for each user request:
 
-The core loop stays the same when you add these. They're good follow-up projects.
+```python
+for _turn in range(self.max_turns):
+    response = await self.provider.send(
+        self.history,
+        tool_schemas,
+        self.system_prompt,
+    )
+    # Process text or tool calls.
+
+return "Maximum agent turns reached."
+```
+
+The default is 20. The same limit is passed to child agents. Set it in `nano-agent.yml`:
+
+```yaml
+max_turns: 20
+```
+
+Or override it for one run:
+
+```bash
+uv run nano-agent --max-turns 8
+```
+
+This bounds model calls. Shell commands have a configurable 30-second default timeout, but they still run without a sandbox.
+
+## Events keep presentation out of the loop
+
+The loop emits small dataclass events. Listeners decide how to display or record them.
+
+| Event | Meaning |
+| --- | --- |
+| `Thinking` | The provider returned a thinking summary. |
+| `PreToolUse` | A tool is waiting for approval. |
+| `PostToolUse` | A tool finished or was denied. |
+| `Stop` | The request finished or reached its turn limit. |
+| `SubagentStart` | A child agent started. |
+| `SubagentStop` | A child agent finished. |
+
+The Rich terminal UI and rotating file logger subscribe to these events. The approval listener handles `PreToolUse` separately and returns `True` or `False`.
+
+By default, every parent tool call requires approval, including `spawn_agent`. A child agent auto-approves its own tools after the parent approves that spawn request. This is a broad permission grant, so inspect the task before approving it.
+
+## Thinking is configurable
+
+The Anthropic provider supports three modes:
+
+| Mode | Request shape | When to use it |
+| --- | --- | --- |
+| `adaptive` | `{"type": "adaptive"}` | Default for the bundled Claude Sonnet 4.6 setting. |
+| `enabled` | `{"type": "enabled", "budget_tokens": N}` | Manual extended thinking for models that support token budgets. |
+| `disabled` | `{"type": "disabled"}` | Do not request thinking blocks. |
+
+The default config is:
+
+```yaml
+model: claude-sonnet-4-6
+max_tokens: 16000
+thinking_mode: adaptive
+```
+
+Disable thinking for one run:
+
+```bash
+uv run nano-agent --thinking-mode disabled
+```
+
+Manual thinking needs a budget of at least 1,024 tokens and the budget must be smaller than `max_tokens`:
+
+```bash
+uv run nano-agent \
+  --thinking-mode enabled \
+  --thinking-budget-tokens 8000
+```
+
+Manual `budget_tokens` thinking is deprecated on Claude 4.6 and is unsupported by later models. Use the [Anthropic thinking documentation](https://platform.claude.com/docs/en/build-with-claude/extended-thinking) when changing models.
+
+Thinking modes are model-specific. Some newer always-thinking models also reject `disabled`, so change the model and thinking mode together.
+
+When the API returns thinking or redacted-thinking blocks, Nano Agent preserves every block, signature, and position in message history for later tool calls. It also emits each readable summary to the terminal and log listeners.
+
+## What this project leaves out
+
+Nano Agent keeps the teaching surface small. It does not include:
+
+- streaming responses
+- context compaction
+- saved sessions
+- retries
+- command sandboxing or resource isolation
+- token or cost tracking
+- MCP servers or plugins
+
+The approval prompt and turn limit reduce accidental autonomy, but they do not make arbitrary shell execution safe. Run the project only in a directory where you are comfortable allowing file and command access.
 
 ## References
 
-- Architecture notes: [resources/architecture.md](./resources/architecture.md)
-- Requirements: [resources/requirements.md](./resources/requirements.md)
-- Implementation tasks: [resources/tasks.md](./resources/tasks.md)
-- Original plan: [resources/plan.md](./resources/plan.md)
-- Claude settings example: [resources/claude-settings.example.json](./resources/claude-settings.example.json)
+- [Architecture](./resources/architecture.md)
+- [Requirements and boundaries](./resources/requirements.md)
+- [Example configuration](./code/nano-agent.example.yml)
+
+## Summary
+
+- The one thing to remember: a coding agent is a message history, a tool registry, and a bounded model loop.
+- The honest limitation: approvals and turn limits are controls, not a sandbox.
+- What to try next: run the tests, disable thinking, lower `max_turns`, and inspect how the provider calls change.

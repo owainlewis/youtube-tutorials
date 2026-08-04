@@ -38,6 +38,24 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Max tokens for model response (overrides config file)",
     )
+    parser.add_argument(
+        "--max-turns",
+        type=int,
+        default=None,
+        help="Maximum model calls per user request (overrides config file)",
+    )
+    parser.add_argument(
+        "--thinking-mode",
+        choices=("adaptive", "enabled", "disabled"),
+        default=None,
+        help="Thinking mode (overrides config file)",
+    )
+    parser.add_argument(
+        "--thinking-budget-tokens",
+        type=int,
+        default=None,
+        help="Token budget for manual thinking mode",
+    )
     return parser.parse_args()
 
 
@@ -53,6 +71,19 @@ def resolve_config(args: argparse.Namespace) -> AgentConfig:
 
     if args.max_tokens is not None:
         config.max_tokens = args.max_tokens
+
+    if args.max_turns is not None:
+        config.max_turns = args.max_turns
+
+    if args.thinking_mode is not None:
+        config.thinking_mode = args.thinking_mode
+        if args.thinking_mode != "enabled" and args.thinking_budget_tokens is None:
+            config.thinking_budget_tokens = None
+
+    if args.thinking_budget_tokens is not None:
+        config.thinking_budget_tokens = args.thinking_budget_tokens
+
+    config.validate()
 
     return config
 
@@ -83,14 +114,24 @@ async def run() -> None:
     args = parse_args()
     config = resolve_config(args)
 
-    provider = AnthropicProvider(model=config.model, max_tokens=config.max_tokens)
+    provider = AnthropicProvider(
+        model=config.model,
+        max_tokens=config.max_tokens,
+        thinking_mode=config.thinking_mode,
+        thinking_budget_tokens=config.thinking_budget_tokens,
+    )
     event_bus = EventBus()
 
     register_ui_listeners(event_bus)
     register_approval_listener(event_bus, config=config)
     register_logging_listeners(event_bus)
 
-    agent = Agent(provider=provider, event_bus=event_bus, tools=get_tools())
+    agent = Agent(
+        provider=provider,
+        event_bus=event_bus,
+        tools=get_tools(),
+        max_turns=config.max_turns,
+    )
 
     print_splash(config)
 
