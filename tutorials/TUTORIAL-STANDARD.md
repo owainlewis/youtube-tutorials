@@ -58,6 +58,14 @@ just new-tutorial my-topic "My Tutorial Title"
 
 This keeps new lessons consistent from the start.
 
+After scaffolding:
+
+1. Write `LESSON.md` first.
+2. Add only the code and supporting material the lesson really uses.
+3. Add the tutorial to `catalog.json` before staging it.
+4. Add a verification entry when `code/` contains runnable or static samples.
+5. Run the documented commands and `just check`.
+
 ```text
 tutorials/<slug>/
   README.md
@@ -65,7 +73,6 @@ tutorials/<slug>/
   code/
     .gitkeep
   resources/
-    .gitkeep
     prompts.md
     slides/
       .gitkeep
@@ -84,6 +91,10 @@ Keep the folders even when they are empty.
 
 Use `.gitkeep` for empty folders.
 
+Empty folders preserve the standard shape. They are not finished resources. Do
+not link `code/`, `resources/`, or `resources/slides/` from the README until
+they contain useful material.
+
 Use `code/` for anything someone runs.
 
 Use `resources/` for anything someone reads, copies, opens, or reuses.
@@ -101,6 +112,20 @@ If a tutorial includes example `AGENTS.md` or `CLAUDE.md` files, keep them under
 Reference files should support the lesson.
 
 They should not contain essential teaching that is missing from `LESSON.md`.
+
+## Catalog Metadata
+
+`tutorials/catalog.json` is the source of truth for public tutorial metadata.
+Every tracked tutorial records:
+
+- slug
+- title
+- status: `draft` or `published`
+- video URL, when one exists
+- last verified date, after its documented checks have been run
+
+Leave the video URL and last verified date empty when they are not known. Do not
+guess them. Run `just update-tutorial-catalog` after changing catalog metadata.
 
 ## Lesson Vs Reference
 
@@ -137,9 +162,9 @@ This is the supporting material for the video: <Tutorial Title>.
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Browse code samples: [code/](./code/)
-- Browse resources: [resources/](./resources/)
-- Browse slides: [resources/slides/](./resources/slides/)
+
+Add code, prompt, resource, and slide links here only when that material exists
+and is useful.
 
 ## Go Deeper
 
@@ -280,6 +305,14 @@ Put `.env.example`, `.env-sample`, or similar templates beside the code that use
 Never commit real `.env` files.
 
 Include exact commands for install, run, test, and reset where relevant.
+
+State the working directory for every command when it is not the tutorial root.
+Show the expected result for the main run and verification commands. The default
+verification path must not require credentials or deploy paid infrastructure.
+
+Add every code-bearing tutorial to `scripts/tutorial_verification.json`. Use an
+offline or static command when one exists. When a sample currently needs an API,
+database, or cloud account, mark it as integration-only with a plain reason.
 
 Keep generated files, virtualenvs, caches, and nested repos out of the tutorial folders.
 
