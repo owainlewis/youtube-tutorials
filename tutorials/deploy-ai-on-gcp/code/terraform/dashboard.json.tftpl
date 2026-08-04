@@ -92,13 +92,13 @@
         "width": 4,
         "height": 4,
         "widget": {
-          "title": "Average execution duration",
+          "title": "Running executions",
           "xyChart": {
             "dataSets": [
               {
                 "timeSeriesQuery": {
                   "timeSeriesFilter": {
-                    "filter": "resource.type=\"cloud_run_job\" AND resource.labels.job_name=\"${service_name}\" AND metric.type=\"run.googleapis.com/job/execution_count\"",
+                    "filter": "resource.type=\"cloud_run_job\" AND resource.labels.job_name=\"${service_name}\" AND metric.type=\"run.googleapis.com/job/running_executions\"",
                     "aggregation": {
                       "alignmentPeriod": "3600s",
                       "perSeriesAligner": "ALIGN_MEAN"

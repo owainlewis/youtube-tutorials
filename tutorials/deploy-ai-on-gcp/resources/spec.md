@@ -1,16 +1,18 @@
 # Spec: AI Proposal Generator
 
+> Design exercise only. The checked-in `code/proposal-generator/` directory contains the two prompt assets referenced by this spec. It does not contain the frontend, backend, database schema, or Terraform described below.
+
 A web app that turns discovery-call notes into a structured v1 proposal in the firm's voice.
 
 The AI generates the *thinking* sections (situation, scope, deliverables). Standard terms, pricing model, and firm boilerplate are configuration. Pricing and dates are filled in by the human.
 
 ## Goal
 
-Paste meeting notes, get a v1 proposal in under 30 seconds. Match the firm's voice from a stored past-proposal example. Save to Postgres for status tracking and history. Export to PDF or Markdown.
+Paste meeting notes and produce a structured first draft. Match the firm's voice from a stored past-proposal example. Save to Postgres for status tracking and history. Export to PDF or Markdown.
 
 ## What success looks like
 
-- A user pastes notes, presses Generate, and a full structured proposal renders within 30 seconds
+- A user pastes notes, presses Generate, and receives a full structured proposal within a measured latency target set during implementation
 - The output reads in the firm's voice (not generic AI tone)
 - No pricing, payment terms, or commitment dates are AI-generated
 - Past proposals are listed in a sidebar with status pills (draft / sent / accepted / declined)
@@ -22,11 +24,11 @@ Paste meeting notes, get a v1 proposal in under 30 seconds. Match the firm's voi
 - **Frontend:** Next.js App Router, TypeScript, Tailwind. Cloud Run service, public.
 - **Backend:** Python 3.12, FastAPI. Cloud Run service, private (frontend SA invokes via IAM).
 - **Database:** Cloud SQL Postgres 15.
-- **Inference:** Vertex AI, `gemini-2.5-pro`, JSON mode.
+- **Inference:** A currently supported Vertex AI Gemini model with structured JSON output, selected during implementation.
 - **Secrets:** Secret Manager (DB password, any external API keys).
 - **Region:** `europe-west1`.
 
-## Repository layout
+## Proposed Repository Layout
 
 ```
 proposal-generator/
@@ -227,7 +229,7 @@ Load voice example from app/prompts/voice_example.md
   ↓
 Build full prompt: system instructions + voice example + user input
   ↓
-Call Vertex AI gemini-2.5-pro with response_mime_type="application/json"
+Call the selected Vertex AI Gemini model with structured JSON output
   ↓
 Parse JSON. On failure: retry once with stricter instructions; if still fails, return 500.
   ↓
@@ -321,7 +323,7 @@ Sidebar (visible on `/` and `/proposals/:id`): list of recent proposals (last 20
 3. **Soft vs hard delete.** Spec says `DELETE` is soft. Confirm with the user; if hard delete is acceptable, simplify.
 4. **Markdown serialisation format.** A reasonable default is in `frontend/src/lib/markdown.ts`. Use sentence case headings, bullet lists, no front matter unless requested.
 
-## Acceptance tests
+## Proposed Acceptance Tests
 
 The build is done when:
 

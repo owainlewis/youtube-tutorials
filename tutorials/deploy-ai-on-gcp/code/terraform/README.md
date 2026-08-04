@@ -1,55 +1,86 @@
-# Reference Terraform module: scheduled AI Cloud Run Job
+# Reference Terraform Module: Scheduled AI Cloud Run Job
 
-This is the supporting material for the video: Reference Terraform module: scheduled AI Cloud Run Job.
+This module is a starting point for the checked-in email classifier sample. Review and adapt it before using it in a Google Cloud project.
 
-A drop-in module for any scheduled AI automation on GCP.
-
-## What it creates
+## What It Describes
 
 - Cloud Run Job
 - Cloud Scheduler trigger
-- Two service accounts (job + scheduler) with minimum-scope IAM
-- Required APIs enabled
-- Log-based metric counting ERROR-severity logs from the job
-- Alerting policy that fires on the metric
-- Cloud Monitoring dashboard (executions, errors, duration, recent logs), toggle with `enable_dashboard`
+- Separate job and scheduler service accounts
+- Required APIs
+- Selected IAM bindings for Vertex AI, Firestore, Secret Manager, and job invocation
+- Log-based failure metric and alerting policy
+- Optional Cloud Monitoring dashboard
 
-## Use
+## Safe Local Validation
+
+From the repository root:
+
+```bash
+terraform -chdir=tutorials/deploy-ai-on-gcp/code/terraform fmt -check -diff
+bash tutorials/deploy-ai-on-gcp/code/terraform/validate.sh
+```
+
+The script copies the module to a temporary directory, initializes the Google provider there, validates the configuration, and removes the generated files. It does not need Google Cloud credentials and does not create resources.
+
+## Before A Cloud Plan
+
+Planning and applying this module requires credentials and an active billing account. Applying it can create billable resources.
+
+- Use a dedicated test project.
+- Build and push the container image first.
+- Replace every placeholder in `terraform.tfvars`.
+- Create any referenced Secret Manager secrets and notification channels.
+- Review the project, region, image, schedule, IAM grants, and cost drivers.
+- Keep `DRY_RUN="true"` and `scheduler_paused=true` for the first deployment.
+- Use the [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator) for your region and workload.
+- Configure [budgets and alerts](https://cloud.google.com/billing/docs/how-to/budgets). Standard budget alerts do not stop general spending.
+
+## Opt-In Deployment
+
+From this directory:
 
 ```bash
 cp terraform.tfvars.example terraform.tfvars
-# edit terraform.tfvars
-
+# Edit terraform.tfvars for your test project.
 terraform init
 terraform plan
+```
+
+Read the complete plan before deciding whether to create anything. Only then:
+
+```bash
 terraform apply
 ```
 
-## Before you apply
+The example creates the scheduler in a paused state. Follow the [deployment checklist](../../resources/checklist.md) to execute one dry run manually, inspect its logs, and make a separate reviewed change before enabling writes or the schedule.
 
-- The image must already exist in Artifact Registry. Push it first with `gcloud builds submit`.
-- Notification channels must exist before referencing them. Create one in Cloud Console (Monitoring → Alerting → Notification channels) and copy its full resource ID.
-- Any secrets in `accessible_secrets` must already exist in Secret Manager.
+Remove the managed resources after a disposable test:
 
-## Conventions baked in
+```bash
+terraform destroy
+```
 
-- Service accounts named `<service>-sa` and `<service>-scheduler-sa`
-- Labels `service = <name>` and `environment = <env>` on the job
-- Region defaults to `europe-west1`
-- Job timeout 600s, max retries 1, memory 512Mi
-- Failure threshold 0 (alert on first error)
+Check the project afterwards for resources created outside this Terraform state.
 
-Override any of these via variables.
+## Defaults To Review
 
-## What this module does not do
+- Service accounts use `<service>-sa` and `<service>-scheduler-sa` names.
+- Resources use `service` and `environment` labels.
+- The default region is `europe-west1`.
+- The scheduler is paused by default.
+- The example environment sets `DRY_RUN` to `true`.
+- The job timeout, retries, CPU, and memory come from variables.
+- The alert policy fires when the log-based failure metric crosses its configured threshold.
 
-- Doesn't create a Firestore database (do that once, manually, per project)
-- Doesn't manage Secret Manager secret values (use `gcloud secrets create` separately)
-- Doesn't push container images (use Cloud Build)
-- Doesn't grant `roles/owner` or `roles/editor` to anything
+## What It Does Not Do
 
-If you need a service or feature beyond this module, fork it. Don't bloat the reference.
+- create a Firestore database
+- create Secret Manager secret values
+- build or push the container image
+- create notification channels
+- grant `roles/owner` or `roles/editor`
 
-## Go Deeper
+See the [main lesson](../../LESSON.md) for the architecture, safety model, and current primary documentation.
 
-To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).
+Licensed under the [MIT License](../../../../LICENSE).
