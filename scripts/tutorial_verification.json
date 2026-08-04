@@ -130,6 +130,16 @@
         }
       ]
     },
+    "pi-coding-agent-guide": {
+      "kind": "static",
+      "commands": [
+        {
+          "name": "Pi resource checks",
+          "cwd": "tutorials/pi-coding-agent-guide",
+          "run": ["node", "code/verify.mjs"]
+        }
+      ]
+    },
     "postgresql-only-database-ai": {
       "kind": "offline",
       "commands": [

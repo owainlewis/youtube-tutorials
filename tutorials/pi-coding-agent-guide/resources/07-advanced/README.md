@@ -1,120 +1,43 @@
-# Advanced Usage
+# Optional Advanced Pi Modes
 
-This is the supporting material for the video: Advanced Usage.
+Use interactive mode until another process needs to control Pi. The other modes
+solve integration problems, not normal terminal usage.
 
-Power-user features for when you're past the basics.
+## Print Mode
 
-## Modes
-
-Pi runs in four modes beyond the interactive terminal.
-
-### Print Mode (one-shot)
-
-Run Pi as a single command. Great for scripts:
+Run one prompt and print the final text response:
 
 ```bash
-# Simple question
-pi -p "What files are in this directory?"
-
-# Pipe input
-cat error.log | pi -p "What's wrong here?"
-
-# Use in a shell script
-SUMMARY=$(pi -p "Summarize the changes in the last 5 commits")
+pi --no-session -p "Explain the purpose of this repository. Do not edit files."
 ```
 
-### JSON Mode (structured output)
+This requires a configured provider and sends repository context to that model.
 
-Outputs all agent events as JSON lines. Useful for building your own tools:
+## JSON Mode
+
+Stream agent events as JSON lines:
 
 ```bash
-pi --mode json "Fix the bug in auth.ts"
+pi --no-session --mode json "Explain the purpose of this repository. Do not edit files."
 ```
 
-Events include: `agent_start`, `turn_start`, `message_start`, `message_update`, `message_end`, `tool_call`, `tool_result`, `turn_end`, `agent_end`.
+Consumers must handle event schema changes and errors. Do not parse the normal
+interactive interface as machine-readable output.
 
-### RPC Mode (remote control)
+## RPC Mode
 
-Control Pi from another process via stdin/stdout using JSON-RPC:
+Start a process controlled through standard input and output:
 
 ```bash
-pi --mode rpc --no-session
+pi --no-session --mode rpc
 ```
 
-Send prompts and abort messages via stdin. Receive all events via stdout. This is how you'd build a custom IDE integration or chat client.
+Use the upstream [RPC documentation](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/rpc.md)
+for the current protocol before writing a client.
 
-### SDK (embed in your apps)
+## SDK
 
-Use Pi as a library in your own TypeScript applications:
-
-```typescript
-import { createAgentSession, SessionManager, ModelRegistry } from "@mariozechner/pi-coding-agent";
-
-const session = await createAgentSession({
-  model: "claude-sonnet-4-20250514",
-  systemPrompt: "You are a helpful assistant.",
-  tools: ["read", "write", "edit", "bash"],
-});
-
-await session.send("Fix the failing tests");
-```
-
-This is how OpenClaw was built. The entire OpenClaw ecosystem runs on Pi's SDK.
-
-## Config Syncing Across Machines
-
-If you work on multiple machines, sync your Pi config via cloud storage:
-
-```json
-// settings.json
-{
-  "extensionPaths": ["~/Dropbox/pi-config/extensions"],
-  "skillPaths": ["~/Dropbox/pi-config/skills"],
-  "themePaths": ["~/Dropbox/pi-config/themes"]
-}
-```
-
-Or use a Git repo:
-
-```bash
-# Set up once
-cd ~/.pi/agent
-git init
-git remote add origin git@github.com:you/pi-config.git
-
-# Sync
-git pull  # on new machine
-git push  # after changes
-```
-
-## Ephemeral Sessions
-
-Run Pi without saving the session:
-
-```bash
-pi --no-session
-```
-
-Useful for quick questions or when working with sensitive data.
-
-## Custom CLI Flags from Extensions
-
-Extensions can register their own CLI flags:
-
-```typescript
-pi.registerFlag("strict", {
-  type: "boolean",
-  default: false,
-  description: "Enable strict review mode"
-});
-```
-
-Then use them: `pi --strict`
-
-## Self-Awareness
-
-Pi's system prompt includes information about its own architecture. If you ask Pi about its own capabilities, it reads its source from `node_modules` to give grounded answers. This is why Pi can write its own extensions. It has access to its own documentation and source code.
-
-## Go Deeper
-
-To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).
+Pi also exposes an SDK for TypeScript applications. SDK imports and session
+construction are versioned application code. Follow the upstream
+[SDK documentation](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/sdk.md)
+instead of copying a dated model ID or constructor from this tutorial.

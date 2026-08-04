@@ -1,119 +1,22 @@
-# Multi-Provider Setup
+# Optional Custom Provider Notes
 
-This is the supporting material for the video: Multi-Provider Setup.
+Use Pi's built-in provider catalog first. Configure `models.json` only for an
+endpoint that is not already covered, such as a local OpenAI-compatible server.
 
-One of Pi's strongest features: switch between LLM providers mid-session. Use Claude for complex reasoning, GPT for speed, Gemini for large context, or a local model for privacy.
+The canonical [`models.json`](../02-configuration/models.json) example contains
+a placeholder rather than a current public model name. Replace its `id` with a
+model served by your local endpoint.
 
-## Built-in Providers
+Copy the example only when you need it:
 
-These work out of the box with an API key or subscription:
-
-**API Key:**
-- Anthropic (Claude)
-- OpenAI (GPT)
-- Google Gemini
-- Mistral
-- Groq
-- Cerebras
-- xAI (Grok)
-- OpenRouter (access everything through one key)
-- Amazon Bedrock
-- Azure OpenAI
-- And 10+ more
-
-**Subscription (OAuth):**
-- Claude Pro/Max
-- ChatGPT Plus/Pro
-- GitHub Copilot
-- Gemini CLI
-
-## Switching Models
-
-During a session:
-- **Ctrl+P** / **Shift+Ctrl+P** to cycle through available models
-- **Shift+Tab** to change thinking level (off/low/medium/high/xhigh)
-
-Both changes take effect on the next message. No restart needed.
-
-## Custom Providers (models.json)
-
-Add any OpenAI-compatible API in `~/.pi/agent/models.json`:
-
-See [models.json](./models.json) for a complete example.
-
-### OpenRouter (Access Everything)
-
-One API key, dozens of models:
-
-```json
-{
-  "providers": {
-    "openrouter": {
-      "baseUrl": "https://openrouter.ai/api/v1",
-      "apiKey": "${OPENROUTER_API_KEY}",
-      "api": "openai-chat-completions",
-      "models": [
-        { "id": "anthropic/claude-sonnet-4", "contextWindow": 200000 },
-        { "id": "google/gemini-2.5-pro", "reasoning": true, "contextWindow": 1000000 },
-        { "id": "deepseek/deepseek-r1", "reasoning": true, "contextWindow": 128000 }
-      ]
-    }
-  }
-}
+```bash
+mkdir -p ~/.pi/agent
+cp /path/to/youtube-tutorials/tutorials/pi-coding-agent-guide/resources/02-configuration/models.json ~/.pi/agent/models.json
 ```
 
-### Local Models (Ollama)
+Then edit the copy before starting Pi.
 
-Run models on your own hardware:
-
-```json
-{
-  "providers": {
-    "ollama": {
-      "baseUrl": "http://localhost:11434/v1",
-      "apiKey": "ollama",
-      "api": "openai-chat-completions",
-      "models": [
-        { "id": "qwen2.5-coder:32b", "contextWindow": 32768, "maxTokens": 8192 }
-      ]
-    }
-  }
-}
-```
-
-### LM Studio
-
-```json
-{
-  "providers": {
-    "lm-studio": {
-      "baseUrl": "http://localhost:1234/v1",
-      "apiKey": "lm-studio",
-      "api": "openai-chat-completions",
-      "models": [
-        { "id": "your-model-name", "contextWindow": 32768 }
-      ]
-    }
-  }
-}
-```
-
-## Workflow: Pick the Right Model for the Task
-
-A practical approach to multi-provider usage:
-
-1. **Exploration/planning:** Use a cheap, fast model (Gemini Flash, Haiku)
-2. **Complex edits:** Switch to a frontier model (Claude Opus, Codex, Gemini Pro)
-3. **Second opinion:** Switch providers entirely. If Claude suggests an approach, ask GPT or Gemini to review it.
-4. **Large context:** Switch to Gemini Pro (1M context) for reading huge codebases
-5. **Privacy:** Switch to a local model (Ollama) for sensitive code
-
-The key insight: you don't need the most expensive model for every message. Switch based on the task.
-
-## Changes Are Live
-
-`models.json` is hot-reloaded. Edit it, save, and new models appear in the Ctrl+P cycle immediately. No restart needed.
-
-## Go Deeper
-
-To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).
+Provider compatibility is more than a base URL. Confirm the API type, model ID,
+context limit, output limit, supported roles, tool-calling format, and cost
+metadata. The upstream [custom model reference](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/models.md)
+defines the current schema.

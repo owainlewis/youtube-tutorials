@@ -1,70 +1,35 @@
-# Pricing and Providers
+# Provider and Cost Notes
 
-This is the supporting material for the video: Pricing and Providers.
+Checked on 4 August 2026 against Pi 0.83.0.
 
-Pi is free. You pay for the LLM provider you connect to.
+Pi is MIT-licensed software. The model service you connect can still charge for
+API calls, gateway usage, paid credits, or usage beyond a subscription quota.
+The exact result depends on the provider and authentication method.
 
-## How Each Provider Works
+Use these current primary sources instead of a copied price table:
 
-| Provider | How it works in Pi |
-|----------|-------------------|
-| **Anthropic Claude** | API key or extra usage (both billed per token) |
-| **OpenAI ChatGPT** | Subscription works for personal use |
-| **GitHub Copilot** | Subscription works via OAuth |
-| **Google Gemini CLI** | Subscription works via OAuth |
-| **OpenRouter** | API key (access all providers through one key) |
-| **Ollama** | Free (runs on your hardware) |
+- [Pi provider authentication](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/providers.md)
+- [Pi custom model cost metadata](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/models.md#model-configuration)
+- the usage and billing page for the provider account you authenticated
 
-### Claude: API Key or Extra Usage
+## What the Session Display Measures
 
-You can't use your Claude Pro/Max plan's included usage through Pi. If you connect your subscription, it draws from "extra usage" which is billed per token. You'll see this warning:
+Pi shows token and cache usage reported by the provider. It combines that usage
+with model metadata to calculate the cost shown in the footer and `/session`.
 
-> Warning: Anthropic subscription auth is active. Third-party usage now draws from extra usage and is billed per token, not your Claude plan limits.
+That display is useful for comparing sessions, but it is not a billing ledger:
 
-In practice, this is the same as paying per token. **Just use an API key. It's simpler.**
+- providers do not all report usage in the same way
+- subscription quota and paid extra usage are separate from a model rate
+- gateways can apply their own fees
+- custom model metadata can be absent or stale
+- a failed or retried request might appear differently in provider billing
 
-```bash
-# Get an API key at console.anthropic.com
-export ANTHROPIC_API_KEY=sk-ant-...
-```
+Use the provider dashboard when you need the amount actually charged.
 
-### OpenAI: Your Subscription Works
+## Why This File Has No Prices
 
-If you have ChatGPT Plus or Pro, you can use it with Pi via `/login`. It works for personal use. This is the easiest way to get started with Pi.
-
-```bash
-pi
-# Then inside Pi:
-/login
-# Select OpenAI and follow the browser flow
-```
-
-## API Key Pricing
-
-| Model | Input (per 1M tokens) | Output (per 1M tokens) |
-|-------|----------------------|------------------------|
-| Claude Opus 4.6 | $5.00 | $25.00 |
-| Claude Sonnet 4.6 | $3.00 | $15.00 |
-| Claude Haiku 4.5 | $1.00 | $5.00 |
-| Codex | Included with ChatGPT Plus ($20/mo) | - |
-| Gemini 2.5 Pro | $1.25 | $10.00 |
-| Gemini 2.5 Flash | $0.15 | $0.60 |
-| DeepSeek R1 | $0.55 | $2.19 |
-
-## Pi's Cost Advantage
-
-Pi's system prompt is under 1,000 tokens. Claude Code's is 10,000+. That's 9,000 fewer tokens of overhead on every API call.
-
-## The Smart Setup
-
-Pi's real pricing advantage is model switching. Use the cheapest model for each task:
-
-1. **Exploration/planning:** Cheap model (Gemini Flash, Haiku)
-2. **Complex work:** Frontier model (Sonnet, Opus, Codex)
-3. **Second opinion:** Switch providers entirely
-
-Switch mid-session with `Ctrl+P`. Claude Code can't do this.
-
-## Go Deeper
-
-To go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).
+Model names, rate cards, subscription rules, and supported login methods change
+independently. A dated table in this repository would become false while still
+looking authoritative. Follow the provider link surfaced by Pi's current
+documentation, then record pricing assumptions beside the system that uses them.
