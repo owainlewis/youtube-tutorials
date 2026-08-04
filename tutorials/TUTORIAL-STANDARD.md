@@ -314,6 +314,28 @@ Add every code-bearing tutorial to `scripts/tutorial_verification.json`. Use an
 offline or static command when one exists. When a sample currently needs an API,
 database, or cloud account, mark it as integration-only with a plain reason.
 
+### Dependency policy
+
+This teaching repository does not track dependency lockfiles. Public tutorial
+manifests use minimum compatible versions so readers can resolve supported
+current releases. Raise a minimum version when the lesson relies on a newer API.
+Avoid exact pins and upper bounds unless a demonstrated compatibility problem
+requires them.
+
+Because dependencies float, CI resolves every Python tutorial manifest on each
+change and on a weekly schedule. This resolution writes temporary requirements
+outside the tutorials and does not create lockfiles. Runnable tutorials also
+need a credential-free verification command in CI. Update a catalog
+`last_verified` date only after the documented install and verification commands
+pass. Do not commit `uv.lock`, `package-lock.json`, `pnpm-lock.yaml`,
+`yarn.lock`, `Cargo.lock`, or another generated lockfile.
+
+## License
+
+Repository tutorials and code samples are licensed under the
+[`MIT License`](../LICENSE). Keep tutorial license statements consistent with the
+root license rather than adding separate terms.
+
 Keep generated files, virtualenvs, caches, and nested repos out of the tutorial folders.
 
 Do not commit `.venv`, `__pycache__`, `.pytest_cache`, `.lsp`, `.clj-kondo`, or nested `.git` directories.

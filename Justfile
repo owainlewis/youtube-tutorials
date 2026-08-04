@@ -54,3 +54,6 @@ test-offline:
 
 test-network:
     @python3 scripts/run_offline_tests.py --kind network
+
+check-dependencies:
+    @python3 scripts/check_python_dependencies.py

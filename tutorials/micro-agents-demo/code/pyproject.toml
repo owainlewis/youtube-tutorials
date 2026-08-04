@@ -12,6 +12,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "ipykernel",
+    "pytest>=9.0.2",
+    "ipykernel>=7.1.0",
 ]

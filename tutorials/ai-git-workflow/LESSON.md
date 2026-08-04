@@ -158,4 +158,4 @@ The patterns are general. The specifics are yours.
 
 ## License
 
-MIT
+Licensed under the [MIT License](../../LICENSE).
