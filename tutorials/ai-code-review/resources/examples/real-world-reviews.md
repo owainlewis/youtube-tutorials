@@ -16,4 +16,4 @@ There is no perfect solution.
 - Generic scanners can flag textbook issues that aren't real problems in your specific codebase. That's noise.
 - A review that understands your project (via REVIEW.md, agents.md, or full codebase context) is more valuable than one that pattern-matches against generic anti-patterns.
 
-Having some form of AI code review is better than having none. Start simple, add layers when you need them.
+Treat automated review as another source of findings, not as proof that a change is safe. Start with deterministic checks and add review tools when they solve a specific gap.
