@@ -1,0 +1,96 @@
+{
+  "tutorials": {
+    "6-types-of-rag": {
+      "kind": "integration-only",
+      "reason": "The current examples require OpenAI and PostgreSQL. Issue #28 adds credential-free tests."
+    },
+    "ai-agent-memory": {
+      "kind": "offline",
+      "commands": [
+        {
+          "cwd": "tutorials/ai-agent-memory/code",
+          "run": ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]
+        }
+      ]
+    },
+    "deploy-ai-on-gcp": {
+      "kind": "static",
+      "commands": [
+        {
+          "cwd": "tutorials/deploy-ai-on-gcp/code/terraform",
+          "run": ["terraform", "fmt", "-check", "-diff"]
+        }
+      ]
+    },
+    "docker-sandboxes-for-developers": {
+      "kind": "offline",
+      "commands": [
+        {
+          "cwd": "tutorials/docker-sandboxes-for-developers/code",
+          "run": ["python", "-m", "unittest", "discover", "-v"]
+        }
+      ]
+    },
+    "herdr-agent-workflow": {
+      "kind": "static",
+      "commands": [
+        {
+          "cwd": "tutorials/herdr-agent-workflow",
+          "run": ["bash", "-n", "code/setup-herdr.sh"]
+        }
+      ]
+    },
+    "intent-based-classification": {
+      "kind": "integration-only",
+      "reason": "The current example calls OpenAI. Issue #20 adds a credential-free verification path."
+    },
+    "micro-agents-demo": {
+      "kind": "integration-only",
+      "reason": "The current example calls the YouTube API. Issue #31 adds focused offline tests."
+    },
+    "micro-neo": {
+      "kind": "offline",
+      "commands": [
+        {
+          "cwd": "tutorials/micro-neo/code",
+          "run": ["go", "test", "./..."]
+        },
+        {
+          "cwd": "tutorials/micro-neo/code",
+          "run": ["go", "vet", "./..."]
+        }
+      ]
+    },
+    "nano-agent": {
+      "kind": "network",
+      "commands": [
+        {
+          "cwd": "tutorials/nano-agent/code",
+          "env": {"PYTHONPATH": "src"},
+          "run": [
+            "uv",
+            "run",
+            "--no-project",
+            "--with",
+            "pytest",
+            "--with",
+            "anthropic",
+            "--with",
+            "pyyaml",
+            "--with",
+            "rich",
+            "pytest"
+          ]
+        }
+      ]
+    },
+    "pi-agent-workflow": {
+      "kind": "integration-only",
+      "reason": "The harness requires a configured model provider. Issue #21 adds a safe offline smoke check."
+    },
+    "postgresql-only-database-ai": {
+      "kind": "integration-only",
+      "reason": "The current app requires PostgreSQL and OpenAI. Issue #29 adds static and integration verification."
+    }
+  }
+}

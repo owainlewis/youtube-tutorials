@@ -16,10 +16,16 @@ new-tutorial slug title:
 
 check:
     @git diff --check
+    @python3 -m unittest discover -s scripts/tests
     @just audit-tutorial-catalog
     @just audit-layout
     @just audit-root-docs
     @just audit-junk
+    @just audit-markdown-links
+    @just audit-verification
+    @just audit-syntax
+    @just audit-data
+    @just audit-terraform
 
 update-tutorial-catalog:
     @python3 scripts/tutorial_catalog.py --write
@@ -28,12 +34,31 @@ audit-tutorial-catalog:
     @python3 scripts/tutorial_catalog.py
 
 audit-layout:
-    @python3 -c 'from pathlib import Path; allowed={"README.md","LESSON.md","resources","code"}; bad=[(t, allowed-{p.name for p in t.iterdir()}, {p.name for p in t.iterdir()}-allowed) for t in sorted(Path("tutorials").iterdir()) if t.is_dir() and ((allowed-{p.name for p in t.iterdir()}) or ({p.name for p in t.iterdir()}-allowed))]; [print(f"{t}\\n  missing: {sorted(m)}\\n  extra: {sorted(e)}") for t,m,e in bad]; raise SystemExit(1 if bad else 0)' && echo "Tutorial layout OK."
+    @python3 scripts/repository_checks.py layout
 
 audit-root-docs:
-    @bad="$(find tutorials -mindepth 2 -maxdepth 2 -type f -name '*.md' ! -name README.md ! -name LESSON.md | sort)"; \
-      if [ -n "$bad" ]; then echo "$bad"; echo "Move tutorial root reference docs into resources/."; exit 1; fi; \
-      echo "Tutorial root docs OK."
+    @python3 scripts/repository_checks.py root-docs
 
 audit-junk:
-    @git ls-files | rg '(^|/)(\.venv|venv|__pycache__|\.pytest_cache|\.ruff_cache|\.mypy_cache|\.DS_Store|\.git/|node_modules|dist/|build/|\.lsp|\.clj-kondo|\.ipynb_checkpoints|uv\.lock$|.*\.log$|\.env$|\.env\.local$)' && { echo "Tracked junk found."; exit 1; } || echo "No tracked junk found."
+    @python3 scripts/repository_checks.py junk
+
+audit-markdown-links:
+    @python3 scripts/repository_checks.py markdown-links
+
+audit-verification:
+    @python3 scripts/repository_checks.py verification
+
+audit-syntax:
+    @python3 scripts/repository_checks.py syntax
+
+audit-data:
+    @python3 scripts/repository_checks.py data
+
+audit-terraform:
+    @python3 scripts/repository_checks.py terraform
+
+test-offline:
+    @python3 scripts/run_offline_tests.py --kind offline
+
+test-network:
+    @python3 scripts/run_offline_tests.py --kind network

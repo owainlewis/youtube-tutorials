@@ -10,7 +10,7 @@ A coding agent in one Go file. This document is the build spec. It states what
 each part is, why it is that way, and what must stay true.
 
 For the general theory of coding agents, read
-[architecture-guide.md](../resources/architecture-guide.md). This document is
+[architecture-guide.md](../../resources/architecture-guide.md). This document is
 narrower: it is the design of *this* program.
 
 ## 1. What We Are Building
