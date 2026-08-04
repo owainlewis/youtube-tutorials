@@ -1,73 +1,52 @@
-# Requirements
+# Nano Agent Requirements and Boundaries
 
-## Overview
-Nano Agent is a terminal-based minimal coding agent built in Python using the Anthropic API. It serves as a teaching tool for developers who want to learn how to build coding agents from scratch. The codebase prioritizes simplicity and readability over feature completeness.
+## Purpose
 
-## Problem Statement
-Developers who want to build their own coding agents have no simple, readable reference implementation to learn from. Existing tools (Claude Code, Cursor, etc.) are production systems with complex internals. Nano Agent provides a minimal, understandable implementation of the core agent loop with tool use, thinking traces, and a polished terminal UI.
+Nano Agent is a readable Python reference for developers learning how terminal coding agents work. Simplicity and inspectable behavior matter more than feature coverage.
 
-## Users
-- **Primary:** Developers learning how to build coding agents from scratch. They will read the source code, run the agent, and use it as a reference for their own implementations.
+## Implemented behavior
 
-## Functional Requirements
-<requirements>
-- FR-01: The agent runs as a CLI application started from the terminal.
-- FR-02: The agent accepts natural language input from the user in a REPL-style loop.
-- FR-03: The agent maintains conversation history across turns within a single session (no persistent sessions across restarts).
-- FR-04: The agent uses the Anthropic API with extended thinking (reasoning) enabled.
-- FR-05: The agent's thinking/reasoning trace is displayed in the terminal as it processes a request.
-- FR-06: The agent can read file contents (tool: read_file).
-- FR-07: The agent can write/create files (tool: write_file).
-- FR-08: The agent can search for files by name/pattern (tool: find_files).
-- FR-09: The agent can list directory contents (tool: list_directory).
-- FR-10: The agent can execute arbitrary bash commands (tool: run_bash).
-- FR-11: The agent can spawn sub-agents to handle subtasks (tool: spawn_agent). Each sub-agent runs its own agent loop with its own conversation history.
-- FR-12: The agent can spawn multiple sub-agents concurrently. Sub-agents run in parallel using asyncio.
-- FR-13: Sub-agent results are collected and returned to the parent agent as tool results.
-- FR-14: The agent loop emits lifecycle events at each stage: `PreToolUse`, `PostToolUse`, `Stop`, `SubagentStart`, `SubagentStop`.
-- FR-15: Event listeners can be registered on the agent to respond to lifecycle events. Listeners are async callables that receive the event.
-- FR-16: A listener can control flow by returning a value - e.g., a `PreToolUse` listener returns approve/deny to gate tool execution.
-- FR-17: The terminal UI (Rich) is implemented as a set of event listeners, not called directly by the agent loop.
-- FR-18: Tool call approval is implemented as an event listener on `PreToolUse`, keeping the approval logic outside the agent loop.
-- FR-19: The agent does not use streaming; it waits for the full API response before displaying output.
-- FR-20: The provider implementation is abstracted behind an interface so that additional LLM providers can be added later without changing the agent loop.
-</requirements>
+- Run as the `nano-agent` terminal command.
+- Keep conversation history in memory for one process.
+- Use the Anthropic Messages API through a small provider interface.
+- Configure adaptive, manual, or disabled thinking.
+- Register seven tools in an explicit dictionary: `read_file`, `edit_file`, `write_file`, `find_files`, `list_directory`, `run_bash`, and `spawn_agent`.
+- Ask for approval before every parent tool call.
+- Run approved child agents concurrently when the model requests several in one response.
+- Prevent child agents from spawning more children.
+- Stop each parent or child request after a configurable number of model calls.
+- Emit typed lifecycle events for UI, approval, and logging listeners.
+- Exit cleanly on Ctrl+C or EOF.
 
-## Non-Functional Requirements
-<nfr>
-- NFR-01: The codebase is structured for readability - simple modules, clear naming, minimal abstraction. A developer unfamiliar with the project can understand the full agent loop by reading the code.
-- NFR-02: The project is installable and runnable via `uv` (no pip/poetry).
-- NFR-03: The project uses `pytest` for testing.
-- NFR-04: The agent handles API errors (rate limits, network failures) with clear error messages displayed to the user - no silent failures.
-- NFR-05: The agent exits cleanly on Ctrl+C / EOF without traceback.
-</nfr>
+## Quality requirements
 
-## Out of Scope
-- Persistent sessions or conversation history across restarts.
-- Streaming responses from the API.
-- Multi-provider support in MVP (architecture supports it, but only Anthropic is implemented).
-- File editing with diff-based patching (write_file overwrites; no surgical edits).
-- Autonomous mode (all tool calls require user approval in MVP).
-- Web search, URL fetching, or any network tools beyond the LLM API.
-- Configuration files or settings management.
-- Plugin or extension system.
+- Python 3.12 or newer.
+- One `uv` setup path.
+- Credential-free tests with a mocked Anthropic client.
+- Clear provider and tool errors instead of silent failures.
+- No UI or logging imports in the core loop.
+- Config values that affect safety or API validity are validated before the REPL starts.
 
-## Success Metrics
-- A developer can clone the repo, run `uv run nano-agent`, and interact with a working coding agent within 2 minutes.
-- A developer can read and understand the entire agent loop (prompt → API call → tool execution → response) in under 30 minutes.
-- All 6 tools (read_file, write_file, find_files, list_directory, run_bash, spawn_agent) execute correctly and display their results in the terminal.
-- The agent loop contains zero UI or approval logic - all side effects are handled by event listeners.
-- The thinking trace and tool call display are visually distinct and easy to follow in the terminal.
+## Deliberate limits
 
-## Assumptions
-- [ASSUMED] Python 3.12+ is the minimum supported version (per project standards).
-- [ASSUMED] The default Anthropic model is Claude Sonnet (latest) - configurable via environment variable or CLI flag.
-- [ASSUMED] The Anthropic API key is provided via the `ANTHROPIC_API_KEY` environment variable.
-- [ASSUMED] Tool call approval is a simple y/n prompt per tool call (no batch approval or "approve all" mode).
-- [ASSUMED] No authentication, permissions, or sandboxing for bash command execution.
-- [ASSUMED] The Rich library is used for terminal UI rendering.
+- No saved sessions.
+- No streaming.
+- No context compaction.
+- No retry policy.
+- No command sandbox or resource isolation.
+- No network isolation.
+- No diff-based patch tool.
+- No model cost tracking.
+- No plugins or MCP support.
 
-## Open Questions
-- [TBD] Should tool results (e.g., file contents, command output) be truncated after a certain length to keep the terminal readable? - Affects UX for large files/outputs. (YES)
-- [TBD] Should the agent have a system prompt that defines its persona and capabilities, or is the tool list sufficient? - Affects response quality. (YES we need a basic agent system prompt)
-- [TBD] What is the CLI entry point name? (`nano-agent`, `na`, something else?) - Affects packaging and pyproject.toml config.
+This project is educational. A turn limit bounds model calls but does not bound what an approved shell command can do. A parent approval for `spawn_agent` also authorizes that child to use its normal tools without further prompts.
+
+## Verification
+
+From [`../code/`](../code/):
+
+```bash
+uv run pytest
+```
+
+The tests cover all implemented requirements without an API key.

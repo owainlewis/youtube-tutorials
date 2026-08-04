@@ -6,3 +6,8 @@ __pycache__/
 dist/
 build/
 .env
+nano-agent.yml
+nano-agent.yaml
+.nano-agent.yml
+.nano-agent.yaml
+nano-agent.log.*

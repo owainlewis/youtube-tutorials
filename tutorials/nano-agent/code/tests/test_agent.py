@@ -2,9 +2,18 @@
 
 import asyncio
 
-from nano_agent.agent import Agent
+import pytest
+
+from nano_agent.agent import Agent, MAX_TURNS_MESSAGE
 from nano_agent.events import EventBus, PostToolUse, Stop, SubagentStart, SubagentStop, Thinking
-from nano_agent.providers.base import Provider, ProviderResponse, TextBlock, ThinkingBlock, ToolUseBlock
+from nano_agent.providers.base import (
+    Provider,
+    ProviderResponse,
+    RedactedThinkingBlock,
+    TextBlock,
+    ThinkingBlock,
+    ToolUseBlock,
+)
 
 
 class MockProvider(Provider):
@@ -25,7 +34,7 @@ def test_text_response():
         events.append(event)
 
     provider = MockProvider([
-        ProviderResponse(thinking=None, content=[TextBlock(text="Hello there!")])
+        ProviderResponse(content=[TextBlock(text="Hello there!")])
     ])
 
     bus = EventBus()
@@ -59,10 +68,10 @@ def test_tool_call_approved():
     }
 
     provider = MockProvider([
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             ToolUseBlock(id="t1", name="echo", input={"message": "test"})
         ]),
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             TextBlock(text="Done!")
         ]),
     ])
@@ -90,10 +99,10 @@ def test_tool_call_denied():
     }
 
     provider = MockProvider([
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             ToolUseBlock(id="t1", name="dangerous", input={})
         ]),
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             TextBlock(text="OK, I won't do that.")
         ]),
     ])
@@ -115,7 +124,10 @@ def test_thinking_emitted():
         thinking_events.append(event)
 
     provider = MockProvider([
-        ProviderResponse(thinking=ThinkingBlock(thinking="Let me consider...", signature="sig1"), content=[TextBlock(text="42")])
+        ProviderResponse(content=[
+            ThinkingBlock(thinking="Let me consider...", signature="sig1"),
+            TextBlock(text="42"),
+        ])
     ])
 
     bus = EventBus()
@@ -132,7 +144,10 @@ def test_thinking_emitted():
 def test_thinking_in_history():
     """Thinking blocks are echoed in conversation history."""
     provider = MockProvider([
-        ProviderResponse(thinking=ThinkingBlock(thinking="hmm", signature="sig2"), content=[TextBlock(text="yes")])
+        ProviderResponse(content=[
+            ThinkingBlock(thinking="hmm", signature="sig2"),
+            TextBlock(text="yes"),
+        ])
     ])
 
     bus = EventBus()
@@ -146,11 +161,53 @@ def test_thinking_in_history():
     assert assistant_msg["content"][1]["type"] == "text"
 
 
+def test_interleaved_thinking_order_is_preserved_in_history():
+    async def echo(message: str) -> str:
+        return message
+
+    tools = {
+        "echo": {
+            "function": echo,
+            "schema": {"name": "echo", "description": "Echo", "input_schema": {
+                "type": "object",
+                "properties": {"message": {"type": "string"}},
+                "required": ["message"],
+            }},
+        }
+    }
+    provider = MockProvider([
+        ProviderResponse(content=[
+            ThinkingBlock(thinking="first", signature="sig1"),
+            ToolUseBlock(id="t1", name="echo", input={"message": "hello"}),
+            RedactedThinkingBlock(data="encrypted"),
+            ThinkingBlock(thinking="second", signature="sig2"),
+            TextBlock(text="Checking the result."),
+        ]),
+        ProviderResponse(content=[TextBlock(text="Done")]),
+    ])
+
+    agent = Agent(provider=provider, event_bus=EventBus(), tools=tools)
+    result = asyncio.run(agent.run("test"))
+
+    assert result == "Done"
+    assistant_content = agent.history[1]["content"]
+    assert [block["type"] for block in assistant_content] == [
+        "thinking",
+        "tool_use",
+        "redacted_thinking",
+        "thinking",
+        "text",
+    ]
+    assert assistant_content[0]["signature"] == "sig1"
+    assert assistant_content[2]["data"] == "encrypted"
+    assert assistant_content[3]["signature"] == "sig2"
+
+
 def test_conversation_history():
     """Conversation history accumulates across multiple run() calls."""
     provider = MockProvider([
-        ProviderResponse(thinking=None, content=[TextBlock(text="First")]),
-        ProviderResponse(thinking=None, content=[TextBlock(text="Second")]),
+        ProviderResponse(content=[TextBlock(text="First")]),
+        ProviderResponse(content=[TextBlock(text="Second")]),
     ])
 
     bus = EventBus()
@@ -196,15 +253,15 @@ def test_multi_step_tool_chain():
 
     provider = MockProvider([
         # First: call tool_a
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             ToolUseBlock(id="t1", name="tool_a", input={"x": "hello"})
         ]),
         # Second: call tool_b based on tool_a's result
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             ToolUseBlock(id="t2", name="tool_b", input={"y": "world"})
         ]),
         # Third: final text response
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             TextBlock(text="All done with both tools!")
         ]),
     ])
@@ -239,10 +296,10 @@ def test_post_tool_use_events():
     }
 
     provider = MockProvider([
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             ToolUseBlock(id="t1", name="echo", input={"msg": "test"})
         ]),
-        ProviderResponse(thinking=None, content=[TextBlock(text="done")]),
+        ProviderResponse(content=[TextBlock(text="done")]),
     ])
 
     bus = EventBus()
@@ -259,10 +316,10 @@ def test_post_tool_use_events():
 def test_unknown_tool():
     """Agent handles unknown tool names gracefully."""
     provider = MockProvider([
-        ProviderResponse(thinking=None, content=[
+        ProviderResponse(content=[
             ToolUseBlock(id="t1", name="nonexistent", input={})
         ]),
-        ProviderResponse(thinking=None, content=[TextBlock(text="OK")]),
+        ProviderResponse(content=[TextBlock(text="OK")]),
     ])
 
     bus = EventBus()
@@ -270,6 +327,52 @@ def test_unknown_tool():
     result = asyncio.run(agent.run("test"))
 
     assert result == "OK"
+
+
+def test_max_turns_stops_tool_loop():
+    """Agent stops after the configured number of model calls."""
+    stop_events = []
+
+    async def collect_stop(event):
+        stop_events.append(event)
+
+    async def echo(message: str) -> str:
+        return message
+
+    tools = {
+        "echo": {
+            "function": echo,
+            "schema": {"name": "echo", "description": "Echo", "input_schema": {
+                "type": "object",
+                "properties": {"message": {"type": "string"}},
+                "required": ["message"],
+            }},
+        }
+    }
+    provider = MockProvider([
+        ProviderResponse(content=[
+            ToolUseBlock(id="t1", name="echo", input={"message": "one"})
+        ]),
+        ProviderResponse(content=[
+            ToolUseBlock(id="t2", name="echo", input={"message": "two"})
+        ]),
+    ])
+
+    bus = EventBus()
+    bus.on(Stop, collect_stop)
+    agent = Agent(provider=provider, event_bus=bus, tools=tools, max_turns=2)
+    result = asyncio.run(agent.run("keep going"))
+
+    expected = MAX_TURNS_MESSAGE.format(max_turns=2)
+    assert result == expected
+    assert agent.history[-1] == {"role": "assistant", "content": expected}
+    assert [event.text for event in stop_events] == [expected]
+
+
+def test_max_turns_must_be_positive():
+    provider = MockProvider([])
+    with pytest.raises(ValueError, match="max_turns must be at least 1"):
+        Agent(provider=provider, event_bus=EventBus(), max_turns=0)
 
 
 def test_spawn_agent():
@@ -294,14 +397,12 @@ def test_spawn_agent():
             # Sub-agent calls (task text as user input)
             if user_msg in ("task A", "task B"):
                 return ProviderResponse(
-                    thinking=None,
                     content=[TextBlock(text=f"Result for {user_msg}")],
                 )
 
             # First parent call: return two spawn_agent tool uses
             if call_count["n"] == 1:
                 return ProviderResponse(
-                    thinking=None,
                     content=[
                         ToolUseBlock(id="s1", name="spawn_agent", input={"task": "task A"}),
                         ToolUseBlock(id="s2", name="spawn_agent", input={"task": "task B"}),
@@ -310,7 +411,6 @@ def test_spawn_agent():
 
             # Second parent call: return final text
             return ProviderResponse(
-                thinking=None,
                 content=[TextBlock(text="All done!")],
             )
 
@@ -354,21 +454,18 @@ def test_spawn_agent_no_recursion():
                 # Record what tools the sub-agent has
                 sub_tool_names.extend([t["name"] for t in tools])
                 return ProviderResponse(
-                    thinking=None,
                     content=[TextBlock(text="sub done")],
                 )
 
             # Parent: spawn one sub-agent, then finish
             if not any(m.get("role") == "assistant" for m in messages):
                 return ProviderResponse(
-                    thinking=None,
                     content=[
                         ToolUseBlock(id="s1", name="spawn_agent", input={"task": "sub task"}),
                     ],
                 )
 
             return ProviderResponse(
-                thinking=None,
                 content=[TextBlock(text="parent done")],
             )
 
@@ -395,3 +492,41 @@ def test_spawn_agent_no_recursion():
 
     assert "spawn_agent" not in sub_tool_names
     assert "read_file" in sub_tool_names
+
+
+def test_spawn_agent_requires_parent_approval():
+    """A denied spawn request does not start a sub-agent."""
+    starts = []
+
+    async def deny(_event):
+        return False
+
+    async def collect_start(event):
+        starts.append(event)
+
+    provider = MockProvider([
+        ProviderResponse(content=[
+            ToolUseBlock(id="s1", name="spawn_agent", input={"task": "sub task"})
+        ]),
+        ProviderResponse(content=[TextBlock(text="Stayed local")]),
+    ])
+    tools = {
+        "spawn_agent": {
+            "function": None,
+            "schema": {"name": "spawn_agent", "description": "Spawn", "input_schema": {
+                "type": "object",
+                "properties": {"task": {"type": "string"}},
+                "required": ["task"],
+            }},
+        }
+    }
+
+    bus = EventBus()
+    bus.on_approval(deny)
+    bus.on(SubagentStart, collect_start)
+    agent = Agent(provider=provider, event_bus=bus, tools=tools)
+    result = asyncio.run(agent.run("delegate"))
+
+    assert result == "Stayed local"
+    assert starts == []
+    assert agent.history[2]["content"][0]["content"] == "Tool call denied by user"

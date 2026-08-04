@@ -3,7 +3,14 @@
 
 model: claude-sonnet-4-6
 max_tokens: 16000
+max_turns: 20
+
+# adaptive: let current Claude models decide when and how much to think
+# enabled: use a manual budget on older supported models
+# disabled: do not request thinking blocks
+thinking_mode: adaptive
+# thinking_budget_tokens: 8000
 
 # Skip tool approval prompts (default: false)
 # When true, all tool calls are auto-approved without asking.
-skip_approval: true
+skip_approval: false
