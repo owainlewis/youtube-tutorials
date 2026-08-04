@@ -17,11 +17,11 @@ The YouTube Agent is a personal AI assistant for YouTube content research and pu
 
 Specifically:
 
-1. **Research** — Find high-performing content and understand why it works
-2. **Analyze** — Identify outlier videos that beat channel averages
-3. **Learn** — Extract and study transcripts from successful creators
-4. **Create** — Write scripts and titles following proven patterns
-5. **Publish** — Upload videos with proper metadata
+1. **Research:** Find relevant content and inspect its public performance data
+2. **Analyze:** Identify videos that differ from a channel's average
+3. **Learn:** Extract available transcripts for closer study
+4. **Create:** Draft scripts and titles using the supplied guidance
+5. **Publish:** Upload videos with reviewed metadata
 
 ---
 
@@ -32,7 +32,7 @@ Specifically:
 Search YouTube for videos matching a query. Useful for topic research and competitive analysis.
 
 ```bash
-uv run tools/youtube.py search_videos "QUERY" --max 25 --json
+.venv/bin/python tools/youtube.py search_videos "QUERY" --max 25 --json
 ```
 
 | Option | Description | Default |
@@ -60,7 +60,7 @@ uv run tools/youtube.py search_videos "QUERY" --max 25 --json
 Fetch videos from a specific channel with performance metrics and outlier detection.
 
 ```bash
-uv run tools/youtube.py get_channel_videos @HANDLE --days 30 --json
+.venv/bin/python tools/youtube.py get_channel_videos @HANDLE --days 30 --json
 ```
 
 | Option | Description | Default |
@@ -74,10 +74,10 @@ uv run tools/youtube.py get_channel_videos @HANDLE --days 30 --json
 - Average views and standard deviation
 - Videos sorted by outlier score
 - Each video includes:
-  - `outlier_score` — Standard deviations above/below mean
-  - `is_outlier` — True if score > 2.0
-  - `views_per_day` — Velocity metric
-  - `engagement_rate` — (likes + comments) / views
+  - `outlier_score`: Standard deviations above or below the mean
+  - `is_outlier`: True if score > 2.0
+  - `views_per_day`: Views divided by days since publication
+  - `engagement_rate`: (likes + comments) / views
 
 **Outlier Analysis:**
 
@@ -98,7 +98,7 @@ Videos with `outlier_score > 2.0` performed significantly above channel average.
 Download the transcript/captions from a video for analysis.
 
 ```bash
-uv run tools/youtube.py get_transcript VIDEO_ID
+.venv/bin/python tools/youtube.py get_transcript VIDEO_ID
 ```
 
 | Option | Description | Default |
@@ -124,7 +124,7 @@ uv run tools/youtube.py get_transcript VIDEO_ID
 Upload a video to YouTube with metadata.
 
 ```bash
-uv run tools/youtube.py upload video.mp4 --metadata metadata.md
+.venv/bin/python tools/youtube.py upload video.mp4 --metadata metadata.md
 ```
 
 | Option | Description | Default |
@@ -162,12 +162,12 @@ Supports multiple lines.
 
 Understand the landscape before creating content.
 
-1. **Search broadly** — `search_videos "AI agents" --max 25`
-2. **Identify top channels** — Note which channels appear most
-3. **Analyze those channels** — `get_channel_videos @channel --days 90`
-4. **Find outliers** — Videos with `outlier_score > 2.0`
-5. **Study transcripts** — `get_transcript VIDEO_ID` for top performers
-6. **Save findings** — Write to `workspace/research/<topic>.md`
+1. **Search broadly:** `search_videos "AI agents" --max 25`
+2. **Identify repeated channels:** Note which channels appear most
+3. **Analyze those channels:** `get_channel_videos @channel --days 90`
+4. **Find outliers:** Inspect videos with `outlier_score > 2.0`
+5. **Study transcripts:** `get_transcript VIDEO_ID` for selected videos
+6. **Save findings:** Write to `workspace/research/<topic>.md`
 
 **Output:** Research document with:
 - Top performing videos and why
@@ -181,15 +181,15 @@ Understand the landscape before creating content.
 
 Create a video script following proven patterns.
 
-1. **Read the guide** — `context/script-guide.md`
-2. **Review research** — Check `workspace/research/` for topic insights
-3. **Create project folder** — `workspace/projects/<name>/`
-4. **Write script** — Save as `script.md`
+1. **Read the guide:** `context/script-guide.md`
+2. **Review research:** Check `workspace/research/` for topic insights
+3. **Create project folder:** `workspace/projects/<name>/`
+4. **Write script:** Save as `script.md`
 
 **Script structure:**
-- Hook (0:00-0:45) — Why watch?
-- Content — Deliver value
-- CTA — What's next?
+- Hook (0:00-0:45): Why watch?
+- Content: Deliver value
+- CTA: What's next?
 
 **Style:** Conversational, short sentences, no filler words.
 
@@ -199,11 +199,11 @@ Create a video script following proven patterns.
 
 Generate title options following patterns that work.
 
-1. **Read the guide** — `context/title-guide.md`
-2. **Generate 10 options** — Mix different patterns
-3. **Evaluate each** — Curiosity + clarity + searchability
-4. **Pick top 3** — Check length (50-60 chars)
-5. **Save to project** — Add to `metadata.md`
+1. **Read the guide:** `context/title-guide.md`
+2. **Generate options:** Mix different patterns
+3. **Evaluate each:** Check clarity and searchability
+4. **Pick a shortlist:** Check how each title renders
+5. **Save to project:** Add to `metadata.md`
 
 **Working patterns:**
 - How to [Goal] with [Method]
@@ -217,17 +217,17 @@ Generate title options following patterns that work.
 
 Publish with proper metadata.
 
-1. **Copy template** — `context/templates/metadata.md`
+1. **Copy template:** `context/templates/metadata.md`
 2. **Fill in fields:**
    - Title (50-60 chars)
    - Description (first 150 chars critical)
    - Tags (5-15 relevant)
    - Timestamps
-3. **Save to project** — `workspace/projects/<name>/metadata.md`
-4. **User reviews** — Get approval before upload
-5. **Upload as unlisted** — `upload video.mp4 --metadata metadata.md`
-6. **Verify** — Check the video on YouTube
-7. **Make public** — Change privacy setting when ready
+3. **Save to project:** `workspace/projects/<name>/metadata.md`
+4. **User reviews:** Get approval before upload
+5. **Upload as unlisted:** `upload video.mp4 --metadata metadata.md`
+6. **Verify:** Check the video on YouTube
+7. **Make public:** Change privacy only when ready
 
 ---
 
@@ -302,7 +302,7 @@ outlier_score = (video_views - channel_avg) / standard_deviation
 
 | Score | Interpretation |
 |-------|----------------|
-| > 2.0 | Significant outlier — study this |
+| > 2.0 | Flagged by this demo's outlier heuristic |
 | 1.0 - 2.0 | Above average |
 | -1.0 - 1.0 | Normal performance |
 | < -1.0 | Below average |
@@ -336,15 +336,9 @@ Agent: I'll search for AI agent videos and analyze top channels.
 [Runs: get_channel_videos @XXX --days 90 --json]
 [Runs: get_channel_videos @XXX --days 90 --json]
 
-Found 3 outlier videos worth studying:
-1. "Build AI Agents with Just Two Files" — 4.2x average
-2. "Why LangChain Is Overkill" — 3.1x average
-3. "The Simplest Agent Framework" — 2.8x average
+The response includes video titles, URLs, view counts, and outlier scores.
 
-Common patterns:
-- Contrarian takes on frameworks
-- "Simple" and "minimal" in titles
-- 10-15 minute length
+The agent selects a few videos for closer inspection and records why each one is relevant.
 
 [Saves to: workspace/research/ai-agents.md]
 ```
@@ -353,7 +347,7 @@ Common patterns:
 
 ## Limitations
 
-- **API Quotas** — YouTube Data API has daily limits (10,000 units)
-- **Transcript Availability** — Some videos have captions disabled
-- **Upload Verification** — Must be verified channel for custom thumbnails
-- **Rate Limits** — Don't hammer the API; batch operations when possible
+- **API quotas:** YouTube Data API requests consume a configured project's quota
+- **Transcript availability:** Some videos do not expose captions
+- **Upload permissions:** OAuth credentials and channel permissions affect available actions
+- **Remote failures:** Network errors and service responses still need handling

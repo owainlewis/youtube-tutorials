@@ -5,12 +5,12 @@
 
 ---
 
-## Two Files. That's It.
+## Minimum Shape
 
 A Micro Agent is a folder with two things:
 
-1. **AGENTS.md** — Instructions for the agent
-2. **tools/** — Scripts it can run
+1. **AGENTS.md:** Instructions for the agent
+2. **tools/:** Scripts it can run
 
 ```
 my-agent/
@@ -20,7 +20,7 @@ my-agent/
 
 Point a terminal agent at the folder. Done.
 
-No framework. No config. No orchestration layer. The markdown is the agent definition. The scripts are the capabilities.
+The pattern does not require an agent framework or a separate orchestration service. The Markdown defines the local instructions. The scripts provide the capabilities. Each script may still need its own configuration and dependencies.
 
 ---
 
@@ -89,19 +89,19 @@ If it:
 
 It's a tool. No wrappers. No schemas. No function registration. Just executables.
 
-50 years of Unix tools work out of the box.
+Existing command-line tools can use the same interface when the terminal agent is allowed to run them.
 
 ---
 
 ## Why This Works
 
-**Zero context drift.** Long conversations degrade. Files don't. The agent reads `AGENTS.md` fresh every time.
+**Reviewable instructions.** The important local instructions live in a file that a developer can inspect and change.
 
-**Swap models instantly.** Claude today, GPT tomorrow, Ollama next week. The folder works with any agent that can read files and run commands.
+**Loose coupling.** The files are not tied to one model API, but each terminal agent may interpret instructions and permissions differently.
 
-**Debug in English.** When it breaks, read the markdown. Fix the instructions. No stack traces.
+**Inspect the boundary.** Instruction problems can be reviewed in Markdown. Tool failures still need normal logs, errors, and debugging.
 
-**Async by default.** Stop for a week. The workspace is exactly where you left it.
+**Durable workspace.** Files written to the workspace remain available between agent sessions unless another process changes them.
 
 ---
 
@@ -149,8 +149,8 @@ What it does.
 
 Save files to `workspace/`:
 
-- `workspace/output/` — Generated files
-- `workspace/data/` — Downloaded data
+- `workspace/output/`: Generated files
+- `workspace/data/`: Downloaded data
 
 ## Workflows
 
@@ -209,19 +209,19 @@ You can use the following tools:
 
 Search YouTube.
 
-    uv run tools/youtube.py search_videos "QUERY" --max 25 --json
+    .venv/bin/python tools/youtube.py search_videos "QUERY" --max 25 --json
 
 ### get_channel_videos
 
 Get channel videos with outlier analysis.
 
-    uv run tools/youtube.py get_channel_videos @HANDLE --days 30 --json
+    .venv/bin/python tools/youtube.py get_channel_videos @HANDLE --days 30 --json
 
 ### get_transcript
 
 Get video transcript.
 
-    uv run tools/youtube.py get_transcript VIDEO_ID
+    .venv/bin/python tools/youtube.py get_transcript VIDEO_ID
 
 ### download_audio
 
@@ -231,9 +231,9 @@ Download audio from a video.
 
 ## Workspace
 
-- `workspace/projects/` — Video projects
-- `workspace/research/` — Analysis
-- `workspace/transcripts/` — Transcripts
+- `workspace/projects/`: Video projects
+- `workspace/research/`: Analysis
+- `workspace/transcripts/`: Transcripts
 
 ## Workflows
 
@@ -270,9 +270,9 @@ For personal use, these are features. You stay in the loop. The overhead is cont
 
 Two files minimum:
 
-- **AGENTS.md** — Who the agent is, what tools it has
-- **tools/** — Any executable
+- **AGENTS.md**: Who the agent is and what tools it has
+- **tools/**: Executable commands the terminal agent may run
 
-Any terminal agent can run it. Any model can power it. Any script can be a tool.
+The pattern can be adapted to terminal agents that can read the instructions and run the declared commands. Compatibility and permission behavior still depend on the agent.
 
-The harness is general. The value is in the folder.
+The value is a small, inspectable interface between instructions and tools.
