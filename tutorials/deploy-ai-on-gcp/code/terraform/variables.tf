@@ -15,7 +15,7 @@ variable "service_name" {
 }
 
 variable "environment" {
-  description = "prod / staging / dev"
+  description = "Deployment environment label such as test, dev, staging, or prod"
   type        = string
   default     = "prod"
 }
@@ -28,6 +28,12 @@ variable "image" {
 variable "schedule" {
   description = "Cron expression for Cloud Scheduler (e.g. '0 * * * *' for hourly)"
   type        = string
+}
+
+variable "scheduler_paused" {
+  description = "Whether the scheduler is paused. Keep true until a manual dry run is verified."
+  type        = bool
+  default     = true
 }
 
 variable "timezone" {
@@ -49,7 +55,7 @@ variable "memory" {
 }
 
 variable "timeout_seconds" {
-  description = "Job execution timeout in seconds (max 86400 / 24h)"
+  description = "Job task timeout in seconds (Cloud Run Jobs currently allows up to 604800 / 168h)"
   type        = number
   default     = 600
 }

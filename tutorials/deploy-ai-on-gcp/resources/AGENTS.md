@@ -4,9 +4,9 @@ Reference for Codex working in this repo.
 
 ## Repo
 
-This repo is the engineering reference behind the [How I Deploy Real AI Systems With OpenAI Codex](#) video. It contains the architecture I use for production AI work on Google Cloud, plus two standalone example apps (email-classifier, proposal-generator) and a reference Terraform module.
+This tutorial contains a runnable email-classifier sample, a reference Terraform module, architecture notes, a proposal-generator design spec, and two proposal prompt assets.
 
-The video's primary demo (a customer-support RAG application) lives in a separate repo, linked in the video description.
+The proposal generator and customer-support RAG application are not included. Do not describe either one as a checked-in application.
 
 ## Default stack for AI apps on GCP
 
@@ -30,7 +30,7 @@ The video's primary demo (a customer-support RAG application) lives in a separat
 ### Inference
 
 - All production inference goes through Vertex AI. Never call Anthropic or OpenAI SDKs directly from production code.
-- Reason: Vertex has a published SLA tied to the GCP agreement. Direct APIs (standard tier) have no contractual uptime commitment. Inference traffic also stays inside the project's IAM and VPC, with one bill and one observability stack.
+- Reason: Vertex supports Google Cloud IAM-based authentication and keeps model usage in the project's Google Cloud billing and observability surfaces. Network boundaries and SLA terms depend on the project's configuration and contract, so review them separately.
 - Default model: Gemini Flash. Step up to Pro only when measurably needed. Claude is also available via Vertex if reasoning quality requires it.
 - Acceptable exception: day-zero access to a model not yet on Vertex. Rare, time-limited, document the reason.
 - Set explicit `max_output_tokens` on every call.
@@ -81,22 +81,22 @@ The video's primary demo (a customer-support RAG application) lives in a separat
 
 ### Testing
 
-- Local: pytest, run with `DRY_RUN=true` against a test inbox.
+- Local: run the credential-free `unittest` suite, then use `DRY_RUN=true` against a test inbox.
 - Pre-deploy: run once with `LIMIT=5` to verify auth and connectivity.
 - Post-deploy: tail logs for the first scheduled run.
 
 ## Out of scope (for the agent)
 
 - Don't suggest GKE, Compute Engine, or App Engine.
-- Don't suggest serverless functions for jobs that need >9 minutes.
+- Don't suggest serverless functions without checking the current product limits and workload requirements.
 - Don't draft Kubernetes YAML.
 - Don't recommend third-party SaaS over GCP-native services without prompting.
 
 ## Starting a new feature
 
 1. Read this file in full.
-2. Read the relevant deployment config (Cloud Build YAML or, for the email-classifier example, Terraform under `terraform/`).
+2. Read the Terraform under `code/terraform/` for the email-classifier example.
 3. Ask clarifying questions about scope before writing code.
-4. Write a spec under `docs/<feature>/spec.md` if the technical approach isn't obvious.
+4. Write a spec under `resources/<feature>-spec.md` if the technical approach isn't obvious.
 5. Implement, then update the deployment config.
 6. Add or update monitoring before declaring done.

@@ -2,5 +2,4 @@ google-cloud-firestore>=2.16.0
 google-cloud-secret-manager>=2.20.0
 google-api-python-client>=2.130.0
 google-auth>=2.30.0
-google-auth-oauthlib>=1.2.0
-google-cloud-aiplatform>=1.60.0
+google-genai>=1.40.0

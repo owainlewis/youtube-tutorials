@@ -25,10 +25,12 @@ resource "google_project_service" "required_apis" {
   for_each = toset([
     "run.googleapis.com",
     "cloudbuild.googleapis.com",
+    "artifactregistry.googleapis.com",
     "cloudscheduler.googleapis.com",
     "secretmanager.googleapis.com",
     "aiplatform.googleapis.com",
     "firestore.googleapis.com",
+    "gmail.googleapis.com",
     "logging.googleapis.com",
     "monitoring.googleapis.com",
   ])
@@ -136,6 +138,7 @@ resource "google_cloud_scheduler_job" "trigger" {
   region           = var.region
   project          = var.project_id
   attempt_deadline = "320s"
+  paused           = var.scheduler_paused
 
   http_target {
     http_method = "POST"

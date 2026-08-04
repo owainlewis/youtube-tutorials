@@ -3,15 +3,18 @@
 
 project_id   = "your-project-id"
 service_name = "email-classifier"
+environment  = "test"
 image        = "europe-west1-docker.pkg.dev/your-project-id/email-classifier/email-classifier:latest"
 schedule     = "0 * * * *"  # hourly
+scheduler_paused = true       # keep paused until a manual dry run succeeds
 
 environment_variables = {
   GCP_PROJECT        = "your-project-id"
   GCP_REGION         = "europe-west1"
   GMAIL_OAUTH_SECRET = "gmail-oauth-token"
-  GEMINI_MODEL       = "gemini-2.0-flash-001"
-  LIMIT              = "50"
+  GEMINI_MODEL       = "replace-with-current-model-id"
+  DRY_RUN            = "true"
+  LIMIT              = "5"
 }
 
 accessible_secrets = ["gmail-oauth-token"]

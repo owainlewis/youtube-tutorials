@@ -1,197 +1,226 @@
 # Deploy AI Systems on Google Cloud With OpenAI Codex
 
-> Companion repository for the YouTube video [How I Deploy Real AI Systems With OpenAI Codex](#).
+## Opening Script
 
-This is the engineering reference behind the video. It mirrors the video's flow (intro, deployment options, why agents matter, the demo architecture, and the operating model) with the depth and references you'd want when you actually go to ship something.
+This is a practical guide to deploying AI systems on Google Cloud with help from a coding agent. Cloud deployment gets confusing because the code is only one part of the job. You also need identity, secrets, scheduling, monitoring, billing, and a safe way to repeat changes. In this lesson, I will show you a small Google Cloud architecture, where an agent helps, what you still need to review, and how to validate the included Terraform without creating cloud resources. All of the checked-in examples and references are linked in this repository. So, let's get into it.
 
-The video deploys a customer-support RAG application live, end to end. The demo app source lives in a separate repo, linked in the description.
+## Before You Deploy
 
----
+This tutorial contains three kinds of material:
 
-## Intro
+| Path | What is actually included | What it proves |
+| --- | --- | --- |
+| [`code/email-classifier/`](code/email-classifier/) | A Python Cloud Run Job sample, Dockerfile, dependency list, and environment template | The shape of a scheduled AI job |
+| [`code/terraform/`](code/terraform/) | Terraform for the job, scheduler, service accounts, IAM, monitoring, and alerting | How the infrastructure fits together |
+| [`code/proposal-generator/backend/app/prompts/`](code/proposal-generator/backend/app/prompts/) | Two prompt assets only | How system instructions and a fictional voice example can be separated |
 
-When I started my freelance business, this was the problem that almost broke me.
+The proposal generator application is not included. Its [`resources/spec.md`](resources/spec.md) is a design exercise, not a runnable application. There is also no checked-in customer-support RAG application. This lesson uses architecture diagrams instead of claiming those applications are available.
 
-I could build AI applications. That part was easy. AI coding tools made building software faster than ever. What I couldn't figure out was how to deploy them properly. How to put them in front of real customers, behind a real URL, on infrastructure that wouldn't fall over. How to manage multiple client projects, billing, costs, scaling, and production inference. All as a solo developer. It felt overwhelming.
+The safe path in this tutorial only formats and validates Terraform. It does not authenticate to Google Cloud, enable APIs, link billing, build images, or create resources.
 
-The cloud is the right answer technically. It's also genuinely hard if you've never used it. Permissions are a nightmare, documentation is dense, pricing is opaque, enterprise terminology everywhere. It can feel like you need a PhD to operate these platforms. And I say that as someone who's been doing it for 20 years.
+## The Simple Architecture
 
-That tension is exactly the gap AI coding agents close.
-
-The kind of work in this tutorial (provisioning a GCP project, wiring minimum-scope IAM, deploying containerised services, setting up dashboards and alerting, bolting on continuous deployment) used to take a team of engineers two to three weeks. With Codex as a deployment partner, I do it in an afternoon.
-
-Not because the work got easier. The cloud didn't get simpler. The shift is that the boring parts are now generated, the cryptic errors are now explained, and the operational discipline is now defaulted into. This repo is how to actually do that work.
-
----
-
-## Three Ways to Deploy
-
-Each has tradeoffs. There's no perfect answer.
-
-### Self-managed VPS
-
-Renting a Linux box from Digital Ocean or Hetzner and managing it yourself. Cheap, simple to start. The moment you scale or take on multiple clients, you're managing load balancers, configuring nginx, fighting SSL, writing your own backups. I love simplicity. I just don't want to be a part-time DevOps operator anymore.
-
-### Managed PaaS
-
-Vercel, Railway, Render, Fly. Push code, they run it. Fantastic for small projects, and most of them now offer decent managed databases and scheduled jobs. The catch for AI work is that production-grade inference still lives on the cloud providers (Vertex AI on GCP, Bedrock on AWS, Azure OpenAI). Once you're already on a cloud provider for inference, fragmenting the rest of your stack across two platforms gets painful fast.
-
-### Cloud providers
-
-Google Cloud, AWS, Azure. The technically right answer. The wrong answer if you've ever opened the AWS console and wanted to cry. The complexity is real, but it's exactly what AI coding agents fix.
-
-This repo lives on Google Cloud. Reasons: tight integration of compute, database, secrets, monitoring, and Vertex AI for production model calls; one auth surface; one bill; observability defaults that don't suck.
-
----
-
-## Why AI Agents Change the Game
-
-> **A note on safety.** This guide is about using AI agents to bootstrap and ship the initial version of a system. Once you're shipping to real users, the operating model changes and you put guardrails in place (covered in the Summary). The horror stories you've heard about AI agents wiping customer databases? That isn't an AI problem. It's a process issue. Common sense applies.
-
-The real value of an AI coding agent on cloud work is that it unblocks you the moment you get stuck.
-
-**You hit a permission denied error.** Twenty minutes of hunting through IAM roles becomes thirty seconds. Paste the error, role added, you're moving.
-
-**You need to set up a service you've never used.** Half an hour of reading docs becomes a few seconds and a working command.
-
-**You ship something and you're not sure whether your IAM is too loose or you've left a debug flag on.** The audit you'd usually put off until later becomes a five-second prompt now.
-
-The cloud's pain points haven't gone away. They've been turned into mechanical work that an agent handles in seconds while you keep moving.
-
-The agent doesn't replace your engineering judgment. It removes the friction that stopped you from acting on it.
-
-### What you still own
-
-- The architecture itself. Public/private boundaries, database choice, where state lives.
-- The security model. The agent will reach for "the simple thing" which might not be the compliant thing. If you have data residency, multi-region, or specific security requirements, write them into your `AGENTS.md`.
-- Verifying what the agent does. Read the diff. The viewers who get the most out of Codex on deployment are senior engineers who can verify what it produces.
-- The deploy button on a system with real users. See the operating model in the Summary.
-
-The agent is a partner. You're still the engineer.
-
----
-
-## Demo: App Architecture
-
-The video deploys a customer support RAG app for an e-commerce store. Three runtime services, one database, one bucket, one model.
+Start with the smallest set of services that fit the workload. A scheduled classifier needs a container, a timer, access to the model and Gmail, a little state, secrets, and logs.
 
 ```mermaid
 flowchart LR
-    user["Customer / support agent"] --> web["Cloud Run Web<br/>Next.js public UI"]
-    web --> api["Cloud Run API<br/>FastAPI private service"]
-    api --> db[("Cloud SQL Postgres<br/>policy documents")]
-    api --> vertex["Vertex AI<br/>Anthropic Claude"]
-    api --> secrets["Secret Manager<br/>database URL"]
-
-    docs["Cloud Storage bucket<br/>policies/*.md"] --> job["Cloud Run Job<br/>support-rag-ingest"]
-    job --> db
-
-    web --> logs["Cloud Logging +<br/>Cloud Monitoring"]
-    api --> logs
-    job --> logs
+    scheduler["Cloud Scheduler"] --> job["Cloud Run Job"]
+    job --> gmail["Gmail API"]
+    job --> vertex["Vertex AI"]
+    job --> firestore["Firestore"]
+    job --> secrets["Secret Manager"]
+    job --> logs["Cloud Logging"]
+    logs --> monitoring["Cloud Monitoring"]
 ```
 
-The browser only ever talks to the public Next.js web service. The web service calls the private API from server-side route handlers, using Google identity-token auth so the API never has to be exposed publicly. The ingest job is a separate runtime that syncs markdown policy documents from Cloud Storage into Postgres. All three runtimes share the same Cloud Logging and Cloud Monitoring stack, with no extra setup.
+Cloud Run Jobs are for containers that run a finite task and exit. They can be started manually or by a schedule. This is different from a Cloud Run service, which listens for requests. Google documents that distinction in the [Cloud Run Jobs guide](https://cloud.google.com/run/docs/create-jobs).
 
-For the deeper architecture story (request flow, background job flow, permissions model, briefing a coding agent), see [`resources/architecture.md`](resources/architecture.md).
+For a web application, add a public web service, a private API when that boundary is useful, and a managed database when the data is relational. Do not add those services to a background job just because they appear in a larger reference architecture.
 
-### The patterns this app uses
+## Where A Coding Agent Helps
 
-The same six patterns power most production AI apps on GCP. Once you've deployed one, you can deploy any of them.
+Cloud work contains a lot of exact but repetitive detail. An agent can help you:
 
-**Cloud Run for stateless services.** Web apps, APIs, webhook receivers. HTTPS, autoscaling, scale-to-zero, IAM-bound service accounts, zero server management. The default container runtime for production AI apps. Don't reach for GKE; you don't have those problems.
+- turn an agreed architecture into Terraform
+- explain an IAM error and identify the missing permission
+- produce Docker and deployment configuration
+- add labels, logs, dashboards, and alerts
+- capture a working setup in a runbook
 
-**Cloud Run Jobs for finite work.** Document ingest, batch enrichment, scheduled cleanup, embeddings backfill. Same image as your service, same auth, triggered manually or by Cloud Scheduler.
-
-**Public web, private API.** Don't expose your backend if you don't have to. The web service is public, the API is private. The web service mints a Google ID token from its runtime service account to call the API. Costs nothing extra, blocks an entire class of attacks.
+The weak default is to let the agent improvise directly against a cloud project. A safer workflow keeps the work reviewable:
 
 ```mermaid
 flowchart LR
-    browser["Browser"] --> web["Public Cloud Run<br/>web service"]
-    web -->|"ID token from<br/>service account"| api["Private Cloud Run<br/>API service"]
-    api --> db[("Database")]
-    api --> vertex["Vertex AI"]
+    intent["Define workload and boundaries"] --> config["Generate configuration"]
+    config --> local["Format and validate locally"]
+    local --> review["Review IAM, cost, and resource changes"]
+    review --> plan["Create a cloud plan"]
+    plan --> approval["Human approval"]
+    approval --> apply["Apply through a controlled identity"]
 ```
 
-**Vertex AI over direct model APIs.** For production AI inference on GCP, Vertex AI gives you a published SLA tied to your GCP agreement, IAM-based auth, unified billing, observability under one pane, and multi-model under one auth surface. Reach for direct APIs only for day-zero access to a brand-new model or when you're not on GCP.
+You still own the important decisions:
 
-**Cloud SQL for relational data.** A managed Postgres instance for documents, conversations, audit trails, operational state. The only fixed monthly cost in this stack at low traffic, so the database size matters more than the service sizing. `db-f1-micro` is fine for a low-traffic demo. Move to dedicated-core for a real production support system. Backups are not optional: daily, 7-day retention minimum, point-in-time recovery on.
+- which services are public
+- which identity can deploy
+- which identity the workload runs as
+- which secrets the workload can read
+- which regions and data controls are required
+- what the plan will create, replace, or delete
+- whether the expected cost is acceptable
 
-**Cloud Storage for blob data.** Markdown documents, PDFs, audio files, model artifacts. The source of truth for documents in a RAG system; the database is the runtime.
+An agent can propose IAM. It cannot decide your risk tolerance for you.
 
-### The five (six) services you actually need
+## Verify The Terraform Without A Cloud Account
 
-That's the entire stack for almost every production AI app:
+From the repository root, run:
 
-1. **Cloud Run** (or Cloud Run Jobs): runs your code
-2. **Cloud SQL** (or Firestore for key-value): stores your data
-3. **Secret Manager**: stores your secrets
-4. **Vertex AI**: runs your model calls
-5. **Cloud Storage**: stores documents and artifacts
-6. **Cloud Logging and Cloud Monitoring**: tells you what's happening (free, automatic)
+```bash
+terraform -chdir=tutorials/deploy-ai-on-gcp/code/terraform fmt -check -diff
+bash tutorials/deploy-ai-on-gcp/code/terraform/validate.sh
+python3 -m unittest discover \
+  -s tutorials/deploy-ai-on-gcp/code/email-classifier/tests \
+  -v
+```
 
-Ignore the other services until you have a specific reason. Pub/Sub, BigQuery, VPC Service Controls, GKE, App Engine, Dataflow. They're solving problems you don't have yet.
+The validation script copies the Terraform files to a temporary directory, downloads the provider there, runs `terraform validate`, and removes the temporary files. The Python tests prove dry-run mode does not create or apply Gmail labels and does not write processed-message state. None of these commands runs `terraform plan` or `terraform apply`, authenticates to Google Cloud, or creates cloud resources.
 
----
+Expected final output:
+
+```text
+Success! The configuration is valid.
+```
+
+`terraform validate` needs an initialized provider. The temporary directory keeps generated provider files and the generated dependency lockfile out of this repository. The commands follow Google's [Terraform format and validation guidance](https://cloud.google.com/docs/terraform/basic-commands).
+
+## Understand What The Module Would Create
+
+The reference module describes:
+
+- required Google Cloud APIs
+- one service account for the job
+- one service account for the scheduler
+- selected Vertex AI, Firestore, Secret Manager, and Cloud Run permissions
+- one Cloud Run Job
+- one Cloud Scheduler trigger
+- a log-based failure metric
+- an alerting policy
+- an optional dashboard
+
+Read these files before any cloud plan:
+
+```text
+code/terraform/main.tf
+code/terraform/variables.tf
+code/terraform/outputs.tf
+code/terraform/terraform.tfvars.example
+```
+
+Pay particular attention to project-level IAM grants, the container image, schedule, retry policy, secret names, notification channels, and dashboard toggle. "Minimum scope" is a design goal, not proof that a policy fits every organisation.
+
+## Cost And Billing Safety
+
+Cloud prices change by service, region, usage, billing mode, discounts, and currency. That makes a fixed monthly table misleading. Use the [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator) with your own region and expected usage. Check the product pricing pages again before deployment. For example, Cloud Run pricing is usage-based and varies with configuration and region, as described in the [current Cloud Run pricing guide](https://cloud.google.com/run/pricing).
+
+Model IDs also expire. The classifier requires an explicit `GEMINI_MODEL` value instead of carrying a stale default. Choose a supported model from Vertex AI and check its date in the [model lifecycle documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions).
+
+Before creating resources:
+
+1. Use a dedicated test project.
+2. Confirm which billing account will be linked.
+3. Estimate every service in the Terraform plan, including logs, image storage, network traffic, model calls, and persistent data services.
+4. Create budget alerts and route them to someone who will act.
+5. Confirm how you will remove the resources.
+
+Normal Google Cloud budgets send alerts. They do not automatically stop general usage or spending. Google states this clearly in the [budget alerts documentation](https://cloud.google.com/billing/docs/how-to/budgets). Google also offers spend caps in preview for eligible services, with important limits documented separately. Do not treat either feature as a substitute for reviewing the plan and watching actual spend.
+
+## Deploy Only After Review
+
+The next commands require Google Cloud credentials and an active billing account. They can create billable resources. They are not part of the repository's default checks.
+
+First, read [`code/terraform/README.md`](code/terraform/README.md) and [`resources/checklist.md`](resources/checklist.md). Build and push the container image before planning the module. Then, from the Terraform directory:
+
+```bash
+cd tutorials/deploy-ai-on-gcp/code/terraform
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with a test project, image, and notification settings.
+terraform init
+terraform plan
+```
+
+Stop and read the complete plan. Check resources, IAM grants, project, region, image, schedule, and deletion effects. Only apply after that review:
+
+```bash
+terraform apply
+```
+
+The example sets `DRY_RUN="true"` and creates the scheduler paused. Applying it does not schedule executions. Follow [`resources/checklist.md`](resources/checklist.md) to run one job manually, inspect the dry-run logs, and enable writes and scheduling as a separate reviewed change.
+
+For a disposable test project, remove the managed resources when the exercise is complete:
+
+```bash
+terraform destroy
+```
+
+`terraform destroy` only knows about resources in its state. Check the Google Cloud project and billing report afterwards for resources created outside Terraform.
+
+## A Safer Agent Prompt
+
+Give a coding agent boundaries before asking for deployment help:
+
+```text
+Review the checked-in Terraform for this scheduled Cloud Run Job.
+
+Do not run gcloud commands, terraform apply, terraform destroy, or change billing.
+Start by listing the resources, IAM grants, secrets, and estimated cost drivers.
+Run formatting and local validation only.
+Then produce a terraform plan command for my review.
+Flag any permission broader than the workload needs.
+Explain how to remove every resource after the test.
+```
+
+This makes the first agent pass read-only and reviewable. You can grant more authority later when you understand the proposed change.
+
+## Common Failure Points
+
+### Validation fails before contacting Google Cloud
+
+Check that Terraform is installed and that the provider download is allowed on your network. Run `terraform fmt` before validation.
+
+### Planning reports missing credentials
+
+That is expected outside the safe local path. A plan against Google Cloud needs an authenticated identity with permission to read the project and proposed resources.
+
+### The image cannot be pulled
+
+Confirm the Artifact Registry path, region, project, and runtime service account access. The example image value is a placeholder until you build and push the classifier image.
+
+### Scheduler cannot start the job
+
+Review the scheduler service account and its `roles/run.invoker` grant on the specific job. Do not solve the error by granting a broad project role without understanding it.
+
+### A budget alert did not stop spend
+
+That is the normal behaviour of standard budgets. Alerts tell you about spend. They do not generally shut services down.
+
+## References
+
+- [Google Cloud: Create Cloud Run Jobs](https://cloud.google.com/run/docs/create-jobs)
+- [Google Cloud: Basic Terraform commands](https://cloud.google.com/docs/terraform/basic-commands)
+- [Google Cloud: Cloud Run pricing](https://cloud.google.com/run/pricing)
+- [Google Cloud: Vertex AI model versions and lifecycle](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions)
+- [Google Cloud: Create budgets and budget alerts](https://cloud.google.com/billing/docs/how-to/budgets)
+- [`resources/architecture.md`](resources/architecture.md)
+- [`resources/checklist.md`](resources/checklist.md)
+- [`resources/spec.md`](resources/spec.md), a design-only proposal generator exercise
+
+External Google Cloud guidance was checked on 2026-08-04. Product behaviour and prices can change, so verify the linked primary documentation before deployment.
 
 ## Summary
 
-### The production operating model
-
-Is it safe to let AI agents touch production infrastructure?
-
-Honest answer: use them for everything except the production button.
-
-When you're setting up a new system, agents are extraordinarily useful. They handle the parts that used to take days. There's no real risk because nothing is in production yet.
-
-Once you're shipping to real users, the discipline changes. The agent should still help you. The agent shouldn't be the thing pushing the deploy button.
-
-The pattern I use on every client project:
-
-1. **Use the agent to discover and prove the deployment.** Plan, run commands, debug IAM, capture the snags.
-2. **Capture the working setup.** Resource names, IAM roles, environment variables, smoke tests. Write the runbook.
-3. **Move repeatable deploys into Cloud Build.** From this point forward, code changes ship through CI.
-4. **Use scoped service accounts and reviewable configuration for ongoing changes.** Production changes happen via reviewed PRs, not interactive `gcloud` commands.
-5. **Treat manual commands as setup or break-glass operations, not the normal release path.**
-
-That's the line. Agents help you discover the deployment. Automation runs it.
-
-**Cloud Build over Cloud Deploy** for most apps. Cloud Build is build-and-deploy on every push. Cloud Deploy is release management with promotion, approvals, canary releases. For a single-environment app, Cloud Build is enough. Cloud Deploy starts to matter when you have dev/staging/prod or audit-heavy workflows.
-
-**Cloud Build over GitHub Actions** for GCP-native apps. Built into GCP, uses Google IAM directly, no Workload Identity Federation setup, no OIDC token round-trip. GitHub Actions wins when your CI surface spans GitHub-hosted services.
-
-### Cost model
-
-For a low-traffic AI app on this architecture:
-
-| Service | Approximate cost (low traffic) | Notes |
-|---------|--------------------------------|-------|
-| Cloud Run web | <$1/month | Scales to zero |
-| Cloud Run API | <$1/month | Scales to zero |
-| Cloud Run Job (manual) | cents | Charged per execution |
-| Cloud SQL `db-f1-micro` | ~$8/month + storage/backups | Always-on, fixed cost |
-| Cloud Storage | <$1/month | Pennies for small doc volumes |
-| Artifact Registry | <$1/month | Negligible for a few images |
-| Cloud Build | free tier covers this | 120 build-minutes/day free |
-| Vertex AI | depends on tokens | Usage-based |
-
-Realistic baseline: $10-15/month plus inference. The database is the only fixed cost worth thinking about. Set a budget alert before you leave anything running.
-
-### Going deeper
-
-- **AI Engineer**: [aiengineer.co](https://aiengineer.co). A community where I teach this kind of work in depth.
-- **Gradient Work**: [gradientwork.com](https://gradientwork.com). The agency where I build production AI systems for clients.
-- [`resources/architecture.md`](resources/architecture.md): full architecture story with request flow, background job flow, permissions model, and how to brief a coding agent.
-- [`resources/checklist.md`](resources/checklist.md): the 10-step opinionated GCP project setup I use on every new client system.
-
-### Other examples in this repo
-
-- [`code/email-classifier/`](code/email-classifier/): a Cloud Run Job that classifies new Gmail messages with Vertex AI Gemini and applies labels. Useful as a minimal scheduled-automation pattern.
-- [`code/proposal-generator/`](code/proposal-generator/): a small client-proposal generator built on the same primitives. Useful as a prompt-engineering-on-Vertex-AI pattern.
-- [`code/terraform/`](code/terraform/): a reference Terraform module for the email-classifier Cloud Run Job, including monitoring dashboard and alerting.
-
----
-
-## License
+- The useful model is configuration, local validation, review, plan, approval, then apply.
+- The checked-in proposal material is two prompt files and a design spec, not an application.
+- Local verification creates no cloud resources.
+- Cloud credentials, billing, IAM, and cleanup need deliberate human review.
 
 Licensed under the [MIT License](../../LICENSE).

@@ -1,37 +1,21 @@
-"""Email triage classifier. Reads new Gmail messages, classifies via Vertex AI Gemini, applies labels.
+"""Email triage classifier. Reads Gmail, classifies with Vertex AI, and applies labels.
 
 Runs as a Cloud Run Job, triggered by Cloud Scheduler.
 """
 
+from __future__ import annotations
+
 import json
-import logging
 import os
-import sys
 from datetime import datetime, timedelta, timezone
 
+from google import genai
 from google.cloud import firestore, secretmanager
+from google.genai import types
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-from vertexai.generative_models import GenerativeModel
-import vertexai
-
-
-PROJECT_ID = os.environ["GCP_PROJECT"]
-REGION = os.environ.get("GCP_REGION", "europe-west1")
-GMAIL_SECRET_NAME = os.environ["GMAIL_OAUTH_SECRET"]
-MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash-001")
-DRY_RUN = os.environ.get("DRY_RUN", "false").lower() == "true"
-LIMIT = int(os.environ.get("LIMIT", "50"))
 
 CATEGORIES = ["needs-reply", "fyi", "newsletter", "receipt"]
-
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    stream=sys.stdout,
-)
-log = logging.getLogger("email-classifier")
 
 
 def log_event(event: str, **fields) -> None:
@@ -40,9 +24,9 @@ def log_event(event: str, **fields) -> None:
     print(json.dumps(payload))
 
 
-def load_gmail_credentials() -> Credentials:
+def load_gmail_credentials(project_id: str, secret_name: str) -> Credentials:
     client = secretmanager.SecretManagerServiceClient()
-    name = f"projects/{PROJECT_ID}/secrets/{GMAIL_SECRET_NAME}/versions/latest"
+    name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
     response = client.access_secret_version(request={"name": name})
     creds_json = json.loads(response.payload.data.decode("utf-8"))
     return Credentials.from_authorized_user_info(creds_json)
@@ -75,7 +59,11 @@ def get_message_summary(service, message_id: str) -> dict:
     }
 
 
-def classify(model: GenerativeModel, summary: dict) -> str:
+def classify(
+    model_client: genai.Client,
+    model_name: str,
+    summary: dict,
+) -> str:
     """Ask Gemini which category the message belongs to."""
     prompt = f"""You classify emails into one of these categories: {", ".join(CATEGORIES)}.
 
@@ -87,9 +75,13 @@ Has unsubscribe header: {summary["is_newsletter"]}
 
 Respond with one category name only. No explanation."""
 
-    response = model.generate_content(
-        prompt,
-        generation_config={"max_output_tokens": 10, "temperature": 0.0},
+    response = model_client.models.generate_content(
+        model=model_name,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            max_output_tokens=10,
+            temperature=0.0,
+        ),
     )
     label = response.text.strip().lower()
     if label not in CATEGORIES:
@@ -116,39 +108,80 @@ def apply_label(service, message_id: str, label_id: str) -> None:
     ).execute()
 
 
-def main() -> None:
-    log_event("run_started", project=PROJECT_ID, dry_run=DRY_RUN, limit=LIMIT)
-
-    vertexai.init(project=PROJECT_ID, location=REGION)
-    model = GenerativeModel(MODEL_NAME)
-
-    creds = load_gmail_credentials()
-    gmail = build("gmail", "v1", credentials=creds, cache_discovery=False)
-
-    db = firestore.Client(project=PROJECT_ID)
-    processed_ref = db.collection("processed_messages")
-    processed_ids = {doc.id for doc in processed_ref.limit(1000).stream()}
-
-    messages = fetch_unprocessed_messages(gmail, processed_ids, LIMIT)
-    log_event("messages_fetched", count=len(messages))
-
-    label_ids = {cat: get_or_create_label(gmail, f"triage/{cat}") for cat in CATEGORIES}
+def process_messages(
+    gmail,
+    processed_ref,
+    model_client: genai.Client,
+    model_name: str,
+    messages: list[dict],
+    dry_run: bool,
+) -> None:
+    """Classify messages and mutate Gmail and Firestore only outside dry-run mode."""
+    label_ids = {}
+    if not dry_run:
+        label_ids = {
+            category: get_or_create_label(gmail, f"triage/{category}")
+            for category in CATEGORIES
+        }
 
     for msg in messages:
         try:
             summary = get_message_summary(gmail, msg["id"])
-            category = classify(model, summary)
+            category = classify(model_client, model_name, summary)
 
-            if not DRY_RUN:
+            if not dry_run:
                 apply_label(gmail, msg["id"], label_ids[category])
-                processed_ref.document(msg["id"]).set({
-                    "category": category,
-                    "classified_at": firestore.SERVER_TIMESTAMP,
-                })
+                processed_ref.document(msg["id"]).set(
+                    {
+                        "category": category,
+                        "classified_at": firestore.SERVER_TIMESTAMP,
+                    }
+                )
 
-            log_event("message_classified", message_id=msg["id"], category=category, dry_run=DRY_RUN)
+            log_event(
+                "message_classified",
+                message_id=msg["id"],
+                category=category,
+                dry_run=dry_run,
+            )
         except Exception as e:
             log_event("message_failed", message_id=msg["id"], error=str(e), severity="ERROR")
+
+
+def main() -> None:
+    project_id = os.environ["GCP_PROJECT"]
+    region = os.environ.get("GCP_REGION", "europe-west1")
+    gmail_secret_name = os.environ["GMAIL_OAUTH_SECRET"]
+    model_name = os.environ["GEMINI_MODEL"]
+    dry_run = os.environ.get("DRY_RUN", "true").lower() == "true"
+    limit = int(os.environ.get("LIMIT", "50"))
+
+    log_event("run_started", project=project_id, dry_run=dry_run, limit=limit)
+
+    creds = load_gmail_credentials(project_id, gmail_secret_name)
+    gmail = build("gmail", "v1", credentials=creds, cache_discovery=False)
+
+    db = firestore.Client(project=project_id)
+    processed_ref = db.collection("processed_messages")
+    processed_ids = {doc.id for doc in processed_ref.limit(1000).stream()}
+
+    messages = fetch_unprocessed_messages(gmail, processed_ids, limit)
+    log_event("messages_fetched", count=len(messages))
+
+    with genai.Client(
+        vertexai=True,
+        project=project_id,
+        location=region,
+        http_options=types.HttpOptions(api_version="v1"),
+    ) as model_client:
+        process_messages(
+            gmail,
+            processed_ref,
+            model_client,
+            model_name,
+            messages,
+            dry_run,
+        )
 
     log_event("run_completed", processed=len(messages))
 

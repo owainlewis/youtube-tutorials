@@ -23,11 +23,11 @@
       ]
     },
     "deploy-ai-on-gcp": {
-      "kind": "static",
+      "kind": "offline",
       "commands": [
         {
-          "cwd": "tutorials/deploy-ai-on-gcp/code/terraform",
-          "run": ["terraform", "fmt", "-check", "-diff"]
+          "cwd": "tutorials/deploy-ai-on-gcp/code/email-classifier",
+          "run": ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]
         }
       ]
     },
