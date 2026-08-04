@@ -1,8 +1,22 @@
 {
   "tutorials": {
     "6-types-of-rag": {
-      "kind": "integration-only",
-      "reason": "The current examples require OpenAI and PostgreSQL. Issue #28 adds credential-free tests."
+      "kind": "offline",
+      "commands": [
+        {
+          "name": "six retrieval strategy tests",
+          "cwd": "tutorials/6-types-of-rag/code",
+          "run": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ]
+        }
+      ]
     },
     "ai-agent-memory": {
       "kind": "offline",

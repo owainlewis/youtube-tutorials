@@ -256,8 +256,8 @@ Available tools:
 
 | Component | Tool | Why |
 |-----------|------|-----|
-| LLM | OpenAI GPT-5.4 | One provider for chat + embeddings |
-| Embeddings | text-embedding-3-small (1536 dims) | Same API key, good quality |
+| LLM | `OPENAI_CHAT_MODEL` from `code/src/config.py` | One configured model for every example |
+| Embeddings | `OPENAI_EMBEDDING_MODEL` from `code/src/config.py` | One configured embedding model and schema size |
 | Database | PostgreSQL 17 + pgvector | FTS + vectors + SQL in one DB |
 | Document parsing | Docling | Handles real document formats |
 | Language | Python 3.12+ | uv for package management |

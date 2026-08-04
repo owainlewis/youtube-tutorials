@@ -222,7 +222,7 @@
       <span class="pill pill-g">With Code</span>
     </div>
     <h1 class="display title reveal d2" style="font-size:72px;">6 Types of RAG,<br>Clearly Explained</h1>
-    <p class="sub reveal d3">RAG is not one technique. It's a spectrum from simple file loading to agentic retrieval. Most developers default to vector search. There are five other options they're ignoring.</p>
+    <p class="sub reveal d3">RAG can use complete files, keyword search, vectors, SQL, or a combination. Choose the method from the data and question.</p>
   </div>
   <div class="slide-divider"></div>
 </section>
@@ -242,7 +242,7 @@
     context = <span class="fn">retrieve</span>(user_query)  <span class="cm"># THIS is the only part that changes</span>
 
     response = client.responses.create(
-        model=<span class="st">"gpt-5.4"</span>,
+        model=<span class="st">CHAT_MODEL</span>,
         input=f<span class="st">"Context:\n{context}\n\nQuestion: {user_query}"</span>
     )
     <span class="hl">return</span> response.output_text</div>
@@ -473,8 +473,8 @@
     <div class="detail-grid reveal d4">
       <div>
         <div class="strength">
-          <h5>The production default</h5>
-          <p>If you're not sure which approach to use, start here. Runs both keyword and vector search, merges results with RRF scoring.</p>
+          <h5>Exact terms plus meaning</h5>
+          <p>Runs keyword and vector search, then merges the rankings with RRF scoring. Add it when evaluation shows both retrievers help.</p>
         </div>
         <div class="strength">
           <h5>One Postgres query</h5>
@@ -516,8 +516,8 @@ vec <span class="hl">AS</span> (
     <div class="detail-grid reveal d4">
       <div>
         <div class="strength">
-          <h5>5a: Parameterized (the safe default)</h5>
-          <p>The LLM extracts filters from natural language. Those parameters slot into a pre-written query you control. Safe, fast, predictable.</p>
+          <h5>5a: Parameterized</h5>
+          <p>The LLM extracts filters from natural language. Those parameters slot into a query shape the application controls.</p>
         </div>
         <div class="strength">
           <h5>5b: Dynamic (for flexibility)</h5>

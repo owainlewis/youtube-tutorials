@@ -6,23 +6,15 @@ Matches on the actual words in your query. Fast and precise.
 
 Best for: When users search with specific terms (brand names, exact features).
 Breaks when: Users describe what they want in natural language.
-Run: uv run src/02_full_text_search.py
+Run: .venv/bin/python src/02_full_text_search.py
 """
 
-import os
-from openai import OpenAI
-import psycopg
-from dotenv import load_dotenv
-
-load_dotenv()
-
-client = OpenAI()
-DATABASE_URL = os.environ["DATABASE_URL"]
+from config import CHAT_MODEL, connect, get_client
 
 
 def full_text_search(query: str, limit: int = 5) -> list[dict]:
     """Search products using PostgreSQL full-text search."""
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             # Postgres has a built-in search engine. Here's how the pieces work:
             #
@@ -64,7 +56,7 @@ def full_text_search(query: str, limit: int = 5) -> list[dict]:
 
 
 def ask(question: str) -> str:
-    """Search products by keyword and answer with GPT-5.4."""
+    """Search products by keyword and answer with the configured model."""
     results = full_text_search(question)
 
     if not results:
@@ -75,8 +67,8 @@ def ask(question: str) -> str:
             for r in results
         )
 
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="You are a helpful shopping assistant for ShopMax. Use the search results to answer the customer's question. If no results match, say so.",
         input=f"Search results:\n{context}\n\nQuestion: {question}",
     )

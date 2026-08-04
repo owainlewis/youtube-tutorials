@@ -5,21 +5,16 @@ The agent picks the right retrieval strategy based on the question.
 It has tools for all previous approaches and decides which to use.
 
 Best for: Complex questions that span structured and unstructured data.
-Run: uv run src/06_agentic_rag.py
+Run: .venv/bin/python src/06_agentic_rag.py
 """
 
-import os
 import json
-from openai import OpenAI
-import psycopg
 from pathlib import Path
-from dotenv import load_dotenv
 
-load_dotenv()
-
-client = OpenAI()
-DATABASE_URL = os.environ["DATABASE_URL"]
+from config import CHAT_MODEL, EMBEDDING_MODEL, connect, get_client
 DATA_DIR = Path(__file__).parent.parent / "data"
+AVAILABLE_DOCUMENTS = ("faq.md", "refund-policy.md")
+MAX_TOOL_ROUNDS = 8
 
 PRODUCT_SCHEMA = """
 Table: products
@@ -33,12 +28,14 @@ Categories: running, casual, hiking, training
 
 def embed(text: str) -> list[float]:
     """Embed a single text using OpenAI."""
-    response = client.embeddings.create(model="text-embedding-3-small", input=[text])
+    response = get_client().embeddings.create(model=EMBEDDING_MODEL, input=[text])
     return response.data[0].embedding
 
 
 def load_document(filename: str) -> str:
     """Load a document from the data directory."""
+    if filename not in AVAILABLE_DOCUMENTS:
+        return f"File '{filename}' is not allowed. Available: {list(AVAILABLE_DOCUMENTS)}"
     filepath = DATA_DIR / filename
     if not filepath.exists():
         available = [f.name for f in DATA_DIR.glob("*.md")]
@@ -48,7 +45,7 @@ def load_document(filename: str) -> str:
 
 def full_text_search(query: str) -> str:
     """Keyword search on product descriptions."""
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
@@ -73,7 +70,7 @@ def vector_search(query: str) -> str:
     """Semantic search on product descriptions."""
     query_embedding = embed(query)
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
@@ -93,7 +90,7 @@ def vector_search(query: str) -> str:
 
 def sql_query(query: str) -> str:
     """Execute a SQL query against the products table."""
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(query)
             columns = [desc[0] for desc in cur.description]
@@ -153,9 +150,10 @@ def product_filter(
     if sort_by and sort_by in sort_map:
         sql += f" ORDER BY {sort_map[sort_by]}"
 
-    sql += f" LIMIT {int(limit or 10)}"
+    bounded_limit = max(1, min(int(limit or 10), 50))
+    sql += f" LIMIT {bounded_limit}"
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, values)
             columns = [desc[0] for desc in cur.description]
@@ -176,6 +174,7 @@ TOOLS = [
             "properties": {
                 "filename": {
                     "type": "string",
+                    "enum": list(AVAILABLE_DOCUMENTS),
                     "description": "The filename to load (e.g. 'faq.md', 'refund-policy.md')",
                 }
             },
@@ -271,6 +270,8 @@ TOOLS = [
                 },
                 "limit": {
                     "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
                     "description": "Max number of results (default 10)",
                 },
             },
@@ -294,15 +295,15 @@ def ask(question: str) -> str:
     print(f"Q: {question}")
     print("=" * 60)
 
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="You are a helpful shopping assistant for ShopMax. Use the available tools to find the best information to answer the customer's question. You can use multiple tools if the question has multiple parts. Prefer product_filter for standard product lookups. Use sql_query only for complex aggregations or analytical queries.",
         input=question,
         tools=TOOLS,
     )
 
     # Process tool calls in a loop
-    while response.output:
+    for _round in range(MAX_TOOL_ROUNDS):
         has_tool_calls = any(
             item.type == "function_call" for item in response.output
         )
@@ -327,12 +328,14 @@ def ask(question: str) -> str:
                 )
 
         # Continue the conversation with tool results
-        response = client.responses.create(
-            model="gpt-5.4",
+        response = get_client().responses.create(
+            model=CHAT_MODEL,
             previous_response_id=response.id,
             input=tool_results,
             tools=TOOLS,
         )
+    if any(item.type == "function_call" for item in response.output):
+        return f"Stopped after {MAX_TOOL_ROUNDS} tool rounds without a final answer."
 
     # Extract final text
     for item in response.output:

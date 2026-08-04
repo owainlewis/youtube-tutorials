@@ -6,18 +6,10 @@ parameterized queries but requires safety guardrails.
 
 Best for: Ad-hoc analysis, complex aggregations, questions you can't predict.
 Breaks when: Users ask about unstructured attributes ("comfortable", "stylish").
-Run: uv run src/05b_sql_rag_dynamic.py
+Run: .venv/bin/python src/05b_sql_rag_dynamic.py
 """
 
-import os
-from openai import OpenAI
-import psycopg
-from dotenv import load_dotenv
-
-load_dotenv()
-
-client = OpenAI()
-DATABASE_URL = os.environ["DATABASE_URL"]
+from config import CHAT_MODEL, connect, get_client
 
 # We describe our database schema in plain English so the LLM knows
 # what tables and columns exist. This is the only context it has.
@@ -52,8 +44,8 @@ def generate_sql(question: str, error: str | None = None) -> str:
     if error:
         prompt = f"{question}\n\nThe previous SQL attempt failed with this error: {error}\nPlease fix the query."
 
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions=f"""You are a SQL expert. Generate a PostgreSQL SELECT query based on the user's question.
 
 Database schema:
@@ -71,7 +63,7 @@ Rules:
 
 def execute_query(sql: str) -> list[dict]:
     """Execute a SQL query and return results as dicts."""
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(sql)
             columns = [desc[0] for desc in cur.description]
@@ -88,8 +80,7 @@ def ask(question: str) -> str:
 
     If the generated SQL has a bug and crashes, we get one retry.
     We pass the error message back to the LLM so it can fix its query.
-    This works surprisingly well. Most errors are small syntax issues
-    that the LLM can correct on the second attempt.
+    A retry may repair a syntax error, but it does not make generated SQL safe.
     """
     sql = generate_sql(question)
     print(f"  Generated SQL: {sql}")
@@ -109,8 +100,8 @@ def ask(question: str) -> str:
     else:
         context = "\n".join(str(r) for r in results)
 
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="You are a helpful shopping assistant for ShopMax. Answer the customer's question based on the query results. Be specific about prices and ratings.",
         input=f"Query results:\n{context}\n\nOriginal question: {question}",
     )
@@ -118,7 +109,7 @@ def ask(question: str) -> str:
 
 
 if __name__ == "__main__":
-    # This works perfectly: structured filters
+    # Structured filters are a better fit for the parameterized example.
     print("=" * 60)
     print("QUERY: 'Show me running shoes under $100 with at least 4 stars'")
     print("=" * 60)

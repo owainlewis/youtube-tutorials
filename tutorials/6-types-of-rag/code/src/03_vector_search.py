@@ -6,29 +6,21 @@ Matches on meaning, not exact words. Understands natural language.
 
 Best for: Natural language queries, finding semantically similar content.
 Breaks when: Users need exact filters (price, brand, rating).
-Run: uv run src/03_vector_search.py
+Run: .venv/bin/python src/03_vector_search.py
 """
 
-import os
-from openai import OpenAI
-import psycopg
-from dotenv import load_dotenv
-
-load_dotenv()
-
-client = OpenAI()
-DATABASE_URL = os.environ["DATABASE_URL"]
+from config import CHAT_MODEL, EMBEDDING_MODEL, connect, get_client
 
 
 def embed(text: str) -> list[float]:
     """Turn text into a list of numbers (a "vector") that captures its meaning.
 
-    OpenAI's embedding model reads the text and returns ~1500 numbers.
+    OpenAI's embedding model reads the text and returns a vector of numbers.
     Texts with similar meaning get similar numbers.
     "comfortable running shoe" and "cushioned jogging sneaker" would
     produce vectors that are close together, even though the words are different.
     """
-    response = client.embeddings.create(model="text-embedding-3-small", input=[text])
+    response = get_client().embeddings.create(model=EMBEDDING_MODEL, input=[text])
     return response.data[0].embedding
 
 
@@ -42,7 +34,7 @@ def vector_search(query: str, limit: int = 5) -> list[dict]:
     # Step 1: Turn the user's question into a vector (list of numbers)
     query_embedding = embed(query)
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             # Step 2: Find the products whose descriptions are closest in meaning
             #
@@ -54,8 +46,7 @@ def vector_search(query: str, limit: int = 5) -> list[dict]:
             #
             # 1 - (distance) AS similarity
             #   We flip the distance into a similarity score.
-            #   1.0 = perfect match, 0.0 = completely unrelated.
-            #   This just makes the output easier to read.
+            #   Higher values mean smaller cosine distance for this index.
             cur.execute(
                 """
                 SELECT name, brand, category, price, rating, color, description,
@@ -72,7 +63,7 @@ def vector_search(query: str, limit: int = 5) -> list[dict]:
 
 
 def ask(question: str) -> str:
-    """Search products by meaning and answer with GPT-5.4."""
+    """Search products by meaning and answer with the configured model."""
     results = vector_search(question)
 
     context = "\n".join(
@@ -80,8 +71,8 @@ def ask(question: str) -> str:
         for r in results
     )
 
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="You are a helpful shopping assistant for ShopMax. Use the search results to answer the customer's question.",
         input=f"Search results:\n{context}\n\nQuestion: {question}",
     )
