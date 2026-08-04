@@ -6,19 +6,11 @@ Those parameters slot into pre-written, safe SQL queries.
 No arbitrary SQL generation. Predictable, fast, and secure.
 
 Best for: Known query patterns with user-supplied filters.
-Run: uv run src/05a_sql_rag_parameterized.py
+Run: .venv/bin/python src/05a_sql_rag_parameterized.py
 """
 
-import os
 import json
-from openai import OpenAI
-import psycopg
-from dotenv import load_dotenv
-
-load_dotenv()
-
-client = OpenAI()
-DATABASE_URL = os.environ["DATABASE_URL"]
+from config import CHAT_MODEL, connect, get_client
 
 # This is like a form with blank fields.
 # The LLM reads the user's question and fills in whichever fields apply.
@@ -91,8 +83,8 @@ def extract_parameters(question: str) -> dict:
     We use OpenAI's structured outputs to guarantee the response
     is valid JSON matching our schema. No parsing or guessing needed.
     """
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="""You extract product search parameters from a user's question.
 Return structured JSON with only the filters the user actually mentioned.
 Set any unmentioned filter to null.
@@ -110,7 +102,7 @@ Guidelines:
                 "type": "json_schema",
                 "name": "product_filters",
                 "schema": FILTER_SCHEMA,
-                "strict": False,
+                "strict": True,
             }
         },
     )
@@ -173,7 +165,7 @@ def build_query(params: dict) -> tuple[str, list]:
         sql += f" ORDER BY {sort_map[sort_by]}"
 
     # Limit (capped at 50 so the LLM can't dump the whole table)
-    limit = min(int(params.get("limit") or 10), 50)
+    limit = max(1, min(int(params.get("limit") or 10), 50))
     sql += f" LIMIT {limit}"
 
     return sql, values
@@ -181,7 +173,7 @@ def build_query(params: dict) -> tuple[str, list]:
 
 def execute_query(sql: str, values: list) -> list[dict]:
     """Execute a parameterized query and return results as dicts."""
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, values)
             columns = [desc[0] for desc in cur.description]
@@ -209,8 +201,8 @@ def ask(question: str) -> str:
         context = "\n".join(str(r) for r in results)
 
     # Step 4: LLM answers based on results
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="You are a helpful shopping assistant for ShopMax. Answer the customer's question based on the query results. Be specific about prices and ratings.",
         input=f"Query results:\n{context}\n\nOriginal question: {question}",
     )

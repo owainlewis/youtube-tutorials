@@ -2,20 +2,12 @@
 Seed the database with product data and document chunks.
 
 Uses Docling to parse documents and OpenAI to generate embeddings.
-Run: uv run src/seed.py
+Run: .venv/bin/python src/seed.py
 """
 
-import os
-import psycopg
-from openai import OpenAI
-from dotenv import load_dotenv
 from pathlib import Path
-from docling.document_converter import DocumentConverter
-from docling.chunking import HybridChunker
 
-load_dotenv()
-
-DATABASE_URL = os.environ["DATABASE_URL"]
+from config import EMBEDDING_MODEL, connect, get_client
 
 PRODUCTS = [
     {
@@ -131,8 +123,7 @@ PRODUCTS = [
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
     """Embed a list of texts using OpenAI."""
-    client = OpenAI()
-    response = client.embeddings.create(model="text-embedding-3-small", input=texts)
+    response = get_client().embeddings.create(model=EMBEDDING_MODEL, input=texts)
     return [item.embedding for item in response.data]
 
 
@@ -143,6 +134,9 @@ def chunk_document(filepath: Path) -> list[str]:
     understand its structure, then chunk it intelligently based on
     headings, paragraphs, and semantic boundaries.
     """
+    from docling.chunking import HybridChunker
+    from docling.document_converter import DocumentConverter
+
     converter = DocumentConverter()
     result = converter.convert(str(filepath))
 
@@ -154,7 +148,7 @@ def chunk_document(filepath: Path) -> list[str]:
 
 def seed():
     print("Connecting to database...")
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             # Clear existing data
             cur.execute("DELETE FROM document_chunks")

@@ -10,14 +10,13 @@ Two approaches shown here:
       Still no database, but smarter about what goes into the prompt.
 
 Best for: Small document sets, policy docs, FAQs, runbooks.
-Run: uv run src/01_document_loading.py
+Run: .venv/bin/python src/01_document_loading.py
 """
 
 import json
-from openai import OpenAI
 from pathlib import Path
 
-client = OpenAI()
+from config import CHAT_MODEL, get_client
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -40,8 +39,8 @@ def ask_simple(question: str) -> str:
     """Load all documents and ask a question."""
     context = load_all_documents()
 
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="You are a helpful support agent for ShopMax, an online shoe store. Use the provided documents to answer questions accurately. If the answer is not in the documents, say so.",
         input=f"Documents:\n{context}\n\nQuestion: {question}",
     )
@@ -63,9 +62,7 @@ DOCUMENT_INDEX = {
 
 
 # Structured output schema for document selection.
-# By using an enum of valid filenames, the LLM can ONLY return
-# one of our real documents. No hallucinated filenames, no extra text,
-# no parsing needed. The response is guaranteed to be valid.
+# The strict schema limits successful responses to one of the known filenames.
 DOCUMENT_SELECTION_SCHEMA = {
     "type": "object",
     "properties": {
@@ -84,7 +81,7 @@ def pick_document(question: str) -> str:
     """Ask the LLM which document is most relevant to the question.
 
     We show it the index (just filenames and descriptions, not the full content)
-    and it tells us which file to load. One cheap LLM call instead of loading
+    and it tells us which file to load. One routing call instead of loading
     everything into context.
 
     We use structured outputs so the LLM can only return a valid filename.
@@ -95,8 +92,8 @@ def pick_document(question: str) -> str:
         for filename, description in DOCUMENT_INDEX.items()
     )
 
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions=f"""You are a document router. Based on the user's question, pick the most relevant document.
 
 Available documents:
@@ -132,8 +129,8 @@ def ask_indexed(question: str) -> str:
     print(f"  Loaded: {filename} ({len(context)} chars)")
 
     # Step 3: Answer the question using just that document
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="You are a helpful support agent for ShopMax, an online shoe store. Use the provided document to answer questions accurately. If the answer is not in the document, say so.",
         input=f"Document ({filename}):\n{context}\n\nQuestion: {question}",
     )

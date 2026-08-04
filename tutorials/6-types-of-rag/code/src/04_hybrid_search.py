@@ -4,30 +4,21 @@ Type 4: Hybrid Search RAG
 Combines full-text search and vector search using Reciprocal Rank Fusion.
 Keyword precision + semantic understanding in one query.
 
-Best for: Production RAG systems. The safe default when you're not sure.
+Best for: Queries that benefit from both exact and semantic matching.
 Breaks when: Users need exact structured filters (price < 100, rating > 4).
-Run: uv run src/04_hybrid_search.py
+Run: .venv/bin/python src/04_hybrid_search.py
 """
 
-import os
-from openai import OpenAI
-import psycopg
-from dotenv import load_dotenv
+from config import CHAT_MODEL, EMBEDDING_MODEL, connect, get_client
 
-load_dotenv()
-
-client = OpenAI()
-DATABASE_URL = os.environ["DATABASE_URL"]
-
-# RRF constant. 60 is the standard value from the original research paper.
-# Higher K = rankings are more "blended" and less spiky.
-# You almost never need to change this.
+# RRF offset used by this example. Treat it as an evaluation parameter.
+# Higher K makes differences between adjacent ranks smaller.
 K = 60
 
 
 def embed(text: str) -> list[float]:
     """Turn text into a vector that captures its meaning."""
-    response = client.embeddings.create(model="text-embedding-3-small", input=[text])
+    response = get_client().embeddings.create(model=EMBEDDING_MODEL, input=[text])
     return response.data[0].embedding
 
 
@@ -49,7 +40,7 @@ def hybrid_search(query: str, limit: int = 5) -> list[dict]:
     """
     query_embedding = embed(query)
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with connect() as conn:
         with conn.cursor() as cur:
             # This query has three parts (CTEs), run in order:
             #
@@ -110,7 +101,7 @@ def hybrid_search(query: str, limit: int = 5) -> list[dict]:
 
 
 def ask(question: str) -> str:
-    """Hybrid search and answer with GPT-5.4."""
+    """Run hybrid search and answer with the configured model."""
     results = hybrid_search(question)
 
     context = "\n".join(
@@ -118,8 +109,8 @@ def ask(question: str) -> str:
         for r in results
     )
 
-    response = client.responses.create(
-        model="gpt-5.4",
+    response = get_client().responses.create(
+        model=CHAT_MODEL,
         instructions="You are a helpful shopping assistant for ShopMax. Use the search results to answer the customer's question.",
         input=f"Search results:\n{context}\n\nQuestion: {question}",
     )
