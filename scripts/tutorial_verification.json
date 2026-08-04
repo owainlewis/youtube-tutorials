@@ -119,6 +119,24 @@
     "postgresql-only-database-ai": {
       "kind": "integration-only",
       "reason": "The current app requires PostgreSQL and OpenAI. Issue #29 adds static and integration verification."
+    },
+    "testing-ai-generated-code": {
+      "kind": "offline",
+      "commands": [
+        {
+          "name": "session policy unit tests",
+          "cwd": "tutorials/testing-ai-generated-code/code",
+          "run": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ]
+        }
+      ]
     }
   }
 }

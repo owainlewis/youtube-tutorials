@@ -215,9 +215,9 @@
 
     <div class="grid-4 reveal d3" style="margin-top:32px;">
       <div class="card" style="border-top:3px solid var(--green);padding:20px;text-align:center;">
-        <div style="font-size:11px;font-weight:800;color:var(--green);margin-bottom:8px;letter-spacing:0.1em;">MOST TESTS HERE</div>
+        <div style="font-size:11px;font-weight:800;color:var(--green);margin-bottom:8px;letter-spacing:0.1em;">FOCUSED</div>
         <h4>Unit Tests</h4>
-        <p style="font-size:12px;">Single functions. Fast. Cheap. Hundreds of them.</p>
+        <p style="font-size:12px;">One policy or function. Fast feedback.</p>
       </div>
       <div class="card" style="border-top:3px solid var(--cobalt);padding:20px;text-align:center;">
         <div style="font-size:11px;font-weight:800;color:var(--cobalt);margin-bottom:8px;letter-spacing:0.1em;">FEWER</div>
@@ -232,12 +232,12 @@
       <div class="card" style="border-top:3px solid #A78BFA;padding:20px;text-align:center;">
         <div style="font-size:11px;font-weight:800;color:#A78BFA;margin-bottom:8px;letter-spacing:0.1em;">NEW LAYER</div>
         <h4>LLM Evals</h4>
-        <p style="font-size:12px;">Non-deterministic output. AI judges AI. Fuzzy but necessary.</p>
+        <p style="font-size:12px;">Check non-deterministic output against explicit criteria.</p>
       </div>
     </div>
 
     <div class="meta reveal d4">
-      <p>Most of your testing with AI agents happens at the <strong>unit and integration level.</strong> That's where the feedback loop is tightest.</p>
+      <p><strong>Unit and integration tests</strong> can provide a tight feedback loop for coding agents.</p>
     </div>
   </div>
   <div class="slide-divider"></div>
@@ -265,26 +265,26 @@
           <p>Input shape to output shape. Easy to get wrong, easy to test.</p>
         </div>
         <div class="strength">
-          <h5>AI failure modes</h5>
-          <p>Null handling, boundaries, error recovery. AI nails the happy path, misses everything else.</p>
+          <h5>Boundaries and recovery</h5>
+          <p>Null handling, limits, and error recovery deserve explicit checks.</p>
         </div>
       </div>
       <div>
         <div class="weakness">
           <h5>Framework boilerplate</h5>
-          <p>Testing that FastAPI returns 200. You're testing their code, not yours.</p>
+          <p>Skip checks that only repeat framework behavior. Test routes when they add policy or wiring.</p>
         </div>
         <div class="weakness">
           <h5>Library behavior</h5>
-          <p>Asserting json.loads parses JSON. The standard library works.</p>
+          <p>Asserting that json.loads parses valid JSON repeats documented behavior.</p>
         </div>
         <div class="weakness">
-          <h5>Mocks testing mocks</h5>
-          <p>Asserting a mock was called. When the real thing breaks, the test still passes.</p>
+          <h5>Narrow mock assertions</h5>
+          <p>A call assertion proves an interaction, not the external outcome. Add integration checks where needed.</p>
         </div>
         <div class="weakness">
-          <h5>Simple CRUD</h5>
-          <p>No custom logic? The framework handles it. A test here tests the framework.</p>
+          <h5>Default CRUD behavior</h5>
+          <p>Skip checks that only repeat defaults. Test persistence mapping and application rules.</p>
         </div>
       </div>
     </div>
@@ -337,11 +337,11 @@
     <div class="grid-3 reveal d5" style="margin-top:16px;">
       <div class="card" style="border-top:3px solid var(--red);padding:20px;text-align:center;">
         <h4 style="font-size:15px;">Code that doesn't work</h4>
-        <p style="font-size:12px;margin-top:8px;">Tests prove correctness before you ship. The agent can verify its own work.</p>
+        <p style="font-size:12px;margin-top:8px;">Tests check named behavior before you ship. The agent gets concrete feedback.</p>
       </div>
       <div class="card" style="border-top:3px solid var(--signal);padding:20px;text-align:center;">
         <h4 style="font-size:15px;">Code that's unnecessary</h4>
-        <p style="font-size:12px;margin-top:8px;">TDD forces minimum implementation. The agent only writes what's needed to pass the test.</p>
+        <p style="font-size:12px;margin-top:8px;">A narrow failing test gives the agent a clear implementation target.</p>
       </div>
       <div class="card" style="border-top:3px solid var(--cobalt);padding:20px;text-align:center;">
         <h4 style="font-size:15px;">Future regressions</h4>
@@ -361,7 +361,7 @@
     <h2 class="display reveal d2" style="font-size:52px;max-width:820px;color:var(--frost);line-height:1.2;margin-bottom:14px;">
       More tests isn't better.<br><span style="color:var(--green);">Better tests are better.</span>
     </h2>
-    <p class="sub reveal d3" style="max-width:540px;">Tests are free to write now. But bad tests are as expensive to maintain as they've always been. Your job is to decide what matters. That judgment is the skill.</p>
+    <p class="sub reveal d3" style="max-width:540px;">Agents can draft tests quickly, but weak tests still cost review and maintenance time. Your job is to decide what matters.</p>
 
     <div class="grid-3 reveal d4" style="margin-top:40px;">
       <div class="card" style="text-align:center;padding:28px 20px;border-top:3px solid var(--green);">

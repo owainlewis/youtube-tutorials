@@ -1,38 +1,30 @@
-# Before vs After: Testing Library Functions vs Testing Your Decisions
+# Testing Library Functions vs Testing Your Decisions
 
-## Before: implementation-focused prompt
+These are copyable teaching examples, not a runnable suite. Run the complete session-policy example under [`../../code/`](../../code/) instead.
 
-> "Cover: password hashing + verification, session token generation, session expiry checking."
+## Implementation-focused prompt
 
-This told the AI which **functions** to test, so it wrote a test for each function. Most tests just proved that well-known libraries work as documented.
+> Cover password hashing and verification, session token generation, and session expiry checking.
 
-## After: risk-focused prompt
+This names functions rather than requirements. It invites one test per function, including assertions that mostly repeat library behavior.
 
-> "Think about what could actually go wrong. Don't test library functions. Test YOUR logic and YOUR decisions."
+## Risk-focused prompt
 
-This told the AI what could **go wrong**, so it wrote tests that prove spec requirements and catch real bugs.
+> The default session duration is 120 minutes, callers can choose a positive custom duration, and a session expires at its exact boundary. Write tests that prove these requirements.
+
+This names observable decisions in the application.
 
 ## Comparison
 
-| What's tested | Before (7 tests) | After (6 tests) | Why it matters |
-|---|---|---|---|
-| bcrypt produces a hash | Yes | No | bcrypt has been tested for 25 years. This can never fail in your code. |
-| bcrypt verifies correct password | Yes | No | Same. You're testing the library, not your logic. |
-| bcrypt rejects wrong password | Yes | As part of a bigger test | Before: tested in isolation. After: tested alongside empty string and trailing space. Actual edge cases. |
-| secrets.token_hex returns hex | Yes | No | Testing the Python standard library. Will never fail. |
-| 100 tokens are unique | Yes | No | secrets is cryptographically random by definition. |
-| Session not expired before expiry | Yes | Yes | Same in both. Documents the boundary condition. |
-| Session expired after expiry | Yes | Yes | Same in both. |
-| Default session duration is 2 hours | **No** | Yes | Spec says "default: 2 hours". Before missed this entirely. A bug here would go unnoticed. |
-| Custom duration override works | **No** | Yes | Spec says "configurable period". Before never tested it. Someone could hardcode 2 hours and break configurability. |
-| Same user gets different tokens | **No** | Yes | Spec says "not derivable from user data". Before tested that any two tokens differ. After proves the same user ID still produces different tokens. The actual security requirement. |
-| Empty password is rejected | **No** | Yes | An empty string matching a hash would be a critical auth bypass. Before never checked. |
-| Trailing space in password fails | **No** | Yes | Silent whitespace trimming could let "password " match "password". Before never checked. |
+| Test shape | What it tells us | Better question |
+| --- | --- | --- |
+| A hash differs from the plain password | The chosen hashing function transforms input. | Can invalid credentials ever grant access? |
+| A generated token is a string | The token library returned its documented type. | Where is token ownership checked? |
+| A mock method was called | Our code reached one internal interaction. | What externally visible outcome should occur? |
+| Default expiry is 120 minutes | Our application applies its documented default. | Which wider boundary still needs an integration test? |
+| Zero duration is rejected | Our application enforces a policy boundary. | How should the API expose that error? |
+| A session expires at its boundary | The comparison uses the agreed inclusive boundary. | Are production clocks and stored values compatible? |
 
 ## The takeaway
 
-**Before:** 7 tests, mostly proving libraries work. A senior engineer would say "these are fine but they don't catch bugs."
-
-**After:** 6 tests, all proving spec requirements or catching real risks. Every test either documents a decision (2-hour default, configurable duration) or guards against a security risk (empty passwords, token predictability).
-
-**Fewer tests, more value. The prompt made the difference.**
+A useful test has a clear requirement, a failure it can detect, and an honest boundary. Test counts and line coverage do not supply that meaning by themselves.

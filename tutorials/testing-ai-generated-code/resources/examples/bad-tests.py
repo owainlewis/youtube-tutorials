@@ -1,95 +1,94 @@
+"""Copyable review snippets, not a runnable test module.
+
+The undefined application names are intentional. Read each example as a test
+shape to discuss, then run the complete example under ``code/``.
 """
-Bad tests: tests that waste time and catch nothing.
-
-These are the kinds of tests AI agents will happily generate
-if you don't constrain them. They look productive. They aren't.
-"""
-
-import pytest
 
 
-# ── Testing the Framework ───────────────────────────────────────
+# Narrow framework checks
 
 def test_health_endpoint_returns_200():
-    """This tests FastAPI, not your code.
-    FastAPI already has tests for this. You're testing their work."""
+    """This only proves that the route is wired and returns a status.
+
+    Keep it when that wiring is the requirement. It does not prove the
+    endpoint's business behavior.
+    """
     response = client.get("/health")
     assert response.status_code == 200
 
 
 def test_root_returns_json():
-    """Again, testing that FastAPI can return JSON.
-    It can. That's what it does."""
+    """This checks response wiring, but no application-specific content."""
     response = client.get("/")
     assert response.headers["content-type"] == "application/json"
 
 
-# ── Testing Library Behavior ────────────────────────────────────
+# Library behavior without application policy
 
 def test_json_loads_parses_json():
-    """You're testing Python's json module. It works."""
+    """This repeats documented json.loads behavior without our own policy."""
     import json
+
     result = json.loads('{"key": "value"}')
     assert result == {"key": "value"}
 
 
 def test_datetime_formats_correctly():
-    """You're testing Python's datetime module.
-    Standard library. Tested by thousands of people already."""
+    """This repeats documented datetime formatting behavior."""
     from datetime import datetime
+
     dt = datetime(2026, 4, 9, 12, 0, 0)
     assert dt.isoformat() == "2026-04-09T12:00:00"
 
 
-# ── Mocks Testing Mocks ────────────────────────────────────────
+# Narrow interaction checks
 
 def test_sends_welcome_email(mock_smtp):
-    """This tests that the mock was called, not that email works.
-    When the real SMTP server rejects the email format,
-    this test still passes. False confidence."""
+    """This proves the interaction contract, not successful delivery.
+
+    Keep it when the call is the boundary under test. Add an integration check
+    when delivery behavior matters.
+    """
     send_welcome_email("user@example.com")
     mock_smtp.send.assert_called_once()
 
 
 def test_saves_to_database(mock_db):
-    """This tests that mock_db.save was called.
-    It tells you nothing about whether the data actually persists.
-    When you change the schema, this test still passes."""
+    """This proves the save interaction, not database persistence.
+
+    A database integration test is needed to check schema mapping and storage.
+    """
     create_candidate(name="Alice", recruiter_id=1)
     mock_db.save.assert_called_once()
 
 
-# ── Implementation Detail Tests ─────────────────────────────────
+# Implementation detail checks
 
 def test_scorer_calls_skills_match_helper():
-    """Testing that a specific internal function is called
-    couples the test to the implementation. If you refactor
-    the scorer to inline the logic, this test breaks
-    even though the behavior is identical."""
+    """This couples the test to a private helper rather than the result."""
     with patch("app.services.scorer.skills_match") as mock:
         calculate_score(candidate, job)
         mock.assert_called_once()
 
 
 def test_api_calls_service_layer():
-    """Same problem. You're testing the wiring, not the behavior.
-    If you restructure the code, the test breaks for no reason."""
+    """This locks in wiring rather than the response behavior.
+
+    Keep it only when that interaction is an intentional contract.
+    """
     with patch("app.services.scorer.calculate_score") as mock:
         mock.return_value = 0.8
         response = client.get("/candidates/1/score")
         mock.assert_called_once()
 
 
-# ── Tautological Tests (AI's Favorite) ─────────────────────────
+# Tautological check
 
-def test_scorer_returns_expected_value():
-    """This test was written AFTER the implementation.
-    The expected value (0.73) was copied from the output.
-    If the scoring logic is wrong, the test confirms the wrong answer.
-    It's grading its own homework."""
+def test_scorer_returns_value_copied_from_current_output():
+    """An unexplained expected value can preserve an existing logic error."""
     candidate = Candidate(years_experience=5, skills=["python"])
     job = Job(required_skills=["python", "fastapi"])
 
     score = calculate_score(candidate, job)
 
-    assert score == 0.73  # Where did 0.73 come from? The code itself.
+    assert score == 0.73  # No requirement explains this number.
