@@ -5,20 +5,12 @@ Classifies user queries by intent using Pydantic and OpenAI structured output.
 Each intent maps to a different retrieval strategy.
 """
 
-from enum import Enum
+import os
 
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
-
-class Intent(str, Enum):
-    """The different types of queries a user might ask."""
-
-    CONCEPTUAL = "conceptual"  # "What is X?" — needs broad context
-    PROCEDURAL = "procedural"  # "How do I X?" — needs specific steps
-    FACTUAL = "factual"  # "What was X?" — needs data lookup
-    COMPARATIVE = "comparative"  # "X vs Y?" — needs multi-source synthesis
-    OUT_OF_SCOPE = "out_of_scope"  # Off-topic or unsafe
+from intents import Intent
 
 
 class QueryClassification(BaseModel):
@@ -72,7 +64,7 @@ def classify_query(query: str, client: OpenAI | None = None) -> QueryClassificat
         client = OpenAI()
 
     response = client.responses.parse(
-        model="gpt-4o-mini",
+        model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
         input=CLASSIFICATION_PROMPT.format(query=query),
         text_format=QueryClassification,
     )

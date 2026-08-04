@@ -51,7 +51,7 @@ def main():
         demo_route(query, client)
         return
 
-    # Demo queries — one for each intent
+    # Demo queries, one for each intent
     queries = [
         "What is a JWT?",
         "How do I reset my API key?",
@@ -61,7 +61,7 @@ def main():
     ]
 
     print("\n  INTENT-BASED CLASSIFICATION DEMO")
-    print("  Each query gets classified and routed to a different strategy.\n")
+    print("  Each query gets classified. Pass one query to run the full route.\n")
 
     for query in queries:
         demo_classify(query, client)
