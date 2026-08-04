@@ -13,6 +13,7 @@ check:
     @just audit-layout
     @just audit-root-docs
     @just audit-junk
+    @just audit-empty-resources
     @just audit-markdown-links
     @just audit-verification
     @just audit-syntax
@@ -33,6 +34,9 @@ audit-root-docs:
 
 audit-junk:
     @python3 scripts/repository_checks.py junk
+
+audit-empty-resources:
+    @python3 scripts/repository_checks.py empty-resources
 
 audit-markdown-links:
     @python3 scripts/repository_checks.py markdown-links

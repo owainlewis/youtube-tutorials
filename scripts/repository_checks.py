@@ -24,9 +24,11 @@ REQUIRED_TUTORIAL_PREFIXES = {"code/", "resources/", "resources/slides/"}
 JUNK_PATTERN = re.compile(
     r"(^|/)(\.venv|venv|__pycache__|\.pytest_cache|\.ruff_cache|\.mypy_cache|"
     r"\.DS_Store|\.git/|node_modules|dist/|build/|\.lsp|\.clj-kondo|"
-    r"\.ipynb_checkpoints|uv\.lock$|package-lock\.json$|pnpm-lock\.yaml$|"
+    r"\.ipynb_checkpoints|\.tox|\.nox|\.next|\.nuxt|\.turbo|htmlcov|"
+    r"\.coverage$|coverage\.xml$|uv\.lock$|package-lock\.json$|pnpm-lock\.yaml$|"
     r"yarn\.lock$|bun\.lockb?$|Pipfile\.lock$|poetry\.lock$|Cargo\.lock$|"
-    r".*\.log$|\.env$|\.env\.local$)"
+    r".*\.(db|sqlite|sqlite3|log|pem|key|p12|pfx)$|credentials\.json$|"
+    r"service-account\.json$|\.env$|\.env\.(?!example$|sample$)[^/]+$)"
 )
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 FENCED_BLOCK_PATTERN = re.compile(r"(^|\n)(```|~~~).*?\n\2", re.DOTALL)
@@ -41,6 +43,25 @@ def tracked_files(root: Path = ROOT) -> list[Path]:
         text=True,
     )
     return [Path(filename) for filename in result.stdout.split("\0") if filename]
+
+
+def tracked_gitlinks(root: Path = ROOT) -> list[Path]:
+    """Return tracked submodules and embedded repository gitlinks."""
+    result = subprocess.run(
+        ["git", "ls-files", "--stage", "-z"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    gitlinks: list[Path] = []
+    for record in result.stdout.split("\0"):
+        if not record:
+            continue
+        metadata, filename = record.split("\t", 1)
+        if metadata.split()[0] == "160000":
+            gitlinks.append(Path(filename))
+    return gitlinks
 
 
 def catalog_slugs(path: Path = CATALOG_PATH) -> list[str]:
@@ -91,11 +112,26 @@ def check_root_docs(files: list[Path], slugs: list[str]) -> list[str]:
 
 
 def check_junk(files: list[Path]) -> list[str]:
-    return [
+    errors = [
         f"{path}: tracked junk"
         for path in files
         if JUNK_PATTERN.search(path.as_posix())
     ]
+    tracked = {path.as_posix() for path in files}
+    for path in files:
+        if path.name != ".gitkeep":
+            continue
+        prefix = path.parent.as_posix().rstrip("/") + "/"
+        if any(
+            filename != path.as_posix() and filename.startswith(prefix)
+            for filename in tracked
+        ):
+            errors.append(f"{path}: redundant .gitkeep beside tracked content")
+    return errors
+
+
+def check_nested_repositories(gitlinks: list[Path]) -> list[str]:
+    return [f"{path}: tracked nested repository" for path in gitlinks]
 
 
 def without_fenced_blocks(markdown: str) -> str:
@@ -149,6 +185,34 @@ def check_markdown_links(root: Path, files: list[Path]) -> list[str]:
             resolved = full_path.parent / target
             if not tracked_target_exists(resolved, root, tracked):
                 errors.append(f"{path}:{line}: missing local link target {target!r}")
+    return errors
+
+
+def check_empty_resource_links(root: Path, files: list[Path]) -> list[str]:
+    """Reject tutorial README links to directories containing only placeholders."""
+    errors: list[str] = []
+    tracked = {path.as_posix() for path in files}
+    readmes = [
+        path
+        for path in files
+        if len(path.parts) == 3
+        and path.parts[0] == "tutorials"
+        and path.name == "README.md"
+    ]
+    for path in readmes:
+        full_path = root / path
+        for line, target in local_markdown_links(full_path.read_text(errors="replace")):
+            resolved = full_path.parent / target
+            try:
+                relative = resolved.resolve().relative_to(root.resolve()).as_posix()
+            except ValueError:
+                continue
+            prefix = relative.rstrip("/") + "/"
+            members = [filename for filename in tracked if filename.startswith(prefix)]
+            if members and all(filename.endswith("/.gitkeep") for filename in members):
+                errors.append(
+                    f"{path}:{line}: link target {target!r} contains only placeholders"
+                )
     return errors
 
 
@@ -263,7 +327,10 @@ def run_check(
     checks = {
         "layout": lambda: check_layout(files, slugs),
         "root-docs": lambda: check_root_docs(files, slugs),
-        "junk": lambda: check_junk(files),
+        "junk": lambda: check_junk(files) + check_nested_repositories(
+            tracked_gitlinks(root)
+        ),
+        "empty-resources": lambda: check_empty_resource_links(root, files),
         "markdown-links": lambda: check_markdown_links(root, files),
         "verification": lambda: check_verification_manifest(root, files),
         "syntax": lambda: check_python_syntax(root, files)
@@ -287,6 +354,7 @@ def main() -> int:
             "layout",
             "root-docs",
             "junk",
+            "empty-resources",
             "markdown-links",
             "verification",
             "syntax",
@@ -302,6 +370,7 @@ def main() -> int:
             "layout",
             "root-docs",
             "junk",
+            "empty-resources",
             "markdown-links",
             "verification",
             "syntax",

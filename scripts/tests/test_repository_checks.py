@@ -112,6 +112,87 @@ class RepositoryChecksTest(unittest.TestCase):
             ],
         )
 
+    def test_junk_check_rejects_generated_data_and_secret_files(self) -> None:
+        files = [
+            Path("tutorials/python/results.sqlite3"),
+            Path("tutorials/python/.env.production"),
+            Path("tutorials/python/service-account.json"),
+            Path("tutorials/python/.env.example"),
+        ]
+
+        self.assertEqual(
+            repository_checks.check_junk(files),
+            [
+                "tutorials/python/results.sqlite3: tracked junk",
+                "tutorials/python/.env.production: tracked junk",
+                "tutorials/python/service-account.json: tracked junk",
+            ],
+        )
+
+    def test_junk_check_rejects_redundant_gitkeep(self) -> None:
+        files = [
+            Path("tutorials/alpha/code/.gitkeep"),
+            Path("tutorials/alpha/code/main.py"),
+            Path("tutorials/alpha/resources/slides/.gitkeep"),
+        ]
+
+        self.assertEqual(
+            repository_checks.check_junk(files),
+            [
+                "tutorials/alpha/code/.gitkeep: redundant .gitkeep beside tracked content"
+            ],
+        )
+
+    def test_junk_check_rejects_nested_repositories(self) -> None:
+        self.assertEqual(
+            repository_checks.check_nested_repositories(
+                [Path("tutorials/example/code/vendor-repository")]
+            ),
+            [
+                "tutorials/example/code/vendor-repository: tracked nested repository"
+            ],
+        )
+
+    def test_empty_resource_links_reject_placeholder_only_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            readme = root / "tutorials/alpha/README.md"
+            readme.parent.mkdir(parents=True)
+            readme.write_text("Browse [code](./code/).\n")
+
+            errors = repository_checks.check_empty_resource_links(
+                root,
+                [
+                    Path("tutorials/alpha/README.md"),
+                    Path("tutorials/alpha/code/.gitkeep"),
+                ],
+            )
+
+        self.assertEqual(
+            errors,
+            [
+                "tutorials/alpha/README.md:1: link target './code/' contains only placeholders"
+            ],
+        )
+
+    def test_empty_resource_links_allow_directory_with_real_content(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            readme = root / "tutorials/alpha/README.md"
+            readme.parent.mkdir(parents=True)
+            readme.write_text("Browse [code](./code/).\n")
+
+            errors = repository_checks.check_empty_resource_links(
+                root,
+                [
+                    Path("tutorials/alpha/README.md"),
+                    Path("tutorials/alpha/code/.gitkeep"),
+                    Path("tutorials/alpha/code/main.py"),
+                ],
+            )
+
+        self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()

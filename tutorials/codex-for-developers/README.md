@@ -7,9 +7,7 @@ Last verified against the official OpenAI documentation: 2026-08-04.
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Browse code samples: [code/](./code/)
 - Browse resources: [resources/](./resources/)
-- Browse slides: [resources/slides/](./resources/slides/)
 
 ## Go Deeper
 
