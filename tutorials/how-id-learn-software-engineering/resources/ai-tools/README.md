@@ -61,9 +61,9 @@ my-project/
 
 ## Resources
 
-- [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code) - Official docs
-- [Blueprint Skills](https://github.com/owainlewis/blueprint) - SDLC as executable AI skills
-- [Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) - OpenAI's guide to better prompts
+- External: [Claude Code documentation](https://code.claude.com/docs/en/overview)
+- External: [Blueprint Skills](https://github.com/owainlewis/blueprint)
+- External: [OpenAI prompt engineering guide](https://developers.openai.com/api/docs/guides/prompt-engineering)
 
 ## Go Deeper
 

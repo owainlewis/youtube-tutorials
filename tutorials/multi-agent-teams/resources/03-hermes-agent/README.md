@@ -2,80 +2,59 @@
 
 This is the supporting material for the video: 03 - Install Hermes Agent on the VPS.
 
-Hermes Agent is a general-purpose AI agent for personal automations and knowledge work. Where Claude Code is optimized for coding, Hermes is the better fit for research, repurposing, drafting, and general task automation.
-
-We install both on the same VPS so Multica can delegate to whichever agent fits a given ticket.
+Hermes Agent is one possible runner for the checked-in news research and LinkedIn repurposing skills. Multica can use it when the `hermes` command is installed and authenticated on the runner machine.
 
 ## Install
 
-> Confirm the exact install command from the [Hermes Agent docs](https://hermes.dev/) at the time you set this up. The pattern below is the expected shape; replace with the current command.
-
-Expected (placeholder):
+Use the current Linux install command from the [external Hermes Agent documentation](https://hermes-agent.nousresearch.com/docs/):
 
 ```bash
-# Likely install pattern; verify with current docs
-curl -fsSL https://hermes-agent.dev/install.sh | bash
-# OR via npm
-sudo npm install -g @hermes-agent/cli
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 ```
 
-Verify:
+Verify the binary:
 
 ```bash
 hermes --version
 ```
 
-## Set the API key
+## Configure a provider
+
+Hermes supports several model providers. Follow the [external quickstart](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart/) and choose the provider you intend to pay for and operate.
+
+The documented portal setup path is:
 
 ```bash
-echo 'export HERMES_API_KEY="..."' >> ~/.bashrc
-source ~/.bashrc
+hermes setup --portal
 ```
 
-## First run (one time, interactive)
+Do not paste API keys into this repository. Keep provider credentials in the location created by the Hermes setup flow.
+
+## Verify the runner
+
+Start one interactive session:
 
 ```bash
 hermes
 ```
 
-Same reasoning as Claude Code: validates the key, caches any OAuth tokens for downstream services Hermes connects to. Same [headless OAuth dance](../02-claude-code/#the-headless-oauth-dance-the-gotcha) applies if Hermes integrates with services that use OAuth.
+Ask it to perform a small read-only task, then exit. This proves the binary can reach the configured model before Multica tries to invoke it.
 
-## Test headless invocation
-
-```bash
-# Confirm Hermes' equivalent of `claude -p`
-echo "Summarize today's top AI news in 5 bullets" | hermes -p
-```
-
-## Use Hermes purely as a runner
-
-Hermes ships with its own Kanban feature. We're deliberately ignoring it - we want Multica's vendor-neutral abstraction layer instead. Configure Hermes only as a runner that Multica delegates to.
-
-If Hermes has tool/integration setup it needs for the use cases in the video (e.g., access to specific MCPs or APIs), configure those before moving on. Document any tool/integration setup as you go.
-
-## Common issues
-
-- **Auth conflicts with Claude Code** - they should be independent. Check token storage paths don't collide.
-- **Rate limits** - Hermes' free tier has limits. Consider a paid plan if you'll run many parallel agents.
-- **MCP sandboxing** - Hermes restricts MCP server processes more aggressively than Claude Code. OAuth-based MCPs (Notion, Gmail, Google Drive) often won't complete their flow inside Hermes. If you need Notion or similar, route those tasks to Claude Code instead, or use the GitHub gist pattern below for output.
-
-## Recommended output pattern: GitHub gists
-
-For agent outputs (research briefs, drafts, reports) the simplest universal pattern is a private GitHub gist:
+When Multica is installed, confirm that the runtime detects `hermes`. If it does not, compare the service user's `PATH` with the shell where this command succeeds:
 
 ```bash
-echo "{markdown content}" | gh gist create --filename "research.md" --desc "Topic: ..."
+command -v hermes
 ```
 
-This returns a URL the agent can hand back to Multica as the task result. Why this works for both runners:
+## Keep the first job narrow
 
-- Both Hermes and Claude Code have `gh` CLI access
-- No MCP dependency, so Hermes' sandbox doesn't block it
-- Returns a clean URL for Multica's ticket
-- Private by default, easy to share or revoke
-- No repo clutter
+Start with one checked-in skill:
 
-If you need rich formatting or dashboards (Notion, Airtable), do the agent's work into a gist, then have a separate downstream step (a Multica scheduled job, or a webhook on PR merge) sync to the dashboard tool.
+```text
+tutorials/multi-agent-teams/resources/05-skills-and-agents/skills/ai-news-research/SKILL.md
+```
+
+Verify the output manually before adding a schedule or another job. Provider support, permissions, and tool behavior can change, so use the current Hermes and Multica documentation when the observed behavior differs from this guide.
 
 ## Next
 

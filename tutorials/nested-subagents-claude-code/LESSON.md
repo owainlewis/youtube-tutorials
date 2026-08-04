@@ -1,21 +1,37 @@
 # Nested subagents in Claude Code: one agent, one concern
 
-If you have run long Claude Code sessions, you have probably noticed two things. First, the session that wrote the code is a poor reviewer of that code. It agrees with itself, because it carries all the assumptions that produced the change. Second, by the time you are debugging a failing test, the context window is full of implementation detail that has nothing to do with the failure, and answers get worse.
+If you have run long Claude Code sessions, you have probably noticed two things. First, the session that wrote the code is a poor reviewer of that code. It carries the assumptions that produced the change. Second, by the time you are debugging a failing test, the context window is full of implementation detail that has nothing to do with the failure, and answers get worse.
 
-Claude Code now lets subagents spawn their own subagents, up to five levels deep. This lesson covers what actually changed, the one pattern that makes it useful, and three concrete use cases. Each use case has a diagram and a prompt you can paste into a project today. By the end you will have a pipeline that takes a GitHub issue to a reviewed, tested draft pull request, plus the same pipeline ported to Codex as one self-contained prompt.
+Claude Code supports nested subagent spawning, but the default depth and configuration have changed between releases. This lesson focuses on the durable pattern: separate implementation, review, and testing so each concern gets a clean context. It includes three use cases and prompt templates you can adapt after configuring the roles in your own project.
 
-All prompts assume the six agent files from the companion repo are installed in your project's `.claude/agents/` directory: `code-implementer`, `check-runner`, `independent-reviewer`, `security-reviewer`, `correctness-reviewer`, `test-runner`, plus `failure-analyst`.
+This repository does not include Claude Code agent files. The Claude Code prompts below use seven role names as labels: `code-implementer`, `check-runner`, `independent-reviewer`, `security-reviewer`, `correctness-reviewer`, `test-runner`, and `failure-analyst`. Configure equivalent roles in your project before using prompts that name them.
+
+## Set up the roles
+
+Create project subagents in `.claude/agents/` using the [external Claude Code subagent guide](https://code.claude.com/docs/en/sub-agents). Use this inventory as the minimum role definition:
+
+| Role | Tools | One job |
+|---|---|---|
+| `code-implementer` | Read, Write, Edit, Bash, Agent | Make one bounded change and delegate checks |
+| `check-runner` | Read, Bash | Run named deterministic checks and report exit codes |
+| `independent-reviewer` | Read, Grep, Glob, Agent | Review the issue and diff without implementation notes |
+| `security-reviewer` | Read, Grep, Glob | Inspect security-sensitive changes and report evidence |
+| `correctness-reviewer` | Read, Grep, Glob | Find logic errors, edge cases, and contract breaks |
+| `test-runner` | Read, Bash, Agent | Run the relevant suite and report counts and exit codes |
+| `failure-analyst` | Read, Grep, Glob | Diagnose failing tests without editing code |
+
+Only the roles that delegate need the `Agent` tool. Older Claude Code configurations may call it `Task`, which remains an alias. Claude Code watches existing `.claude/agents/` and `~/.claude/agents/` directories and loads file changes automatically. Restart Claude Code after creating the first agent file in a directory that did not exist when the session started. Check your installed version's limits before relying on nested delegation. The [external Claude Code release notes](https://github.com/anthropics/claude-code/releases) record changes to nesting depth and defaults.
 
 ## What actually changed
 
-The change is one tool in one list. Agents in Claude Code spawn other agents with the Task tool. Until now, the Task tool was stripped out of every subagent's toolset, so a subagent could never delegate. That was the recursion blocker. Now a subagent can have the Task tool. If `Task` is in its tools list, it can spawn subagents. If it is not, it cannot.
+The change is one tool in one list. Agents in current Claude Code releases spawn other agents with the `Agent` tool. If `Agent` is in an agent's tools list and the installed version permits nesting at that depth, it can delegate. If the tool is omitted or the configured depth is reached, it cannot.
 
-Boris Cherny, who leads Claude Code at Anthropic, shipped this on June 9th with a cap of five levels. His stated reason matters: context management, not parallelism. Each subagent gets a fresh context window, does its work, and returns only a summary to its parent. The parent never sees the noise.
+The reason to use this is context management, not parallelism. Each subagent gets a fresh context window, does its work, and returns a summary to its parent. The parent does not need the intermediate noise.
 
 ```markdown
 ---
 name: my-subagent
-tools: Read, Grep, Glob, Task   # can delegate
+tools: Read, Grep, Glob, Agent   # can delegate when nesting is enabled
 ---
 ```
 
@@ -26,39 +42,39 @@ tools: Read, Grep, Glob         # cannot delegate, ever
 ---
 ```
 
-That tools line is the entire feature, and it is also the entire safety model. You decide which agents can spawn, in config, before Claude ever enforces its cap.
+That tools line is the main boundary. You decide which roles can delegate before the run starts, while Claude Code enforces the configured depth and session limits.
 
 ## The pattern: three levels, evidence flows up
 
 The valuable part of nesting is not recursion. It is this: each agent owns one clean concern, and evidence flows upward.
 
-An agent does its best work when everything in its context is relevant to the one thing it is doing. A reviewer that only reviews. A debugger chasing one theory. Same model, better output, because the context is clean. Nesting lets you build that focus at every level of a tree.
+An agent has less irrelevant material to process when its context is limited to one concern. A reviewer that only reviews. A debugger chasing one theory. Nesting lets you keep that focus at every level of a tree.
 
-Three levels is enough. Five looks theatrical and costs more.
+Three levels is enough for this pattern. Deeper trees add coordination cost without making these concerns clearer.
 
 ```mermaid
 graph TD
-    C["LEVEL 1 - coordinator<br/>owns the goal, never edits code<br/>tools: Read, Bash, Task"]
+    C["LEVEL 1 - coordinator<br/>owns the goal, never edits code<br/>tools: Read, Bash, Agent"]
 
-    C --> I["LEVEL 2 - code-implementer<br/>one bounded change<br/>has Task"]
-    C --> R["LEVEL 2 - independent-reviewer<br/>issue + diff only<br/>has Task"]
-    C --> T["LEVEL 2 - test-runner<br/>runs the suite<br/>has Task"]
+    C --> I["LEVEL 2 - code-implementer<br/>one bounded change<br/>has Agent"]
+    C --> R["LEVEL 2 - independent-reviewer<br/>issue + diff only<br/>has Agent"]
+    C --> T["LEVEL 2 - test-runner<br/>runs the suite<br/>has Agent"]
 
-    I --> CK["LEVEL 3 - check-runner<br/>exit codes only<br/>NO Task"]
-    R --> S["LEVEL 3 - security-reviewer<br/>NO Task"]
-    R --> CO["LEVEL 3 - correctness-reviewer<br/>NO Task"]
-    T --> F["LEVEL 3 - failure-analyst<br/>only if tests fail<br/>NO Task"]
+    I --> CK["LEVEL 3 - check-runner<br/>exit codes only<br/>NO Agent"]
+    R --> S["LEVEL 3 - security-reviewer<br/>NO Agent"]
+    R --> CO["LEVEL 3 - correctness-reviewer<br/>NO Agent"]
+    T --> F["LEVEL 3 - failure-analyst<br/>only if tests fail<br/>NO Agent"]
 ```
 
 | Level | Role | Job |
 |---|---|---|
 | 1 | Coordinator | Manage the overall work: sequence, arbitrate, escalate |
 | 2 | Workers | Do the actual work: implement, review, test |
-| 3 | Leaves | One narrow subtask each. No Task tool, so they cannot spawn |
+| 3 | Leaves | One narrow subtask each. No Agent tool, so they cannot spawn |
 
 Two rules keep the tree honest:
 
-1. **Leaves cannot spawn.** Level 3 agents do not get the Task tool. A leaf that can spawn turns your tree into a bush and your token bill into a surprise.
+1. **Leaves cannot spawn.** Level 3 agents do not get the Agent tool. A leaf that can spawn turns your tree into a bush and your token bill into a surprise.
 2. **Evidence, not opinions, moves up.** Exit codes, diffs, findings with file and line numbers, pass and fail counts. "Looks good" is not evidence.
 
 The three use cases below are the three branches of this tree. Each one is useful on its own.
@@ -262,7 +278,7 @@ The difference is where the tree is defined. In Claude Code, each role lives in 
 ```mermaid
 graph TD
     subgraph CC ["Claude Code"]
-        P1["coordinator prompt<br/>names agents"] --> A1[".claude/agents/*.md<br/>7 role files define the tree"]
+        P1["coordinator prompt<br/>names agents"] --> A1["your .claude/agents/*.md<br/>role files define the tree"]
     end
 
     subgraph CX ["Codex"]
@@ -388,7 +404,7 @@ The tree earns its cost when the work has genuinely separable concerns (implemen
 
 ## Try it
 
-Ten minutes, two steps, in a clean Claude Code session:
+Try two steps in a clean Claude Code session:
 
 1. Verify the depth cap yourself before trusting it:
 
@@ -406,6 +422,15 @@ Afterwards, report the maximum depth reached and what happened at
 the boundary. Do not do anything else.
 ```
 
-2. Copy the agent files into `.claude/agents/`, pick a small real issue, and run the use case 2 prompt against an existing diff. Then run `/usage` and look at what the review cost you.
+2. Create the seven role files described in [Set up the roles](#set-up-the-roles), pick a small real issue, and run the use case 2 prompt against an existing diff. Then run `/usage` and look at what the review cost you.
 
 You came in with a session that reviews its own work and debugs with a polluted context. You now have three patterns that fix that, one tree that combines them, and a number that tells you whether it was worth it.
+
+## References
+
+- External: [Claude Code subagents](https://code.claude.com/docs/en/sub-agents)
+- External: [Claude Code release notes](https://github.com/anthropics/claude-code/releases)
+
+## License
+
+Licensed under the [MIT License](../../LICENSE).

@@ -2,99 +2,85 @@
 
 This is the supporting material for the video: 04 - Install and Configure Multica.
 
-Multica is the agent control plane. It gives you a Kanban board where you create tickets, route them to specialized agents, and watch the work get done. Multica is **vendor-neutral**: it can delegate to Claude Code, Hermes Agent, OpenAI Codex, Pi Agent, or any other AI agent you point it at.
+Multica is the control plane used in this tutorial. It manages work and connects it to runner machines. Check the [external Multica documentation](https://multica.ai/docs) for current supported runners and deployment options.
 
-This is the durable reason to use it. Hermes ships its own Kanban. OpenAI is building Symphony. Anthropic will likely add similar tooling. Multica's edge is being the abstraction layer that lets you swap or mix providers without changing your workflow.
+## Before You Start
 
-## Install
+The self-hosted service requires Docker Engine with Compose v2, Git, Make, curl, OpenSSL, and free local ports `3000` and `8080`.
 
-> Confirm the current install command from the [Multica docs](https://multica.ai/) at the time you set this up. Multica is open-source and self-hostable.
-
-Expected pattern (placeholder):
+Confirm Docker first:
 
 ```bash
-# Self-host install (likely Docker-based)
-curl -fsSL https://multica.ai/install.sh | bash
-# OR via Docker Compose
-git clone https://github.com/multica-ai/multica.git ~/multica
-cd ~/multica
-docker compose up -d
+docker info
+docker compose version
 ```
 
-## Open the firewall
+The runner machine also needs at least one supported agent CLI installed and authenticated. That can be the same VPS or a separate machine.
+
+## Start Multica
+
+These commands come from the [external self-host quickstart](https://multica.ai/docs/self-host-quickstart):
 
 ```bash
-# Find Multica's port (likely 8080 or 3000)
-sudo ufw allow <multica-port>/tcp
-sudo ufw reload
+git clone --depth 1 https://github.com/multica-ai/multica.git
+cd multica
+make selfhost
 ```
 
-## First run
-
-Open `http://<your-vps-ip>:<multica-port>` in your local browser. You should see the Multica dashboard.
-
-Complete first-run setup:
-
-- Create an admin user
-- Set a workspace name
-- Note the working directory you'll point agents at later (we'll clone a repo there in step 06)
-
-## Verify Multica can see your runners
-
-In Multica admin, confirm both Claude Code and Hermes are detected as available runners. If not, point Multica at the binary paths:
+Check the containers and readiness endpoint:
 
 ```bash
-which claude   # likely /usr/bin/claude or similar
-which hermes
+docker compose -f docker-compose.selfhost.yml ps
+curl -fsS http://localhost:8080/readyz
 ```
 
-## Optional: put Multica behind a real domain with HTTPS
-
-For team access without exposing a raw IP, point a domain at the VPS and put Multica behind a reverse proxy.
-
-Caddy is the simplest option (auto-provisions Let's Encrypt certs):
+The readiness response should report that the database and migrations are `ok`. If it does not, inspect the backend and database logs before continuing:
 
 ```bash
-sudo apt install -y caddy
-
-sudo tee /etc/caddy/Caddyfile << 'EOF'
-agents.yourdomain.com {
-    reverse_proxy localhost:<multica-port>
-}
-EOF
-
-sudo systemctl reload caddy
+docker compose -f docker-compose.selfhost.yml logs backend postgres
 ```
 
-Now `https://agents.yourdomain.com` reaches your Multica instance with a valid cert.
+## Choose Local Or Remote Access
 
-## Persistence and backup
+For local access, open `http://localhost:3000`.
 
-Multica's state (tickets, agent configs, history) lives on the VPS. Back it up:
+For remote VPS access, do not bind the Multica ports directly to the public internet. Follow the [external remote-access section](https://multica.ai/docs/self-host-quickstart#remote-access) to configure public URLs, DNS, HTTPS, WebSockets, and a reverse proxy.
+
+## Create The Workspace
+
+Open the configured Multica web app and request a sign-in code. A new self-hosted instance without an email service writes the code to the backend logs:
 
 ```bash
-# Identify Multica's data directory (likely ~/multica/data or /var/lib/multica)
-# Add to a daily backup. Example with restic:
-restic -r /backup-target backup ~/multica/data
+docker compose -f docker-compose.selfhost.yml logs backend \
+  | grep "Verification code"
 ```
 
-## Architecture so far
+Enter the code and create a workspace. Do not configure a fixed development verification code on a public instance.
 
-```mermaid
-flowchart LR
-    Browser["Your browser"] -->|HTTPS| Caddy["Caddy<br/>(reverse proxy)"]
-    Caddy --> Multica["Multica<br/>(control plane)"]
-    Multica --> CC["Claude Code<br/>(runner)"]
-    Multica --> Hermes["Hermes Agent<br/>(runner)"]
+## Connect The Runner
 
-    style Browser fill:#4A90D9,stroke:#fff,color:#fff
-    style Caddy fill:#888,stroke:#fff,color:#fff
-    style Multica fill:#E07B39,stroke:#fff,color:#fff
-    style CC fill:#8B5CF6,stroke:#fff,color:#fff
-    style Hermes fill:#8B5CF6,stroke:#fff,color:#fff
+Install the Multica CLI on the machine that runs Claude Code or Hermes:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
 ```
 
-You have a control plane reachable over HTTPS, with both runners installed and detected. Now we need to give it work to do.
+If the service runs on the same machine:
+
+```bash
+multica setup self-host
+multica daemon status
+```
+
+If the service and runner use different machines, follow the external self-host guide and pass the configured app and server URLs to `multica setup self-host`.
+
+The daemon status should show a running daemon, at least one workspace, and the agent CLIs installed on that machine. Fix missing runtimes before creating agents.
+
+## Back Up Before Upgrading
+
+Multica keeps persistent state in its Docker volumes. Follow the [external backup and upgrade instructions](https://multica.ai/docs/self-host-quickstart#common-admin-commands) before updating an instance that contains work you care about.
+
+Do not run `docker compose down -v` unless you intend to delete the database volumes.
 
 ## Next
 

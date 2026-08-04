@@ -5,9 +5,8 @@ This is the supporting material for the video: Multica Turns Claude Code Into a 
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Browse code samples: [code/](./code/)
-- Browse resources: [resources/](./resources/)
-- Browse slides: [resources/slides/](./resources/slides/)
+- Follow the seven setup runbooks: [resources/](./resources/)
+- Use one of the three checked-in skills: [skills/](./resources/05-skills-and-agents/skills/)
 
 ## Go Deeper
 

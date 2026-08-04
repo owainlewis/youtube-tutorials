@@ -1,8 +1,8 @@
 # Multica Turns Claude Code Into a Remote Teammate
 
-Companion repo for the video. A complete, no-fluff guide to provisioning a Linux VPS, installing Claude Code on it, and connecting it to Multica so anyone on your team can delegate work to specialized remote agents.
+This lesson explains the control-plane and worker pattern for running specialized remote agents with Multica. The checked-in runbooks cover VPS setup, two runners, Multica, Git access, and team access.
 
-The video focuses on one demo: a remote Claude Code research agent. This repo extends that pattern to additional specialized agents (Hermes, Codex, content repurposing) you can build after. Read top to bottom and you'll have the system running in about three hours.
+The checked-in examples define three jobs: AI news research, LinkedIn post repurposing, and YouTube description writing. Start with one of those jobs and add another only after you can verify the first one.
 
 ## What this is
 
@@ -12,15 +12,13 @@ A real AI team is **specialized automations** with narrow scopes, running where 
 
 This guide builds that system end to end.
 
-## What you'll have when you're done
+## What The Runbooks Cover
 
-- A small Linux VPS running [Multica](https://multica.ai/) as the agent control plane
-- [Claude Code](https://docs.claude.com/en/docs/claude-code/) installed on the VPS as a coding-focused runner
-- [Hermes Agent](https://hermes.dev/) installed on the VPS as a general-purpose runner
-- Specialized agents in Multica, each backed by one skill file in a Git repo
-- Team access: anyone on your team with the URL can delegate work
-
-End cost: about $5-10 per month for the VPS plus your Anthropic and Hermes API usage.
+- A small Linux VPS running [Multica (external)](https://multica.ai/) as the agent control plane
+- [Claude Code documentation (external)](https://code.claude.com/docs/en/overview) for the coding-focused runner
+- [Hermes Agent documentation (external)](https://hermes-agent.nousresearch.com/docs/) for the general-purpose runner
+- Workspace skills copied from the three checked-in `SKILL.md` files and bound to agents
+- A path for tested team access through the authentication you configure
 
 ## The pattern: control plane and workers
 
@@ -70,7 +68,7 @@ Key properties of this pattern:
 - **The control plane is the abstraction.** You don't think about which machine a worker runs on. You think about what job the worker does.
 - **Specialization happens at the worker, not the control plane.** Each worker has its own job description, its own tools, its own workflow. The control plane just routes tickets.
 
-In our specific case, the control plane is **Multica** and the workers are **Claude Code, Hermes Agent, Codex, or any other AI agent runner** running on whichever machines you want.
+In this tutorial, the control plane is **Multica** and the workers use Claude Code or Hermes Agent. Check the [external Multica provider documentation](https://multica.ai/docs/providers) before selecting the model provider for a runtime.
 
 ## The architecture (concrete implementation)
 
@@ -78,48 +76,39 @@ In our specific case, the control plane is **Multica** and the workers are **Cla
 flowchart TB
     subgraph Local
         You["You / your team"]
-        Editor["Obsidian / your editor"]
     end
 
     subgraph VPS["Linux VPS (Hostinger / Hetzner / DO)"]
         Multica["Multica<br/>Kanban control plane"]
         CC["Claude Code<br/>coding runner"]
         Hermes["Hermes Agent<br/>general runner"]
-        Skills[("skills/<br/>job descriptions")]
+        Skills[("workspace skills<br/>copied from this repo")]
     end
 
     subgraph Cloud
         GitHub["GitHub repo<br/>artifact store"]
-        Gists["GitHub gists<br/>universal agent output"]
     end
 
     You -->|create ticket| Multica
     Multica -->|coding tasks| CC
     Multica -->|knowledge tasks| Hermes
-    CC -->|reads| Skills
-    Hermes -->|reads| Skills
+    Multica -->|supplies| Skills
+    Skills --> CC
+    Skills --> Hermes
     CC -->|commits drafts| GitHub
-    Hermes -->|publishes briefs| Gists
-    CC -->|publishes briefs| Gists
-    GitHub -->|auto-pull| Editor
-    Gists -->|URL returned| Multica
+    Hermes -->|commits drafts| GitHub
 
     style You fill:#4A90D9,stroke:#fff,color:#fff
-    style Editor fill:#4A90D9,stroke:#fff,color:#fff
     style Multica fill:#E07B39,stroke:#fff,color:#fff
     style CC fill:#8B5CF6,stroke:#fff,color:#fff
     style Hermes fill:#8B5CF6,stroke:#fff,color:#fff
     style Skills fill:#2D6B2D,stroke:#fff,color:#fff
     style GitHub fill:#2D2D2D,stroke:#888,color:#fff
-    style Notion fill:#2D2D2D,stroke:#888,color:#fff
 ```
 
 The VPS is the durable home for the agents. The control plane is Multica. The actual LLM execution happens in Claude Code or Hermes, depending on the task.
 
-Outputs follow one of two patterns:
-
-- **Git commits to a branch** for engineering work (PRs, code changes). Reviewed in your editor via `git pull` or the Obsidian Git plugin.
-- **GitHub gists** for knowledge work (research briefs, drafts, reports). The agent creates a private gist and returns the URL to Multica as the task result. This is the universal output pattern because it works across both runners and avoids MCP sandboxing issues with services like Notion.
+All three checked-in skills write files and commit them to a Git branch. Review the branch in GitHub or pull it into your editor. This tutorial does not include a gist or Notion output workflow.
 
 ## The thesis: what to delegate, what to keep
 
@@ -149,29 +138,37 @@ The honest beat: don't use AI agents for creative writing. The "AI slop" problem
 
 ## Why Multica specifically
 
-Hermes Agent already ships with its own Kanban. OpenAI is building Symphony. Anthropic will likely add something similar. Every provider will eventually offer this.
+Some runners include their own task interface. This tutorial keeps the control plane separate from the worker so you can choose a runner for each job. Check Multica's current documentation before assuming a runner is supported.
 
-Multica's edge isn't features. It's that it's **vendor-neutral**. You can run Claude Code, Hermes, Pi Agent, OpenAI Codex, all of them, in the same Kanban. Pick the agent that fits the job, not the agent that ships with the dashboard you happen to be using.
+The aim is to reduce runner lock-in by keeping the task interface separate from the worker.
 
-Multica is the abstraction layer that prevents lock-in.
+## The checked-in skills
 
-## The agents you'll build in this guide
+The repo contains three skill definitions under [`resources/05-skills-and-agents/skills/`](./resources/05-skills-and-agents/skills/). These are the only ready-to-copy jobs included with this tutorial.
 
-The video demos **one** specialized agent: a remote Claude Code research agent that takes a topic, researches the top YouTube videos, and publishes a brief to GitHub. That demo is the entry point.
+Each one has one job and one skill file. Do not combine them.
 
-This repo extends to additional specialized agents you can build using the same pattern. Each one has ONE job and ONE skill file. Don't combine.
-
-| Agent | Runner | Skill | Job |
+| Agent | Suggested runner | Checked-in skill | Output contract |
 |---|---|---|---|
-| **YouTube Research** (in the video) | Claude Code on VPS | `skills/youtube-research/` | Topic -> research brief on GitHub |
-| News Research | Hermes (or Claude Code) | `skills/ai-news-research/` | Daily AI news digest |
-| LinkedIn Post Writer | Hermes | `skills/linkedin-post/` | Repurpose video to LinkedIn post |
-| Substack Note Writer | Hermes | `skills/substack-notes/` | Repurpose video to Substack note |
-| Kit Email Writer | Hermes | `skills/kit-email/` | Repurpose video to Kit promo email |
-| YouTube Description Writer | Claude Code | `skills/youtube-description/` | Generate descriptions and chapters |
-| Deployment Agent | Claude Code | `skills/deployment/` | Run deploy scripts, tag releases |
+| News Research | Hermes or Claude Code | [`ai-news-research`](./resources/05-skills-and-agents/skills/ai-news-research/) | Dated digest on `agent/news-{YYYY-MM-DD}` |
+| LinkedIn Post Writer | Hermes | [`linkedin-post`](./resources/05-skills-and-agents/skills/linkedin-post/) | `content/linkedin/{slug}.md` on `agent/linkedin-{slug}` |
+| YouTube Description Writer | Claude Code | [`youtube-description`](./resources/05-skills-and-agents/skills/youtube-description/) | `description.md` and `chapters.md` on `agent/description-{slug}` |
 
-The principle to take away: **specialized agents with structured workflows beat generalist agents prompted ad-hoc.** Build one specialized agent first. Add more once you've felt the pattern work.
+The principle to take away: **specialized agents with structured workflows are easier to verify than generalist agents prompted ad hoc.** Build one specialized agent first. Add more only when you can define another narrow, checkable job.
+
+### Copy A Checked-In Skill Into Multica
+
+Choose one checked-in skill:
+
+```text
+tutorials/multi-agent-teams/resources/05-skills-and-agents/skills/ai-news-research/SKILL.md
+tutorials/multi-agent-teams/resources/05-skills-and-agents/skills/linkedin-post/SKILL.md
+tutorials/multi-agent-teams/resources/05-skills-and-agents/skills/youtube-description/SKILL.md
+```
+
+In Multica, open the workspace Skills page, choose **New skill**, then **Create manually**. Copy the chosen `SKILL.md` into the workspace skill. For AI news research, also add `references/sources.md` as a supporting file. Multica does not automatically register a skill because it exists in this repository.
+
+Create an agent with a connected runtime, attach the workspace skill from the agent's Skills tab, and keep Access set to **Only me** for the first run. The detailed flow is in [05 - Configure specialized agents](./resources/05-skills-and-agents/). The [external Multica skills guide](https://multica.ai/docs/skills) explains the current import and binding model.
 
 ## How it actually runs (the flow)
 
@@ -182,23 +179,71 @@ sequenceDiagram
     participant A as Specialized Agent
     participant R as Runner (Claude Code or Hermes)
     participant G as GitHub repo
-    participant E as Your editor
 
     Y->>M: Create ticket "Daily AI news digest"
     M->>A: Assign ticket to News Research Agent
     A->>R: Invoke runner with skill prompt
     R->>R: Fetch sources, generate digest
-    R->>G: Commit to agent/research-... branch
-    R->>M: Report success
-    M->>M: Move card to "Drafted"
-    G->>E: Auto-pull (Obsidian Git plugin, every 10 min)
-    Y->>E: Review the draft
-    Y->>G: Merge or send back to "Needs Revision"
+    R->>G: Commit to agent/news-{YYYY-MM-DD} branch
+    R->>M: Report result and move issue to in_review
+    G-->>Y: Review the exact branch and draft in GitHub
+    alt Draft is approved
+        Y->>G: Merge the branch
+    else Draft needs changes
+        Y->>M: Comment and @-mention the agent
+    end
 ```
 
-The Kanban states match the review states: `Backlog -> In Progress -> Drafted -> Needs Revision -> Approved -> Published`. If you send a card back, the agent re-runs with the original input plus your comment.
+Use the current Multica states: `backlog`, `todo`, `in_progress`, `in_review`, `done`, `blocked`, and `cancelled`. A normal run starts from `todo`, moves to `in_progress`, and should reach `in_review` when the agent delivers. Mark it `done` only after you inspect the branch. For changes, leave a concrete comment and @-mention the agent from the editor suggestions. The mention creates a follow-up task. See the [external Multica comments guide](https://multica.ai/docs/comments).
 
-## Setup, in order
+## Minimum End-To-End Setup
+
+This is the shortest complete path. The linked runbooks explain each step and its failure cases.
+
+1. Provision a Linux VPS and install one authenticated runner, either Claude Code or Hermes Agent.
+2. Start Multica with the current self-host path:
+
+   ```bash
+   git clone --depth 1 https://github.com/multica-ai/multica.git
+   cd multica
+   make selfhost
+   docker compose -f docker-compose.selfhost.yml ps
+   curl -fsS http://localhost:8080/readyz
+   ```
+
+3. From your local machine, create a temporary SSH tunnel to the VPS:
+
+   ```bash
+   ssh -N -L 3000:127.0.0.1:3000 USER@VPS_HOST
+   ```
+
+   Keep that terminal open, visit `http://localhost:3000`, and request a sign-in code. On a new instance without email delivery, retrieve the code from another VPS session:
+
+   ```bash
+   cd multica
+   docker compose -f docker-compose.selfhost.yml logs backend \
+     | grep "Verification code"
+   ```
+
+   Enter the code and create the workspace. Use the external remote-access guide linked below to configure HTTPS before inviting other users.
+
+4. Install and connect the Multica CLI on the runner machine:
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
+   multica setup self-host
+   multica daemon status
+   ```
+
+5. Connect the output repository to the Multica workspace and add it to a project as a GitHub repository resource. Authenticate `gh` on the runtime with a fine-grained token limited to that repository and the permissions the job needs.
+6. Open Multica's workspace Skills page. Create a skill manually from one checked-in `SKILL.md`. Add its supporting files when present.
+7. Create a blank agent. Select the connected runtime, write its narrow responsibility, attach the workspace skill, and leave Access as **Only me**.
+8. Create a `todo` issue and assign it to the agent. Confirm the issue reaches `in_review`, then inspect the exact Git branch and files named by the skill.
+9. Configure HTTPS, production email delivery, signup restrictions, member roles, and agent Access before inviting another user. Test the same issue flow with a second account.
+
+Do not schedule a job until this manual run passes. Current product details are in the [external Multica self-host guide](https://multica.ai/docs/self-host-quickstart), [external skills guide](https://multica.ai/docs/skills), and [external agent configuration guide](https://multica.ai/docs/agents-create).
+
+## Detailed Runbooks
 
 Read these in order. Each one builds on the previous.
 
@@ -206,11 +251,11 @@ Read these in order. Each one builds on the previous.
 2. [02 - Install Claude Code](./resources/02-claude-code/) - npm install, API key, the headless OAuth dance
 3. [03 - Install Hermes Agent](./resources/03-hermes-agent/) - install + configure
 4. [04 - Install Multica](./resources/04-multica/) - self-host, reverse proxy, first-run config
-5. [05 - Configure specialized agents](./resources/05-skills-and-agents/) - skill files, agent definitions, scheduled automation
+5. [05 - Configure specialized agents](./resources/05-skills-and-agents/) - use one of the three checked-in skill files
 6. [06 - Connect Multica to Git](./resources/06-git-access/) - fine-grained PAT, gh CLI, manual PR test
 7. [07 - Add team access](./resources/07-team-access/) - Multica auth, multi-user, the verification test
 
-The first three steps stand up the runners. The next three configure the team. The last step proves it works for someone other than you.
+The runbooks add hardening, failure checks, Git setup, and team access around the minimum path above.
 
 ## When this is NOT the right pattern
 
@@ -228,10 +273,10 @@ The system is wrong if:
 
 ## Things to watch out for
 
-- **Token cost.** Multiple agents running in parallel costs roughly N times a single session. Make sure the parallelism is adding value.
+- **Token cost.** Concurrent runs increase provider usage. Check actual usage before scaling the number of agents.
 - **OAuth on a server is a manual step.** Headless servers don't have browsers. The first time you authenticate Claude Code or any OAuth-based MCP, you'll copy a URL out of your terminal into your local browser, complete auth, then paste a code back. See [02 - Install Claude Code](./resources/02-claude-code/) for the dance.
-- **Same-file edits.** Two agents editing the same file will overwrite each other. Specialize each agent so they own different output paths.
-- **Token rotation.** Fine-grained GitHub PATs expire every 90 days max. Set a calendar reminder.
+- **Same-file edits.** Two agents editing the same file can conflict. Specialize each agent so they own different output paths.
+- **Token rotation.** Choose an expiry for each fine-grained GitHub PAT and rotate it before that date. An organization or enterprise policy may impose a maximum lifetime.
 - **Provider lock-in is sneaky.** It's tempting to consolidate on one vendor's tools as they ship more features. Resist if you can. The vendor-neutral setup outlives any one provider's product cycle.
 
 ## License

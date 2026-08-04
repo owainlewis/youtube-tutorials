@@ -27,9 +27,6 @@ In this video:
 - {bullet 4}
 - {bullet 5}
 
-Companion repo: {link}
-{optional: community / agency CTAs}
-
 Chapters:
 00:00 Intro
 {populated from chapters.md}
@@ -58,6 +55,7 @@ Chapters:
 - No hype words
 - No em-dashes
 - Don't repeat the title in the description's first line — assume the viewer already saw it
+- Do not invent or add resource, community, or companion-repo links that were not supplied in the input
 
 ## Commit
 
