@@ -1,8 +1,7 @@
-"""
-Good tests: test YOUR logic, not someone else's code.
+"""Copyable review snippets, not a runnable test module.
 
-These examples show tests that catch real bugs,
-define security boundaries, and protect business logic.
+The undefined application names are intentional. Adapt these shapes to real
+requirements in your project, or run the complete example under ``code/``.
 """
 
 import pytest
@@ -80,7 +79,7 @@ def test_expired_token_rejected():
     assert response.status_code == 401
 
 
-# ── Edge Cases AI Typically Misses ──────────────────────────────
+# Edge cases worth checking
 
 def test_normalizer_handles_none_input():
     """Normalizer should return empty string for None, not crash."""

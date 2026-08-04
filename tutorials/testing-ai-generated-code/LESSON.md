@@ -1,285 +1,228 @@
 # How I Test AI-Generated Code
 
-Companion repo for the video. Everything you need to set up a testing workflow with AI coding agents.
+## Title Options
 
-## The Problem
+### Recommended
 
-AI agents write code that looks correct, passes a quick glance, and then breaks in ways you don't expect. Without tests, the agent is relying on its own judgment about whether the code is correct. That judgment is sometimes wrong.
+How I Test AI-Generated Code
 
-Tests give the agent a closed feedback loop. Write code, run the tests, see what failed, fix it. The agent can actually verify its own work.
+Why: it is direct, searchable, and matches the practical workflow in this lesson.
 
-## Why Testing Matters More With AI Agents
+### Options
 
-Two reasons we write tests:
+1. Testing AI-Generated Code: A Practical Workflow
+2. Test-Driven Development With AI Coding Agents
+3. My Workflow for Testing AI-Generated Code
+4. How I Use Tests to Keep AI Coding Agents on Track
+5. Stop Shipping AI Code You Cannot Verify
+6. How to Test AI Code Without Chasing Coverage
+7. Better AI Code Starts With Better Feedback
+8. AI Code Tests: Useful Signals vs False Confidence
 
-1. **Correctness.** The code does what it's meant to do right now.
-2. **Regressions.** Changes to one part of the codebase don't break something else.
+## Opening Script
 
-AI agents make both worse. They make dozens of changes across your codebase in a single session. They're focused on the task in front of them and have no idea they just broke authentication in another file. Tests are your insurance.
+When an AI agent writes some of your code, the difficult part is knowing whether that code actually works. A passing test suite can help, but only when the tests prove the behavior you care about. An agent can also write a large number of weak tests that execute every line and still miss the important failure. In this video, I will show you how I choose what to test, how I use a red-green-refactor loop with an agent, and how to tell the difference between a useful test and false confidence. The runnable example and prompts are linked for free in the description below. So, let's get into it.
+
+## The Basic Idea
+
+Tests give a coding agent feedback it can act on.
+
+```text
+change code -> run a check -> inspect the result -> correct the code
+```
+
+Without a check, the agent can only explain why its change looks right. That is not proof. A useful test turns a requirement into an observable result.
+
+There is an important limit. A green test only proves the assertion that was written. It does not prove that the whole feature is correct, secure, or ready for production.
+
+## Start With Risk, Not Coverage
+
+Coverage asks which lines ran. Risk asks what failure would matter.
+
+Before asking an agent for tests, write down the behavior that must hold and the likely ways it could fail. For an authentication service, useful questions include:
+
+- When does a session expire?
+- Can the expiry duration be configured?
+- What happens exactly at the expiry boundary?
+- Can an invalid duration create a session?
+
+Those questions describe decisions in our application. By contrast, a test that proves `datetime` can add two hours mostly repeats a standard library guarantee.
+
+Use this filter for each proposed test:
+
+| Question | Keep the test when | Drop or reshape it when |
+| --- | --- | --- |
+| What behavior does it prove? | The behavior is a requirement or important boundary. | The answer is only a function name. |
+| What bug would make it fail? | A plausible change in our code would break it. | It only repeats documented framework or library behavior. |
+| Does it survive refactoring? | Equivalent implementations still pass. | It asserts private calls or internal structure. |
+| What remains unproved? | The limitation is clear. | The test is presented as proof of the whole system. |
+
+## Choose the Right Test Boundary
+
+Different checks answer different questions.
+
+```mermaid
+flowchart BT
+    UNIT["Unit tests<br/>one policy or function"] --> INTEGRATION["Integration tests<br/>components working together"]
+    INTEGRATION --> E2E["End-to-end tests<br/>a real user flow"]
+    E2E --> EVALS["Evals<br/>quality of non-deterministic output"]
+```
+
+A unit test is useful for session expiry policy. It cannot prove that a browser can log in, a database stores the session, or a deployed service has the right configuration. Add broader checks when those boundaries carry meaningful risk.
+
+For AI features, deterministic software checks and output evals have different jobs. Use normal tests for parsing, permissions, retries, state changes, and other deterministic behavior. Use evals for answers that can vary while still being acceptable.
+
+## Use Red, Green, Refactor
+
+The most useful test-first loop is small:
 
 ```mermaid
 flowchart LR
-    subgraph without["Without Tests"]
-        direction LR
-        A1[Agent writes code] --> A2[Looks right] --> A3[Ships] --> A4[Breaks in production]
-    end
-    subgraph with_tests["With Tests"]
-        direction LR
-        B1[Agent writes code] --> B2[Runs tests] --> B3[Sees failure] --> B4[Fixes it] --> B5[Confirmed working]
-    end
-
-    style A4 fill:#f87171,color:#fff,stroke:#f87171
-    style B5 fill:#34d399,color:#fff,stroke:#34d399
+    R["Red<br/>write one failing test"] --> G["Green<br/>make it pass"]
+    G --> F["Refactor<br/>improve the code"]
+    F --> S["Run the full suite"]
+    S --> R
 ```
 
-## The Testing Pyramid
+The red step matters. It shows that the new test can detect the missing or broken behavior. If a new test is green before the change, work out whether it describes existing behavior, misses the intended failure, or is unnecessary.
 
-```mermaid
-graph TD
-    EVALS["Evals - non-deterministic AI output"] --> E2E["E2E Tests - full user flows"]
-    E2E --> INTEGRATION["Integration Tests - components together"]
-    INTEGRATION --> UNIT["Unit Tests - single functions (most tests here)"]
+The full suite matters too. The focused test checks the new behavior. The existing suite checks that the change did not break behavior elsewhere.
 
-    style EVALS fill:#a78bfa,color:#fff,stroke:#a78bfa
-    style E2E fill:#f27a3a,color:#fff,stroke:#f27a3a
-    style INTEGRATION fill:#3b6ce8,color:#fff,stroke:#3b6ce8
-    style UNIT fill:#34d399,color:#fff,stroke:#34d399
+## Give the Agent a Concrete Contract
+
+Weak prompt:
+
+```text
+Write tests for the authentication service.
 ```
 
-## What to Test
+This names a component but gives no requirements. The agent must guess what matters.
 
-| Test This | Skip This |
-|-----------|-----------|
-| Business logic (scoring, pricing, access rules) | Framework boilerplate (does FastAPI return 200?) |
-| Complex conditionals with multiple branches | Library behavior (does `json.loads` work?) |
-| Data transformations (reshape input to output) | Mocks testing mocks |
-| Edge cases AI consistently misses (nulls, boundaries) | Simple CRUD with no custom logic |
+Better prompt:
 
-**The rule:** "Am I testing my logic or someone else's code?" If someone else's, skip it.
+```text
+The session policy has these requirements:
 
-## Test-First vs Test-After
+- the default duration is 120 minutes
+- callers can choose a positive custom duration
+- a session is expired when the current time reaches its expiry time
+- zero or negative durations are invalid
 
-### Test-After (common approach)
-
-Write code first, then write tests to verify. Better than no tests. But with AI agents, if you say "write tests for this code," the agent reads the code and writes tests that pass the current behavior. It's grading its own homework.
-
-The stat: AI-generated code with 100% test coverage scored **4% on mutation testing**. Every line executed. Every test green. Caught almost nothing.
-
-### Test-First (TDD)
-
-Write the test first. The test describes what the code *should* do. Then write the code to make it pass.
-
-```mermaid
-flowchart LR
-    R["🔴 Red\nWrite test\nIt fails"] --> G["🟢 Green\nMinimum code\nto pass"] --> RF["🔵 Refactor\nClean up\nTests keep it honest"] --> R
-
-    style R fill:#f87171,color:#fff,stroke:#f87171
-    style G fill:#34d399,color:#fff,stroke:#34d399
-    style RF fill:#3b6ce8,color:#fff,stroke:#3b6ce8
+Write one failing test for the first requirement.
+Run it and show the failure. Do not change production code yet.
 ```
 
-With AI agents, this gives the agent a concrete target and prevents over-engineering.
+This gives the agent observable behavior and keeps the change small. [`resources/prompts.md`](./resources/prompts.md) provides reusable versions of this workflow.
 
-## The Workflow
+## Runnable Example
 
-The key insight: **you decide what to test, the agent handles the red-green cycle.** One well-directed prompt beats two separate ones.
+The example under [`code/`](./code/) implements one small session policy with Python's standard library. It needs no credentials, services, package installation, or network access.
 
-```mermaid
-flowchart TD
-    YOU["👤 You decide what to test"] --> PROMPT["Write a prompt focused on risk"]
-    PROMPT --> TDD["Agent runs red-green-refactor"]
-    TDD --> RED["🔴 Writes test, confirms it fails"]
-    RED --> GREEN["🟢 Implements minimum code to pass"]
-    GREEN --> REFACTOR["🔵 Cleans up"]
-    REFACTOR --> SUITE["Runs full test suite"]
-    SUITE --> CHECK{Regressions?}
-    CHECK -->|No| NEXT["Next test"]
-    CHECK -->|Yes| FIX["Fixes regression"]
-    FIX --> SUITE
-
-    style YOU fill:#3b6ce8,color:#fff,stroke:#3b6ce8
-    style RED fill:#f87171,color:#fff,stroke:#f87171
-    style GREEN fill:#34d399,color:#fff,stroke:#34d399
-    style NEXT fill:#34d399,color:#fff,stroke:#34d399
+```text
+code/
+├── README.md
+├── auth_service.py
+└── tests/
+    └── test_auth_service.py
 ```
 
-### Example Prompt
+From the repository root, run:
 
-Direct the agent toward **risk**, not coverage. Tell it what could go wrong, not which functions to test.
-
-```
-/tdd
-
-Read the spec at .ai/specs/auth.md
-
-Implement the auth service. Think about what could actually go wrong.
-Focus on behaviours where a bug would be a security vulnerability.
-Don't test library functions (bcrypt, secrets). Test our decisions
-and security risks.
-```
-
-The `/tdd` skill handles the red-green cycle automatically. You handle what to test.
-
-### The Principle
-
-If you say "write tests and implement this feature," you've handed over the most important decision: **what to test**. The agent will test everything because it has no judgment about what matters in your system. You do.
-
-Research backs this up: targeted TDD reduced regressions by 70%. Vague "do TDD" instructions made things worse (regressions went from 6% to 10%).
-
-## CLAUDE.md Testing Config
-
-Drop this into your project's `CLAUDE.md` to set the testing baseline for every session:
-
-```markdown
-## Testing
-
-- Run tests with: `uv run pytest tests/ -x`
-- Use red-green TDD for new features with business logic
-- Write tests for: business logic, complex conditionals, data transformations, edge cases
-- Do NOT write tests for: framework boilerplate, library behavior, simple CRUD
-- After implementation, run the full test suite to check for regressions
-- If tests fail, fix the code, not the tests (unless the test is genuinely wrong)
-```
-
-## Example: Good Test vs Bad Test
-
-### Good: Tests business logic
-
-```python
-def test_scorer_zero_experience_perfect_skills():
-    """Candidate with no experience but perfect skill match
-    should still score above 0.5 because skills outweigh tenure."""
-    candidate = Candidate(years_experience=0, skills=["python", "fastapi", "postgresql"])
-    job = Job(required_skills=["python", "fastapi", "postgresql"])
-
-    score = calculate_score(candidate, job)
-
-    assert score > 0.5
-    assert score < 1.0  # Not a perfect score without experience
-```
-
-### Good: Tests a security boundary
-
-```python
-def test_recruiter_cannot_see_other_recruiters_candidates():
-    """Data isolation: recruiter A should never see recruiter B's candidates."""
-    recruiter_a = create_recruiter("alice@company.com")
-    recruiter_b = create_recruiter("bob@company.com")
-    candidate = create_candidate(recruiter_id=recruiter_b.id)
-
-    response = client.get("/candidates", headers=auth_headers(recruiter_a))
-
-    assert candidate.id not in [c["id"] for c in response.json()]
-```
-
-### Bad: Tests the framework
-
-```python
-def test_health_endpoint_returns_200():
-    """This tests FastAPI, not your code."""
-    response = client.get("/health")
-    assert response.status_code == 200
-```
-
-### Bad: Tests a mock
-
-```python
-def test_sends_email(mock_smtp):
-    """This tests that the mock was called, not that email actually works."""
-    send_welcome_email("user@example.com")
-    mock_smtp.send.assert_called_once()
-    # When the real SMTP server rejects the email, this test still passes.
-```
-
-## The Live Demo Workflow
-
-What I show in the video, step by step:
-
-### Cycle 1: Auth
-
-```
-Prompt: "Write a test that verifies a user with the wrong password gets a 401."
--> Agent writes test -> Run -> Red (or Green if auth works, which locks in the behavior)
-```
-
-### Cycle 2: Scorer Edge Case
-
-```
-Prompt: "Write a test for when a candidate has zero experience but perfect skill matches."
--> Agent writes test -> Run -> Red
--> Agent implements -> Run -> Green
--> Run full suite -> No regressions
-```
-
-### Cycle 3: Data Isolation
-
-```
-Prompt: "Write a test that recruiter A cannot see recruiter B's candidates."
--> Agent writes test -> Run -> Red (no tenant filtering exists)
--> Agent adds scoping to query -> Run -> Green
-```
-
-### The Skip
-
-"I'm not going to write a test for this CRUD endpoint. It's standard FastAPI. A test here would just be testing that FastAPI works."
-
-## Key Stats
-
-| Stat | Source |
-|------|--------|
-| AI-generated tests: 100% coverage, 4% mutation score | HumanEval-Java study |
-| AI-authored PRs: 75% more logic errors than human PRs | CodeRabbit, Dec 2025 |
-| Targeted TDD: 70% regression reduction | TDAD paper (arXiv) |
-| Vague TDD instructions: regressions increased from 6% to 10% | TDAD paper (arXiv) |
-
-## Files in This Repo
-
-```
-testing-ai-generated-code/
-├── README.md              # This file
-├── resources/slides/slides.html # Branded slide deck for the video
-├── prompts/
-│   ├── test-first.md      # Prompt 1: Write the test (with wrong vs right examples)
-│   ├── make-it-pass.md    # Prompt 2: Make it pass
-│   ├── single-prompt.md   # Combined approach for smaller tasks
-│   └── claude-md.md       # CLAUDE.md testing config (Python, TS, Ruby)
-└── examples/
-    ├── COMPARISON.md       # Before vs after comparison table
-    ├── good-tests.py       # Examples of useful tests
-    ├── bad-tests.py        # Examples of wasteful tests
-    ├── trivial-tests/      # Before: implementation-focused prompt
-    │   ├── auth_service.py     # The implementation
-    │   └── test_auth_service.py # 7 tests, mostly testing libraries
-    └── better-tests/       # After: risk-focused prompt
-        ├── auth_service.py     # The improved implementation
-        └── test_auth_service.py # 6 tests, all proving real requirements
-```
-
-## The /tdd Skill
-
-The live demo uses the `/tdd` skill from the Blueprint plugin. It enforces red-green-refactor automatically: write a failing test, implement the minimum to pass, clean up, repeat. Every test must justify its existence.
-
-Install it:
 ```bash
-/plugin marketplace add owainlewis/blueprint
-/plugin install blueprint@owainlewis-blueprint
+python3 -m unittest discover \
+  -s tutorials/testing-ai-generated-code/code/tests \
+  -v
 ```
 
-Then use it:
+Expected result:
+
+```text
+Ran 6 tests
+
+OK
 ```
-/tdd
 
-Read the spec at .ai/specs/auth.md
-Implement the auth service. Think about what could actually go wrong.
-Don't test library functions. Test our decisions and security risks.
-```
+There is no install or reset step. The example uses only the Python standard library and does not persist state.
 
-The skill handles the red-green cycle. You handle what to test.
+### What the tests prove
 
-See the full skill: [Blueprint TDD Skill](https://github.com/owainlewis/blueprint/blob/main/skills/tdd/SKILL.md)
+| Test | What it proves | What it does not prove |
+| --- | --- | --- |
+| Default expiry | The application adds its documented 120-minute default. | That a database stores the value correctly. |
+| Custom expiry | A positive caller-supplied duration changes the result. | That every API caller validates its input. |
+| Expiry boundary | A session is expired at the exact expiry time. | That clocks agree across deployed machines. |
+| Future session | A session before its expiry time remains valid. | That its token belongs to the current user. |
+| Invalid duration | Zero and negative durations are rejected. | That an HTTP endpoint maps the error correctly. |
+| Timezone requirement | Naive datetimes are rejected rather than compared ambiguously. | That production time synchronization is healthy. |
 
-## Related
+The tests deliberately inject fixed times. That makes the policy deterministic and avoids waiting for a clock during the test.
 
-- [How I Review AI-Generated Code](../ai-code-review/) - The companion video on code review
-- [Blueprint plugin](https://github.com/owainlewis/blueprint) - Full SDLC workflow including TDD skill
-- [Agent Skills by Addy Osmani](https://github.com/addyosmani/agent-skills) - Comprehensive collection of Claude Code skills including a detailed TDD skill with the Prove-It Pattern, test pyramid, DAMP over DRY, and anti-patterns guide
+## Copyable Examples Are Not a Test Suite
+
+[`resources/examples/good-tests.py`](./resources/examples/good-tests.py) and [`resources/examples/bad-tests.py`](./resources/examples/bad-tests.py) are teaching snippets. They show test shapes from a larger application, so names such as `client`, `Candidate`, and `create_user` are intentionally undefined. Do not run those files as part of the example suite.
+
+Use them to discuss a review question: does this assertion prove our behavior, or does it only mirror an implementation detail?
+
+## Review AI-Written Tests
+
+Review tests with the same care as production code.
+
+1. Read the requirement without looking at the implementation.
+2. Match each test to one observable behavior.
+3. Confirm the test can fail for the intended reason.
+4. Look for missing boundaries and failure paths.
+5. Remove assertions that only duplicate library behavior.
+6. Run the focused test and then the full suite.
+7. State what the suite still does not cover.
+
+Be careful when an agent changes a failing test. Sometimes the test is wrong. Sometimes changing it hides a real defect. Ask the agent to explain the mismatch before accepting either change.
+
+## Common Failure Modes
+
+### The suite is green before implementation
+
+The test may describe behavior that already exists or assert the wrong thing. Reproduce the intended failure before changing production code.
+
+### Tests only assert that mocks were called
+
+A call assertion can be useful at a boundary, but it does not prove the external outcome. Add an integration check when persistence, delivery, or protocol compatibility matters.
+
+### Tests depend on wall-clock timing
+
+Inject a fixed time or clock. Tight timing windows can become flaky on slower machines.
+
+### Coverage becomes the target
+
+Coverage can reveal unexecuted code. It cannot decide whether the assertions are useful. Treat it as a map for investigation, not a quality score.
+
+### The agent weakens the test
+
+If production code fails a requirement, fix the code. Change the test only when the requirement or assertion is genuinely wrong, and record why.
+
+## A Practical Workflow
+
+For each small change:
+
+1. Write the requirement as observable behavior.
+2. Identify the highest-risk boundary.
+3. Ask for one test.
+4. Run it and confirm the expected failure.
+5. Implement the smallest correct change.
+6. Run the focused test.
+7. Run the full suite and repository checks.
+8. Review both the code and the tests.
+
+This keeps the agent's feedback loop tight while leaving the important judgment with you.
+
+## References
+
+- [Runnable session-policy example](./code/)
+- [Reusable testing prompts](./resources/prompts.md)
+- [Copyable test review examples](./resources/examples/)
+- [Video slides](./resources/slides/slides.html)
+
+## Summary
+
+- The one thing to remember: choose tests from requirements and risks, then use them as executable feedback for the agent.
+- The honest limitation: a passing suite proves only the behavior it checks.
+- What to try next: run the offline example, break one policy rule, and watch the relevant test fail.
