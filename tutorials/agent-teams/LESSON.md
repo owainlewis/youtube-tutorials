@@ -1,5 +1,7 @@
 # Claude Code Agent Teams
 
+> Documentation status: checked against Anthropic's [Agent Teams guide](https://code.claude.com/docs/en/agent-teams) on 2026-08-04. Agent Teams is experimental, disabled by default, and may change.
+
 ## What are agent teams?
 
 Agent teams let you run multiple Claude Code instances that work together on the same project. One instance acts as the team lead. It spawns teammates, creates tasks, and coordinates the work. Each teammate is an independent Claude Code session with its own context window.
@@ -81,7 +83,7 @@ The backend agent can tell the frontend agent the response shape directly. The r
 | **Communication** | Report back to parent only | Message each other directly |
 | **Coordination** | Parent manages everything | Shared task list, self-coordination |
 | **Best for** | Focused tasks where you just need the result | Work that needs discussion and iteration |
-| **Token cost** | Lower | ~3x per teammate |
+| **Token use** | Lower because results return to the parent | Higher because each teammate has its own context window |
 
 Use subagents when agents just need to return results. Use agent teams when agents need to talk to each other.
 
@@ -106,13 +108,13 @@ flowchart TD
     style Q3 fill:#2D2D2D,stroke:#888,color:#fff
 ```
 
-- **Single agent (~80% of work):** The task fits in one context. Fixing a bug, writing a function, refactoring a file.
-- **Subagents (~15%):** You need parallel work but agents don't need to coordinate. Research, generating tests, focused tasks where you just want the result.
-- **Agent teams (~5%):** The work spans multiple layers and agents benefit from talking to each other. Frontend + backend + tests. Code review with feedback loops.
+- **Single agent:** The task fits in one context. Examples include fixing a bug, writing a function, or refactoring one area.
+- **Subagents:** You need parallel work but agents do not need to coordinate. Examples include research, generating tests, or focused tasks where only the result matters.
+- **Agent teams:** The work spans separate areas and agents benefit from sharing findings. Examples include frontend, backend, and test work with a clear contract.
 
 ## How to set it up
 
-Agent teams are experimental. You need to opt in.
+As of 2026-08-04, Anthropic documents Agent Teams as experimental and disabled by default. Check the [official guide](https://code.claude.com/docs/en/agent-teams) before using the configuration below because setup and controls can change.
 
 ### 1. Enable agent teams
 
@@ -126,11 +128,11 @@ Add this to your `.claude/settings.json`:
 }
 ```
 
-### 2. Install tmux
+### 2. Choose a display mode
 
-tmux is a terminal multiplexer. That's a fancy way of saying it lets you open many terminals at the same time inside one window. If you've done any engineering or ops work, you've probably used it before.
+The current default is `in-process`, which keeps teammates inside the main terminal and needs no extra terminal software. Set `auto` when you want Claude Code to use split panes inside tmux or a configured iTerm2 session, with an in-process fallback.
 
-For agent teams, tmux is what lets you watch all your agents working side by side. Each agent gets its own pane. You can see the backend agent writing API routes in one pane while the frontend agent builds components in another. Without tmux, the agents still work but you can only see one at a time.
+Install tmux only if you want split panes:
 
 ```bash
 # macOS
@@ -143,11 +145,9 @@ sudo apt install tmux
 tmux -V
 ```
 
-If you've never used tmux before, the only thing you need to know right now is that it manages "sessions" and "panes." Claude Code handles the panes for you. You just need to start a session.
+### 3. Set the display mode when needed
 
-### 3. Set the display mode
-
-Tell Claude Code to use tmux for agent teams. Add this to your `.claude/settings.json`:
+To force split panes, add this to your `.claude/settings.json`:
 
 ```json
 {
@@ -157,58 +157,29 @@ Tell Claude Code to use tmux for agent teams. Add this to your `.claude/settings
 
 ### 4. Start a session
 
-Start a tmux session, then launch Claude Code inside it:
+For split panes, start a tmux session and launch Claude Code inside it:
 
 ```bash
 tmux new -s demo
 claude
 ```
 
-When you tell Claude to use agent teams, it will automatically split your tmux window into panes - one for each agent. You'll see them all working at the same time.
+When you create a team in this mode, Claude Code can place each teammate in a separate pane. The default in-process mode does not need this setup.
 
 ### Useful shortcuts
 
-- **Shift+Up/Down** - switch between teammates to message them directly
-- **Shift+Tab** - delegate mode. Stops the lead from writing code itself. Forces it to only coordinate.
-- **Ctrl+T** - toggle the shared task list
+- **Up and Down arrows**: select a teammate in the in-process agent panel
+- **Enter**: view the selected teammate and send a message
+- **x**: stop the selected teammate
+- **Ctrl+T**: toggle the shared task list
 
-## How far this scales
+## How to think about scale
 
-Anthropic's engineering team used agent teams to build a C compiler from scratch in Rust.
-
-```mermaid
-graph TD
-    subgraph Stats
-        A["16 agents"]
-        B["2 weeks"]
-        C["~2,000 sessions"]
-        D["~$20,000 in tokens"]
-    end
-
-    subgraph Results
-        E["100,000 lines of Rust"]
-        F["Compiles Linux kernel"]
-        G["Compiles QEMU, FFmpeg, SQLite, Redis"]
-        H["99% GCC torture test pass rate"]
-        I["It can run Doom"]
-    end
-
-    Stats --> Results
-
-    style A fill:#E07B39,stroke:#fff,color:#fff
-    style B fill:#E07B39,stroke:#fff,color:#fff
-    style C fill:#E07B39,stroke:#fff,color:#fff
-    style D fill:#E07B39,stroke:#fff,color:#fff
-    style E fill:#4A90D9,stroke:#fff,color:#fff
-    style F fill:#4A90D9,stroke:#fff,color:#fff
-    style G fill:#4A90D9,stroke:#fff,color:#fff
-    style H fill:#4A90D9,stroke:#fff,color:#fff
-    style I fill:#2D6B2D,stroke:#fff,color:#fff
-```
+Each teammate is a separate Claude Code instance with its own context window. Token use grows with the number of active teammates and how long they run. Start with the smallest team that gives you a useful coordination path. Add a teammate only when the work can be partitioned cleanly or direct communication improves the result.
 
 ## Demo: building an app with three agents
 
-We build a content repurposer. You paste a YouTube URL, pick a mode (tweets or longer-form notes), and it generates social content that matches your writing style. Three agents build it in parallel.
+We build a content repurposer. You paste a YouTube URL, pick a mode (tweets or longer-form notes), and it drafts social content using your saved writing examples as prompt context. Three agents build separate parts in parallel.
 
 ```mermaid
 graph LR
@@ -242,22 +213,22 @@ graph LR
 
 How it works:
 
-1. Write a spec describing the app - architecture, endpoints, data model, components
+1. Write a spec describing the app: architecture, endpoints, data model, and components
 2. Tell Claude to "use agent teams to build this"
 3. Claude reads the spec, breaks it into tasks, spawns the three agents
 4. The backend agent builds the API. The frontend agent builds the UI. They coordinate on the API contract directly.
 5. When both are done, the code review agent reads everything, checks for issues, and sends specific feedback to each agent
 6. The backend and frontend agents act on that feedback and make fixes
 
-The code review agent doesn't fix things itself. It reports issues back to the team lead, who assigns fixes to the owning agent. The backend agent fixes backend bugs. The frontend agent fixes frontend bugs. Nobody steps on each other's files.
+The code review agent does not fix things itself. It reports issues back to the team lead, who assigns fixes to the owning agent. The backend agent fixes backend bugs. The frontend agent fixes frontend bugs. Clear file ownership reduces conflicting edits.
 
-This is the closed-loop feedback that subagents can't do. The reviewer talks to the builders. The builders act on the feedback. No middleman.
+This is the direct feedback path Agent Teams adds. The reviewer talks to the builders, and the builders act on the feedback without the lead relaying every message.
 
-## The pattern I find most useful
+## A useful starting pattern
 
-You don't need three agents building a full-stack app to get value from this. The pattern I keep coming back to is a second-pass reviewer that auto-runs on my changes.
+You do not need three agents building a full-stack app to test the coordination model. Start with one writer and one second-pass reviewer.
 
-I write code with one agent. When I'm done, a reviewer agent reads what I wrote and sends specific notes back. "This endpoint doesn't handle the empty array case." "The error message here is generic, the user won't know what went wrong." Concrete stuff, not style nits.
+The reviewer reads the diff and sends specific notes to the writer. Example findings might be an unhandled empty-array case or an error message that gives the user no recovery path. These are illustrative findings, not results from this demo.
 
 The reviewer doesn't fix anything. It sends the notes to the agent that owns the code, and that agent makes the changes. That closed-loop feedback is the thing that makes teams worth using over subagents. You get a second pair of eyes without relaying anything yourself.
 
@@ -265,10 +236,10 @@ Start here before you try a three-agent build. One writer, one reviewer. See how
 
 ## Things to watch out for
 
-- **Token cost.** Three agents running in parallel costs roughly 3x a single session. Make sure the coordination is adding value.
-- **Same file edits.** Two agents editing the same file will overwrite each other. Break the work so each agent owns different files.
-- **Reviewer behaviour.** Sometimes the review agent implements fixes itself instead of delegating back. I had a code review agent just go ahead and make the changes. In an ownership model you want it to report the issue and let the owning agent fix it. Watch for this and course-correct if you see it.
-- **Still experimental.** No session resumption for teammates. Task status can lag. One team per session.
+- **Token use.** Each active teammate has its own context window. Keep the team small and check whether the coordination is adding value.
+- **Same-file edits.** Teammates are not isolated in separate worktrees. Break the work so each teammate owns different files, or expect to reconcile conflicts.
+- **Reviewer behaviour.** A review agent may implement a fix instead of reporting it. If the workflow requires code ownership, tell the reviewer to report findings only and verify its tool permissions match that role.
+- **Still experimental.** As checked on 2026-08-04, Anthropic documents limitations around in-process session resumption, task status, shutdown, nested teams, and one team per lead session. Recheck the [official guide](https://code.claude.com/docs/en/agent-teams) before recording or relying on these details.
 
 ## The app pipeline
 

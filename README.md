@@ -43,7 +43,7 @@ Each tutorial uses the same public shape:
 - [Pi Coding Agent (Full Course)](./tutorials/pi-coding-agent-guide/)
 - [PostgreSQL for RAG](./tutorials/postgresql-only-database-ai/)
 - [Spec-Driven Development](./tutorials/spec-driven-development/)
-- [Stop Vibe Coding - How to Build Software With AI Like a Senior Engineer](./tutorials/stop-vibe-coding/)
+- [Stop Vibe Coding: A Practical AI Development Workflow](./tutorials/stop-vibe-coding/)
 - [How I Test AI-Generated Code](./tutorials/testing-ai-generated-code/)
 <!-- tutorial-catalog:end -->
 

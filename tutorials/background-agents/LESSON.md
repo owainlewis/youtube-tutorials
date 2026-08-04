@@ -6,9 +6,9 @@ Companion guide for [My Multi-Agent Team (Built From Scratch)](https://youtube.c
 
 ## The Problem
 
-Most of us use AI coding agents the same way: open a terminal, start a session, paste context, prompt, wait, correct, repeat. It works, but you're the bottleneck. You can only run one task at a time because every task needs you in the loop.
+Most of us use AI coding agents interactively: open a terminal, start a session, provide context, wait, review, and repeat. That works well for ambiguous work, but it also means every task waits for you to start it.
 
-Tools like OpenClaw attempt to solve this by letting agents run in the background. But they're built on a **push-based (webhook) architecture** that exposes HTTP endpoints on machines with access to your code, credentials, and file system. That's a security surface you don't need. And for most use cases, it's massively over-engineered.
+Background workers remove that scheduling step. The main architectural choice is how work reaches the machine: an external service can push events to a receiver, or the worker can poll a task manager. Security depends on the controls around either design. Polling is useful when you do not need a low-latency trigger or an inbound worker endpoint.
 
 There's a simpler approach.
 
@@ -16,7 +16,7 @@ There's a simpler approach.
 
 ## The Solution
 
-**agent-worker** is a polling-based background agent that watches your task manager for work, picks it up, executes an agent harness, and reports results back. You stay out of the loop entirely.
+**agent-worker** is a polling-based background agent that watches your task manager for work, picks it up, executes an agent harness, and reports results back. It can progress routine work until it reaches a review gate or an exception.
 
 ```mermaid
 flowchart LR
@@ -30,9 +30,9 @@ flowchart LR
     style F fill:#1a1a2e,stroke:#e94560,color:#fff
 ```
 
-> **Task manager agnostic.** The reference implementation uses Linear, but the pattern works with any task manager that has an API: Todoist, Jira, Monday.com, GitHub Issues, Asana. The worker just needs a way to query for ready tasks and update their status. Swapping task managers is a single adapter file.
+> **Task manager adapter.** The reference implementation uses Linear. The same pattern can work with another task manager when an adapter can query ready tasks, claim one safely, and update its status.
 
-> **Agent harness agnostic.** The worker supports any agent that can accept a prompt and return a result. Currently ships with Claude Code and Codex adapters. Adding a new one is a single file implementing the executor interface. You're not locked to any vendor.
+> **Agent harness adapter.** The worker separates task coordination from agent execution. The reference repository documents the currently supported adapters. A new harness needs an implementation of the executor interface.
 
 The full source code is at [github.com/owainlewis/agent-worker](https://github.com/owainlewis/agent-worker).
 
@@ -62,9 +62,9 @@ flowchart TB
     subgraph WORKER["Worker Service"]
         direction TB
         poll["Polling Loop"]
-        pre["Pre-hooks\ngit pull, create branch"]
+        pre["Pre-hooks\nfetch, isolated worktree"]
         dispatch["Dispatch to Agent"]
-        post["Post-hooks\nlint, test, commit, push"]
+        post["Post-hooks\nlint, test, report"]
     end
 
     subgraph AGENTS["Agent Harness"]
@@ -93,7 +93,7 @@ flowchart TB
 
 1. **Task Manager** is the source of truth. You create tickets here from any device. A label or status marks a ticket as agent-ready. The reference uses Linear, but any task manager with an API works.
 2. **Worker Service** runs on your machine and polls the task manager on a schedule. When it finds a ready ticket, it claims it and starts processing.
-3. **Agent Harness** does the actual coding work. Claude Code, Codex, or anything that accepts a prompt and returns a result.
+3. **Agent Harness** does the actual coding work through a supported executor adapter.
 
 ### The Worker Loop
 
@@ -114,29 +114,29 @@ stateDiagram-v2
 ```
 
 1. **Poll** the task manager for tickets marked ready
-2. **Claim** the ticket by marking it "In Progress" (no two workers pick up the same ticket)
-3. **Pre-hooks** run deterministic setup: git pull, create a branch
+2. **Claim** the ticket with an atomic state transition so competing workers cannot both succeed
+3. **Pre-hooks** run deterministic setup: fetch and create an isolated worktree
 4. **Dispatch** the ticket to the agent harness with a structured prompt
-5. **Post-hooks** run deterministic verification: lint, test, commit, push
+5. **Post-hooks** run deterministic verification: lint, test, and report
 6. **Report** success or failure back to the task manager with details
 
-If anything fails at any step, the ticket is marked failed with the error message as a comment. You can see exactly what went wrong without leaving your task manager.
+If a step fails, the worker should mark the ticket failed and attach a useful error summary. Keep detailed logs in the worker, and avoid copying secrets or raw credentials into task comments.
 
 ---
 
 ## Pull-Based vs Push-Based Architecture
 
-This is the core architectural decision and it has real security implications.
+This choice changes the system's network surface and operating model. It does not decide whether the whole system is secure.
 
 ### Push-based (webhook)
 
-This is how tools like OpenClaw work. An external service sends HTTP requests to your agent when there's work to do.
+In a push design, an external service sends an event when work is ready. The receiver might run on the worker machine, on a managed service, or behind a private network boundary.
 
 ```mermaid
 flowchart LR
     ext["External\nService"] -->|"HTTP POST\n(inbound)"| machine["Your Machine\n(exposed endpoint)"]
     machine --> agent["Agent\nExecutes"]
-    internet(("Internet")) -.->|"attack surface"| machine
+    internet(("Network")) -.->|"reachable receiver"| machine
 
     style ext fill:#1a1a2e,stroke:#0f3460,color:#fff
     style machine fill:#4a0000,stroke:#e94560,color:#fff
@@ -145,22 +145,22 @@ flowchart LR
 ```
 
 **What this requires:**
-- An HTTP endpoint exposed to the internet (or at minimum, to the service)
-- A machine that accepts inbound connections
-- Port forwarding, tunneling, or a public IP
-- Authentication and authorization on the endpoint
+- A receiver reachable by the event source
+- Authentication and authorization for incoming events
+- Replay protection, validation, and retry handling
+- A deliberate route from the receiver to the agent worker
 
-**The problem:** The machine running your agent has access to your code, your file system, your credentials, your git config. Exposing an HTTP endpoint on that machine creates an attack surface. Anyone who can reach that endpoint can potentially trigger agent execution.
+The receiver is an additional component to secure. A request reaching the endpoint must not be enough to trigger arbitrary agent execution. Validate the source, validate the task identifier, constrain what the worker can read and change, and keep the worker's credentials scoped.
 
 ### Pull-based (polling)
 
-This is how agent-worker works. Your machine reaches out to the task manager on a schedule. Nothing reaches in.
+This is how agent-worker works. The worker reaches out to the task manager on a schedule, so it does not need an inbound endpoint for task delivery.
 
 ```mermaid
 flowchart LR
-    machine["Your Machine\n(no exposed ports)"] -->|"HTTPS poll\n(outbound only)"| api["Task Manager\nAPI"]
+    machine["Your Machine\n(no inbound task receiver)"] -->|"HTTPS poll\n(outbound only)"| api["Task Manager\nAPI"]
     machine --> agent["Agent\nExecutes"]
-    internet(("Internet")) -.->|"no route in"| machine
+    internet(("Network")) -.->|"no task receiver"| machine
 
     style machine fill:#003300,stroke:#00ff41,color:#fff
     style api fill:#1a1a2e,stroke:#0f3460,color:#fff
@@ -170,52 +170,42 @@ flowchart LR
 
 **What this requires:**
 - Outbound HTTPS requests to the task manager API
-- An API key
-- Nothing else
+- A scoped API credential
+- A safe claim operation and state transitions
+- The same sandboxing, review, and secret-handling controls as a push worker
 
-**Why this is better for agent work:**
-- **No exposed ports.** Your machine makes outbound requests only. There's nothing to attack from the outside.
-- **No inbound connections.** No tunneling, no port forwarding, no public IP required.
-- **Simpler infrastructure.** No webhook receivers, no authentication middleware, no retry logic for failed deliveries.
-- **Works anywhere.** Behind a NAT, on a home network, on a corporate VPN. If you can make HTTPS requests, you can run the worker.
+**Why polling can fit background agent work:**
+- **No inbound task receiver.** The worker can make outbound requests only.
+- **Fewer delivery components.** You do not need to operate a webhook receiver or event-delivery authentication.
+- **Flexible placement.** The worker can run behind NAT or another network boundary that permits the task manager API.
+
+Polling does not make task content trusted. A compromised task-manager account or a malicious ticket can still feed instructions to the worker. Treat labels and statuses as routing metadata, validate task fields, restrict credentials and tools, and keep a human approval gate before merge or deployment.
 
 ### The Tradeoff
 
-Pull-based has higher latency. If you poll every 60 seconds, a new ticket waits up to 60 seconds before pickup. For background coding tasks that take minutes to complete, this is irrelevant. If you needed sub-second response times, push-based would be better. For agent work, you don't.
+Polling adds pickup latency. With a 60-second interval, a new ticket can wait about one interval before the next successful poll. That may be acceptable for long-running coding tasks. A low-latency workflow may justify a push design.
 
 ### Comparison
-
-```mermaid
-quadrantChart
-    title Security vs Complexity
-    x-axis "Simple" --> "Complex"
-    y-axis "Less Secure" --> "More Secure"
-    "Pull-based polling": [0.25, 0.85]
-    "Push-based webhooks": [0.7, 0.35]
-    "Hybrid (poll + webhook fallback)": [0.55, 0.6]
-    "Manual (you in the terminal)": [0.1, 0.95]
-```
 
 | | Push-based (webhooks) | Pull-based (polling) |
 |---|---|---|
 | **Direction** | Service pushes to your machine | Your machine pulls from service |
-| **Exposed surface** | HTTP endpoint on agent machine | None |
-| **Inbound connections** | Required | None |
-| **Infrastructure** | Webhook receiver, auth, retry logic | Polling loop, API key |
-| **Latency** | Near-instant | Poll interval (e.g. 60s) |
-| **Security posture** | Machine with code access accepts inbound traffic | Outbound requests only |
-| **Best for** | Real-time triggers, low-latency | Background tasks, coding agents |
+| **Task-delivery surface** | Reachable event receiver | No inbound worker endpoint |
+| **Delivery controls** | Event authentication, validation, replay protection | API credential, safe polling and claim logic |
+| **Infrastructure** | Receiver and event retry handling | Polling loop and scheduler |
+| **Latency** | Event-delivery latency | Poll interval, for example 60 seconds |
+| **Useful when** | Low-latency triggers matter | Delayed pickup is acceptable |
 
 ---
 
 ## Hooks: Deterministic Guardrails Around Non-Deterministic Agents
 
-Agents are powerful but non-deterministic. You can't predict exactly what code they'll write. Hooks solve this by wrapping agent execution with deterministic, auditable steps.
+Agent output varies. Hooks wrap execution with deterministic, auditable steps, but each hook only proves the condition it checks.
 
 ```mermaid
 flowchart LR
     subgraph DETERMINISTIC_PRE["Deterministic"]
-        pre["Pre-hooks\ngit pull\ncreate branch"]
+        pre["Pre-hooks\nfetch\nisolated worktree"]
     end
 
     subgraph NON_DETERMINISTIC["Non-deterministic"]
@@ -223,7 +213,7 @@ flowchart LR
     end
 
     subgraph DETERMINISTIC_POST["Deterministic"]
-        post["Post-hooks\ntest, lint\ncommit, push"]
+        post["Post-hooks\ntest, lint\nreport"]
     end
 
     pre -->|"all pass"| agent -->|"completes"| post
@@ -244,12 +234,11 @@ Run before the agent starts. If any pre-hook fails, the agent never runs.
 ```yaml
 hooks:
   pre:
-    - "git checkout main"
-    - "git pull origin main"
-    - "git checkout -b agent/task-{id}"
+    - "git fetch --prune origin"
+    - "git worktree add '../agent-worktrees/{safe_id}' -b 'agent/{safe_id}' origin/main"
 ```
 
-These guarantee the agent starts from a clean, up-to-date state on a dedicated branch. If `git pull` fails (maybe you're offline, maybe there's a conflict), the agent never touches the codebase.
+This example creates a separate checkout from the fetched `origin/main`. The hook runner must stop on the first non-zero exit code. In a real worker, derive the branch and worktree name from a validated identifier, not a free-form ticket title. Allow only an expected character set and reject path separators or shell syntax.
 
 ### Post-hooks
 
@@ -260,12 +249,9 @@ hooks:
   post:
     - "bun run test"
     - "bun run lint"
-    - "git add -A"
-    - "git commit -m 'feat: {title}'"
-    - "git push origin agent/task-{id}"
 ```
 
-The agent doesn't get to declare itself done. The tests do. If the code doesn't pass lint and tests, it doesn't get committed or pushed. The agent has to meet the same bar any human developer would.
+Passing tests and lint provides verification evidence. It does not prove the change is correct or safe to deploy. Review the diff, scan staged files for secrets and generated output, then require explicit human approval before merge or deployment.
 
 ### Why This Matters
 
@@ -275,7 +261,7 @@ Without hooks, you're letting an agent loose on your codebase with no guardrails
 
 ## Configuration
 
-The worker is configured with a single YAML file. All project-specific logic lives here, not in the worker code. Swap the config, point it at a different repo, and it works.
+The worker is configured with a YAML file. Project-specific commands and credentials still need to match the repository and its risk level.
 
 ```yaml
 linear:
@@ -293,14 +279,11 @@ repo:
 
 hooks:
   pre:
-    - "git checkout main"
-    - "git pull origin main"
-    - "git checkout -b agent/task-{id}"
+    - "git fetch --prune origin"
+    - "git worktree add '../agent-worktrees/{safe_id}' -b 'agent/{safe_id}' origin/main"
   post:
     - "bun run test"
-    - "git add -A"
-    - "git commit -m 'feat: {title}'"
-    - "git push origin agent/task-{id}"
+    - "bun run lint"
 
 claude:
   timeout_seconds: 300
@@ -314,9 +297,10 @@ Hook commands support variable interpolation:
 
 | Variable | Value | Example |
 |---|---|---|
-| `{id}` | Ticket identifier | `ENG-42` |
-| `{title}` | Slugified ticket title | `add-login-page` |
-| `{branch}` | Generated branch name | `agent/task-ENG-42` |
+| `{safe_id}` | Validated ticket identifier | `ENG-42` |
+| `{branch}` | Generated branch name | `agent/ENG-42` |
+
+Do not interpolate untrusted ticket text directly into shell commands. Prefer argument arrays over shell strings when the worker supports them.
 
 ---
 
@@ -360,7 +344,7 @@ The worker starts polling. Create a ticket, add the agent label, and watch it ge
 
 ## Scaling
 
-The pattern scales without architectural changes:
+One possible expansion is to add isolated workers gradually:
 
 ```mermaid
 flowchart TB
@@ -389,10 +373,10 @@ flowchart TB
 ```
 
 - **One worker, one repo.** Run `agent-worker` on your laptop. It processes tickets sequentially.
-- **Multiple workers, one repo.** Run multiple instances. Each claims tickets atomically (mark as "In Progress"), so no two workers pick up the same task.
+- **Multiple workers, one repo.** Run multiple instances only when the task-manager adapter provides an atomic compare-and-set or equivalent claim. A plain status update can race and allow duplicate pickup.
 - **Multiple workers, multiple repos.** Each worker gets its own config pointing at a different repo. They all poll the same project or different ones.
 
-No additional infrastructure. No orchestration layer. No message broker. Just more workers.
+Start with one worker. Add concurrency only after claim behavior, isolated worktrees, rate limits, logs, and cleanup have been tested.
 
 ---
 
