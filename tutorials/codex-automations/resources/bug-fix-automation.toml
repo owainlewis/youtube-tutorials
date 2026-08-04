@@ -1,7 +1,0 @@
-version = 1
-id = "bug-fix"
-name = "Bug Fix"
-prompt = "Search Linear for open, non-archived issues in {project} with label {auto_fix_label}. Work on the first matching issue.\n\nWorkflow:\n1. Read the issue description and confirm scope.\n2. If the working tree is dirty, report and stop.\n3. Create a new branch using {branch_prefix}{short_slug}.\n4. Fix the issue and verify with the most relevant test or validation.\n5. Open a PR using the GitHub CLI. Reference the Linear issue in the PR description.\n6. Move the issue to {in_review_status} if it exists; otherwise leave a comment.\n\nIf no matching issues are found, report that explicitly and include the exact query used.\n\nOutput a run summary:\n- Issue\n- Branch\n- Tests run\n- PR\n- Status change\n- Notes or blockers."
-status = "ACTIVE"
-rrule = "RRULE:FREQ=HOURLY;INTERVAL=24;BYMINUTE=0;BYDAY=SU,MO,TU,WE,TH,FR,SA"
-cwds = ["{repo_root}"]

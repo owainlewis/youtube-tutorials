@@ -1,7 +1,0 @@
-version = 1
-id = "bug-scan"
-name = "Bug Scan"
-prompt = "Perform a focused code review to identify critical or high-impact bugs.\n\nFor each bug:\n1. Compute a fingerprint: {file_path}:{line}:{short_slug}.\n2. Check Linear {project} for an open issue with the same fingerprint or title. If found, skip and record the existing issue id.\n3. If not found, create a Linear issue with:\n- Clear description\n- Repro steps or reasoning\n- Impact assessment and severity (Critical, High, Medium, Low)\n- Fingerprint in title or a Fingerprint field\n- Optional label {auto_fix_label}\n\nUse paths relative to {repo_root}.\n\nWhen done, output a summary:\n- Bugs found by severity\n- Issues created\n- Skipped as duplicates\n- Notes.\n\nIf no bugs are found or required tools are unavailable, report that explicitly and stop."
-status = "ACTIVE"
-rrule = "RRULE:FREQ=HOURLY;INTERVAL=24;BYMINUTE=0;BYDAY=SU,MO,TU,WE,TH,FR,SA"
-cwds = ["{repo_root}"]

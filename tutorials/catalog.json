@@ -58,10 +58,10 @@
     },
     {
       "slug": "codex-automations",
-      "title": "Codex Automations: Bug Fix and Bug Scan",
+      "title": "Codex Scheduled Tasks: Bug Scan and Bug Fix",
       "status": "published",
       "video_url": "",
-      "last_verified": ""
+      "last_verified": "2026-08-04"
     },
     {
       "slug": "codex-for-developers",

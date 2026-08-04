@@ -22,7 +22,7 @@ Each tutorial uses the same public shape:
 - [AI Git Workflow](./tutorials/ai-git-workflow/)
 - [My Autonomous AI Coding Workflow](./tutorials/autonomous-ai-coding-workflow/)
 - [Background Agent Workers: A Pull-Based Architecture](./tutorials/background-agents/)
-- [Codex Automations: Bug Fix and Bug Scan](./tutorials/codex-automations/)
+- [Codex Scheduled Tasks: Bug Scan and Bug Fix](./tutorials/codex-automations/)
 - [OpenAI Codex For Developers](./tutorials/codex-for-developers/)
 - [7 Codex Skills I Use As An AI Engineer](./tutorials/codex-skills-i-use/)
 - [Deploy AI Systems on Google Cloud With OpenAI Codex](./tutorials/deploy-ai-on-gcp/)
