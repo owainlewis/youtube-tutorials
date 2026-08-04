@@ -9,6 +9,7 @@
 !.gitignore
 !AGENTS.md
 !Justfile
+!/.github/
 !/scripts/
 
 # Private working folders (root-level only)
