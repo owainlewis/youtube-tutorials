@@ -16,19 +16,23 @@ load_dotenv()
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
-EMBEDDING_MODEL = "text-embedding-3-small"
+EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o")
 
 client = AsyncOpenAI()
-pool = None
+pool: psycopg_pool.AsyncConnectionPool | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Open and close the connection pool with the application lifecycle."""
     global pool
-    pool = psycopg_pool.ConnectionPool(DATABASE_URL, min_size=2, max_size=10)
+    pool = psycopg_pool.AsyncConnectionPool(
+        DATABASE_URL, min_size=2, max_size=10, open=False
+    )
+    await pool.open()
     yield
-    pool.close()
+    await pool.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -40,21 +44,24 @@ async def get_embedding(text: str) -> list[float]:
     return response.data[0].embedding
 
 
-def hybrid_search(conn, query: str, embedding: list[float], limit: int = 5) -> list[dict]:
+async def hybrid_search(
+    conn, query: str, embedding: list[float], limit: int = 5
+) -> list[dict]:
     """Search documents using hybrid search (vector + full-text with RRF)."""
-    with conn.cursor() as cur:
-        cur.execute(
+    async with conn.cursor() as cur:
+        await cur.execute(
             "SELECT id, content, rrf_score FROM hybrid_search(%s, %s::vector, %s)",
             (query, str(embedding), limit),
         )
+        rows = await cur.fetchall()
         return [
             {"id": row[0], "content": row[1], "score": row[2]}
-            for row in cur.fetchall()
+            for row in rows
         ]
 
 
 class ChatRequest(BaseModel):
-    message: str = Field(..., max_length=2000)
+    message: str = Field(..., min_length=1, max_length=2000)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -69,11 +76,10 @@ async def chat(request: ChatRequest):
     """Retrieve relevant documents and stream an LLM response."""
     embedding = await get_embedding(request.message)
 
-    conn = pool.getconn()
-    try:
-        results = hybrid_search(conn, request.message, embedding)
-    finally:
-        pool.putconn(conn)
+    if pool is None:
+        raise RuntimeError("Database connection pool is not available")
+    async with pool.connection() as conn:
+        results = await hybrid_search(conn, request.message, embedding)
 
     context = "\n\n".join(
         f"[Document {r['id']}]: {r['content']}" for r in results
@@ -81,7 +87,7 @@ async def chat(request: ChatRequest):
 
     async def generate():
         stream = await client.chat.completions.create(
-            model="gpt-4o",
+            model=CHAT_MODEL,
             messages=[
                 {
                     "role": "system",

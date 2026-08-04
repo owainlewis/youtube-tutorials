@@ -12,7 +12,7 @@ load_dotenv()
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
-EMBEDDING_MODEL = "text-embedding-3-small"
+EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 
 client = OpenAI()
 
@@ -145,7 +145,7 @@ DOCUMENTS = [
             "authenticator apps (Google Authenticator, Authy) and hardware "
             "security keys (YubiKey). SMS-based 2FA is not supported due to "
             "SIM-swap risks. Backup codes are generated when 2FA is enabled. "
-            "Store them securely — support cannot bypass 2FA without backup codes."
+            "Store them securely. Support cannot bypass 2FA without backup codes."
         ),
         "metadata": {"source": "account-help", "topic": "two-factor-auth"},
     },
@@ -212,7 +212,7 @@ DOCUMENTS = [
         "content": (
             "Error code NC-4012 means your API key has been revoked or expired. "
             "Generate a new API key from Settings > Developer > API Keys. "
-            "Error code NC-4029 indicates you've exceeded your rate limit — "
+            "Error code NC-4029 indicates you've exceeded your rate limit. "
             "wait 60 seconds and retry. Error code NC-5003 is a temporary "
             "server issue on our end. Check status.nimbuscloud.com for "
             "ongoing incidents. If NC-5003 persists beyond 30 minutes, "

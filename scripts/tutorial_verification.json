@@ -117,8 +117,14 @@
       ]
     },
     "postgresql-only-database-ai": {
-      "kind": "integration-only",
-      "reason": "The current app requires PostgreSQL and OpenAI. Issue #29 adds static and integration verification."
+      "kind": "offline",
+      "commands": [
+        {
+          "name": "PostgreSQL RAG static verification",
+          "cwd": "tutorials/postgresql-only-database-ai/code",
+          "run": ["python3", "verify_offline.py"]
+        }
+      ]
     },
     "testing-ai-generated-code": {
       "kind": "offline",

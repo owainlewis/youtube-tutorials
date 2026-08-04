@@ -2,7 +2,7 @@
 -- Full-text search reference queries.
 --
 -- The fts column and GIN index are created in 01_setup.sql.
--- This file is a reference — not executed during init.
+-- This file is a reference. It contains comments only during init.
 --
 -- Example full-text search query using websearch_to_tsquery:
 

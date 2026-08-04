@@ -1,7 +1,7 @@
 -- 02_vector_search.sql
 -- Vector similarity search using cosine distance.
 --
--- This file is a reference query — not executed during init.
+-- This file is a reference query. It contains comments only during init.
 -- The query embedding parameter is passed from Python using psycopg's %s placeholder.
 --
 -- Example in Python:

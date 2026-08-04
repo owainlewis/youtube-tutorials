@@ -20,6 +20,7 @@ AS $$
             id,
             ROW_NUMBER() OVER (ORDER BY embedding <=> query_embedding) AS rank
         FROM documents
+        WHERE embedding IS NOT NULL
         ORDER BY embedding <=> query_embedding
         LIMIT match_count
     ),
@@ -31,6 +32,7 @@ AS $$
             ) AS rank
         FROM documents
         WHERE fts @@ websearch_to_tsquery('english', query_text)
+        ORDER BY ts_rank(fts, websearch_to_tsquery('english', query_text)) DESC
         LIMIT match_count
     ),
     combined AS (
