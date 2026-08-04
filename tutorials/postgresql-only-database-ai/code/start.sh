@@ -5,15 +5,15 @@ cd "$(dirname "$0")"
 
 # --- .env ---
 if [ ! -f .env ]; then
-  echo "Creating .env from .env-sample..."
-  cp .env-sample .env
+  echo "Creating .env from .env.example..."
+  cp .env.example .env
   echo "Edit .env and add your OPENAI_API_KEY, then re-run this script."
   exit 1
 fi
 
-source .env
+source ./.env
 
-if [ -z "${OPENAI_API_KEY:-}" ] || [ "$OPENAI_API_KEY" = "sk-your-openai-api-key-here" ]; then
+if [ -z "${OPENAI_API_KEY:-}" ] || [ "$OPENAI_API_KEY" = "replace-with-your-key" ]; then
   echo "Error: Set a valid OPENAI_API_KEY in .env"
   exit 1
 fi
@@ -24,17 +24,12 @@ uv sync --quiet
 
 # --- PostgreSQL ---
 echo "Starting PostgreSQL..."
-docker compose up -d
-
-echo "Waiting for PostgreSQL to be ready..."
-until docker compose exec -T db pg_isready -U postgres > /dev/null 2>&1; do
-  sleep 1
-done
+docker compose up -d --wait db
 echo "PostgreSQL is ready."
 
 # --- Seed data ---
 echo "Seeding database..."
-uv run src/seed.py
+uv run python src/seed.py
 
 # --- Start app ---
 echo "Starting FastAPI server..."

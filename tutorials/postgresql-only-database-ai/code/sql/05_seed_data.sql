@@ -1,9 +1,9 @@
 -- 05_seed_data.sql
 -- Sample documents for testing. These have no embeddings.
--- For real embeddings, run: uv run src/seed.py
+-- For real embeddings, run: uv run python src/seed.py
 --
--- Note: rows without embeddings will appear in full-text search results
--- but not in vector or hybrid search results.
+-- Note: rows without embeddings will not appear in vector results. They can
+-- still appear in full-text results and the full-text branch of hybrid search.
 
 INSERT INTO documents (content, metadata) VALUES
 (
@@ -11,7 +11,7 @@ INSERT INTO documents (content, metadata) VALUES
     '{"source": "pgvector-docs", "topic": "overview"}'
 ),
 (
-    'HNSW (Hierarchical Navigable Small World) is an approximate nearest neighbor algorithm. In pgvector, you create an HNSW index with CREATE INDEX USING hnsw. It provides fast query times with high recall, making it suitable for production workloads.',
+    'HNSW (Hierarchical Navigable Small World) is an approximate nearest neighbor algorithm. In pgvector, you create an HNSW index with CREATE INDEX USING hnsw. Its query behavior depends on the data, index settings, and available resources.',
     '{"source": "pgvector-docs", "topic": "indexing"}'
 ),
 (
@@ -27,7 +27,7 @@ INSERT INTO documents (content, metadata) VALUES
     '{"source": "postgresql-docs", "topic": "full-text-search"}'
 ),
 (
-    'Hybrid search combines vector similarity search with keyword-based full-text search. Reciprocal Rank Fusion (RRF) merges ranked results from both methods. Documents scoring well in both lists rise to the top, improving retrieval quality over either method alone.',
+    'Hybrid search combines vector similarity search with keyword-based full-text search. Reciprocal Rank Fusion (RRF) merges ranked results from both methods. Documents that appear in both lists receive a score contribution from each rank.',
     '{"source": "ai-engineering", "topic": "hybrid-search"}'
 ),
 (
@@ -35,14 +35,14 @@ INSERT INTO documents (content, metadata) VALUES
     '{"source": "openai-docs", "topic": "embeddings"}'
 ),
 (
-    'PostgreSQL has been in production for over 35 years. It supports ACID transactions, JSONB for semi-structured data, full-text search, and with pgvector, dense vector embeddings. This makes it a unified data platform for AI applications.',
+    'PostgreSQL supports ACID transactions, JSONB for semi-structured data, and full-text search. The pgvector extension adds dense vector storage and similarity operators to the same database.',
     '{"source": "postgresql-docs", "topic": "overview"}'
 ),
 (
-    'IVFFlat is an older indexing method in pgvector that partitions vectors into lists using k-means clustering at index build time. While it uses less memory than HNSW, data must exist in the table before the index is created, and it generally provides lower recall. HNSW is recommended for most production use cases.',
+    'IVFFlat is another pgvector index type. It partitions vectors into lists and needs data in the table before the index is created. Compare its build time, memory use, query latency, and recall with HNSW on your own workload.',
     '{"source": "pgvector-docs", "topic": "indexing"}'
 ),
 (
-    'Supabase provides hosted PostgreSQL with pgvector pre-installed. All standard pgvector SQL works on Supabase without modification. This gives you a managed vector database without running your own infrastructure.',
-    '{"source": "supabase-docs", "topic": "vector-search"}'
+    'Some managed PostgreSQL services support the pgvector extension. Check the provider version, extension policy, index support, limits, and migration process before choosing one.',
+    '{"source": "managed-postgresql", "topic": "vector-search"}'
 );
