@@ -22,7 +22,7 @@ source ~/.bashrc
 
 Use an API key, not a Pro/Max account. Programmatic CLI use under Pro/Max accounts is a gray area in Anthropic's Consumer ToS; the API key is the clean compliance path.
 
-1. Get an API key at [console.anthropic.com](https://console.anthropic.com/)
+1. Get an API key at the [external Anthropic Console](https://console.anthropic.com/)
 2. Add to your VPS environment:
    ```bash
    echo 'export ANTHROPIC_API_KEY="sk-ant-..."' >> ~/.bashrc

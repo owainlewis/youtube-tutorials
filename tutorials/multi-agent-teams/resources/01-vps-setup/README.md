@@ -12,7 +12,7 @@ Agents on your laptop only run when your laptop is on, run as you, and aren't ac
 
 Their KVM VPS plans hit a good sweet spot: cheap entry tier, decent specs, simple control panel (hPanel), Ubuntu 24.04 available, SSH key management built in.
 
-Comparable alternatives: [Hetzner](https://www.hetzner.com/cloud/) (cheapest, EU-based), [DigitalOcean](https://www.digitalocean.com/) (best documentation), [Linode](https://www.linode.com/). Anything KVM-based on Ubuntu 24.04 works; the rest of this runbook is provider-agnostic from step 2 onwards.
+External provider alternatives include [Hetzner](https://www.hetzner.com/cloud/), [DigitalOcean](https://www.digitalocean.com/), and [Akamai Cloud](https://www.linode.com/). Check current regions, images, and prices before choosing. The rest of this runbook assumes Ubuntu 24.04 on a KVM-based VPS.
 
 ## Pick a plan
 
@@ -36,7 +36,7 @@ Start with KVM 1. Upgrade if you hit memory pressure once you're running multipl
    ssh-keygen -t ed25519 -C "your-email@example.com"
    cat ~/.ssh/id_ed25519.pub  # paste this into Hostinger's SSH key field
    ```
-8. Confirm and let Hostinger provision (~1-2 minutes)
+8. Confirm and wait for Hostinger to finish provisioning
 9. Note the public IP from hPanel → VPS → Overview
 
 ## First connection

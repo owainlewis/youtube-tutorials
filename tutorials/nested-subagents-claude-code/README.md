@@ -5,9 +5,8 @@ This is the supporting material for the video: Nested subagents in Claude Code: 
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Browse code samples: [code/](./code/)
-- Browse resources: [resources/](./resources/)
-- Browse slides: [resources/slides/](./resources/slides/)
+- Configure the roles from the lesson: [Set up the roles](./LESSON.md#set-up-the-roles)
+- Check the external Claude Code guide: [Subagents](https://code.claude.com/docs/en/sub-agents)
 
 ## Go Deeper
 

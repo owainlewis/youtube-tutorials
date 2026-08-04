@@ -1,106 +1,62 @@
-# 06 - Connect Multica to your Git repo
+# 06 - Connect Multica To A Git Repository
 
-This is the supporting material for the video: 06 - Connect Multica to your Git repo.
+The checked-in skills write files, create a branch, commit, and push. This runbook gives the Multica project a repository and gives the runner only the GitHub access needed for that output.
 
-Agents need somewhere to push their output. Git is the right answer because it's free, durable, and gives you a diff-based review interface for free.
+## Understand The Two Connections
 
-## Create a fine-grained Personal Access Token (PAT)
+Multica separates:
 
-Don't use a deploy key. Deploy keys can push branches but cannot open pull requests. PR creation requires the GitHub API, which needs a token.
+- **GitHub integration**, which reads authorized pull request and CI metadata.
+- **Project resources**, which tell agent runs which repository to use and where to work.
 
-Steps:
+The GitHub integration does not push commits for an agent. The agent CLI on the runtime needs its own repository credentials. See the [external GitHub integration guide](https://multica.ai/docs/github-integration) and [external project resources guide](https://multica.ai/docs/project-resources).
 
-1. GitHub → Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token
-2. **Token name**: `vps-agents`
-3. **Expiration**: 90 days (the maximum for fine-grained)
-4. **Repository access**: Only select repositories → pick the repo your agents will commit to
-5. **Permissions** → Repository:
-   - Contents: Read and write (for `git push`)
-   - Pull requests: Read and write (for `gh pr create`)
-   - Metadata: Read-only (auto-required)
-6. Generate. Copy the `github_pat_...` value immediately - you won't see it again.
+## Connect The Repository To Multica
 
-## Authenticate gh CLI on the VPS
+An `owner` or `admin` can:
+
+1. Open **Settings**, then **GitHub**.
+2. Connect the GitHub App and authorize only the repositories this workspace needs.
+3. Open or create the Multica project for these jobs.
+4. Under **Resources**, choose **Add resource**.
+5. Choose the authorized GitHub repository and its default ref.
+
+A GitHub repository resource uses a runtime-managed working directory for each task. Do not add a local-directory resource unless you specifically need agents to edit an existing checkout in place.
+
+## Give The Runtime Push Access
+
+On the runner machine, authenticate GitHub CLI with a fine-grained token restricted to the output repository. Grant only the repository permissions required to create and push branches. Add pull-request permission only if the job will open pull requests.
 
 ```bash
-echo 'export GITHUB_TOKEN="github_pat_..."' >> ~/.bashrc
-source ~/.bashrc
-
-echo "$GITHUB_TOKEN" | gh auth login --with-token
-gh auth setup-git
+gh auth login --with-token
 gh auth status
+gh repo view OWNER/REPOSITORY
 ```
 
-This makes both `git push` (over HTTPS) and `gh pr create` work without further prompts.
+Paste the token through standard input when `gh auth login --with-token` asks for it. Do not put the token in this repository, a skill file, an issue, or an agent prompt.
 
-## Clone the repo on the VPS
+## Verify The Checked-In Contract
+
+Create the test issue inside the project that owns the repository resource. Assign it to the agent with the imported `ai-news-research` skill.
+
+After the issue reaches `in_review`, verify:
 
 ```bash
-gh repo clone <your-username>/<your-repo> ~/<repo-name>
-cd ~/<repo-name>
+git ls-remote --heads origin 'agent/news-*'
 ```
 
-If the repo has Python or Node deps:
+Open the new branch in GitHub and confirm it contains only the expected digest file under `content/research/`. Review the commit before merging or marking the Multica issue `done`.
 
-```bash
-uv sync       # if pyproject.toml
-npm install   # if package.json
+The other included skills use these branches:
+
+```text
+agent/linkedin-{slug}
+agent/description-{slug}
 ```
 
-## Test push and PR creation manually
+## Optional Pull Request Tracking
 
-This is the test the agent will replicate:
-
-```bash
-cd ~/<repo-name>
-git checkout -b agent/test-pr-$(date +%Y-%m-%d)
-echo "# Test from VPS agent" > .test-from-vps.md
-git add .test-from-vps.md
-git commit -m "Test commit from VPS agent"
-git push -u origin HEAD
-gh pr create --title "Test PR from agent" --body "Verifying agent can push and open PRs"
-```
-
-Expected: a URL to the new PR is printed. Open it in your browser, verify it looks right, close it without merging.
-
-If this works manually, the agent will work the same way (it just runs the same commands).
-
-## Configure Multica to use the repo
-
-Point Multica's agents at the cloned repo as their working directory. Each agent's runs happen inside this directory, so files they write end up in the repo automatically.
-
-> The exact Multica config field will depend on the version. Check current Multica docs.
-
-## Branch strategy
-
-Agents commit to `agent/{task-type}-{slug}-{date}` branches, never directly to main. You merge after reviewing.
-
-Examples:
-- `agent/research-hermes-2026-05-08`
-- `agent/linkedin-multica-2026-05-13`
-- `agent/description-VIDEO_ID-2026-05-14`
-
-## Local sync via Obsidian Git
-
-If you use Obsidian as your editor, install the [Obsidian Git plugin](https://github.com/Vinzent03/obsidian-git):
-
-1. Settings → Community plugins → Browse → search "Git" → install **Obsidian Git**
-2. Settings → Obsidian Git:
-   - Auto-pull on startup: yes
-   - Auto-pull interval: 10 minutes
-   - Auto-push: no (you push after reviewing)
-
-When an agent commits a new file on a branch, your vault auto-pulls it within 10 minutes. The new file appears in the sidebar. Review the diff, edit, merge.
-
-## Token rotation (every 90 days)
-
-Fine-grained PATs expire at 90 days max. To rotate:
-
-1. Generate a new fine-grained PAT with the same scope
-2. Update `~/.bashrc` on the VPS
-3. Re-run `echo "$GITHUB_TOKEN" | gh auth login --with-token`
-
-Set a calendar reminder.
+If you open a pull request, include the Multica issue identifier in the branch name or title so the GitHub integration can link it. A close intent such as `Closes MUL-123` is required for a merged pull request to move the issue to `done` automatically. Otherwise, review the output and change the issue status yourself.
 
 ## Next
 

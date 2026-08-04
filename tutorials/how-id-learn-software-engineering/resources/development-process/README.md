@@ -24,7 +24,7 @@ Each step has a purpose. You don't skip steps. You don't jump straight to coding
 
 ## Executable Skills
 
-I encoded this process as a set of AI skills using [Blueprint](https://github.com/owainlewis/blueprint).
+I encoded this process as a set of AI skills using [Blueprint (external)](https://github.com/owainlewis/blueprint).
 
 Each skill is a structured prompt that guides a coding agent through one step of the lifecycle. You can install them and use them with Claude Code or any agent that supports the skills standard.
 

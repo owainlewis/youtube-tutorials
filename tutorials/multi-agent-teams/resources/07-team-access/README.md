@@ -1,86 +1,81 @@
 # 07 - Add Team Access
 
-This is the supporting material for the video: 07 - Add Team Access.
+This runbook configures production sign-in, invites one member, grants access to one agent, and verifies the checked-in Git-branch workflow with a second account.
 
-This is what makes it an AI team instead of a personal toy. Anyone on your team can log in, create tickets, and use the agents.
+## Secure Remote Access First
 
-## Multica auth
+Do not expose the Multica service ports directly to the public internet. Use the HTTPS and reverse-proxy setup in the [external Multica remote-access guide](https://multica.ai/docs/self-host-quickstart#remote-access).
 
-> The exact auth model depends on your Multica version. Common options:
->
-> - Username/password (basic, fine for a small team)
-> - Magic link (email-based, no password)
-> - SSO (Google Workspace, Okta, etc. - for larger teams)
->
-> For 1-10 people, basic auth or magic link is enough.
+## Configure Sign-In And Signup
 
-## Add team members
+Multica uses email verification codes by default. A self-hosted instance without an email service writes codes and invitation links to the backend logs, which is suitable for local setup but not a shared production instance.
 
-1. Multica → Settings → Users → Invite
-2. Enter their email and a role
-3. They receive an invite link
+Before inviting anyone:
 
-## Roles
+1. Configure Resend or SMTP for email delivery.
+2. Keep `APP_ENV=production`.
+3. Do not set `MULTICA_DEV_VERIFICATION_CODE` on a public instance.
+4. Restrict new accounts with `ALLOW_SIGNUP`, `ALLOWED_EMAILS`, or `ALLOWED_EMAIL_DOMAINS`.
+5. Recreate the containers after environment changes so they load the new configuration.
 
-Adjust per Multica's permission model. Common shape:
+Google sign-in is optional. The [external Multica sign-in guide](https://multica.ai/docs/auth-setup) documents email delivery, Google OAuth, signup restrictions, and exact environment variables.
 
-- **Admin** - configure agents, manage runners, change auth settings
-- **Editor** - create and assign tickets, review outputs
-- **Viewer** - read-only
+Invitations do not bypass signup restrictions. If signup is closed and the invitee has no account, add that address to `ALLOWED_EMAILS` until the account is created.
 
-For most small teams, everyone is an editor.
+## Invite A Member
 
-## Securing the URL
+An `owner` or `admin` can:
 
-By default Multica is reachable at `http://<vps-ip>:<port>`. Fine for testing, not for team production.
+1. Open **Settings**, then **Members**.
+2. Enter the teammate's email address.
+3. Choose `admin` or `member`.
+4. Send the invitation.
 
-Improve:
+The current workspace roles are:
 
-1. **Put it behind a domain with HTTPS** - see [04 - Install Multica](../04-multica/#optional-put-multica-behind-a-real-domain-with-https) for the Caddy setup
-2. **Restrict by IP** if your team uses a VPN:
-   ```bash
-   sudo ufw allow from <ip-range> to any port <multica-port>
-   ```
-3. **Require auth on every action** - set short session timeouts in Multica's auth config
+| Role | Scope |
+|---|---|
+| `owner` | Workspace settings, member management, ownership changes, and workspace deletion |
+| `admin` | Workspace settings and management of `admin` and `member` accounts |
+| `member` | Day-to-day work such as issues and comments |
 
-## Cost split
+Workspace roles do not decide who can run an agent. See the [external members and roles guide](https://multica.ai/docs/members-roles).
 
-Multiple team members using the same agents stack up the API bill on whoever's API key Multica is using. Two options:
+## Grant Agent Access Separately
 
-- **Single shared API key**, billed centrally - simpler, less granular tracking
-- **Per-user API keys**, configured per Multica user - more granular but more setup
+Each agent has an Access scope:
 
-Start with shared. Revisit if usage gets large.
+- **Only me**
+- **Entire workspace**
+- **Specific people**
 
-## Verify with a second user
+Only the agent owner can change this scope. For the first team test, choose **Specific people** and add the invited member. Do not use **Entire workspace** until every workspace member should be able to run that agent.
 
-The whole point of this guide. Test it:
+The [external agent configuration guide](https://multica.ai/docs/agents-create#access) explains this boundary.
 
-1. A teammate (or use a second browser / incognito window) logs into Multica
-2. They create a ticket assigned to a specialized agent
-3. The agent runs successfully
-4. The output lands in the shared repo or Notion
-5. They can see the result
+## Verify With A Second Account
 
-If this works, you've shipped a real AI team. Multiple humans, multiple agents, shared workspace.
+Use the invited account in a separate browser profile:
 
-## Done
+1. Sign in and accept the workspace invitation.
+2. Create an issue with status `todo`.
+3. Assign it to the agent shared through **Specific people**.
+4. Confirm the issue moves through `in_progress` to `in_review`.
+5. Inspect the Git branch and files required by the attached skill.
+6. Confirm the second account can comment but cannot change settings its role does not allow.
+7. Mark the issue `done` only after reviewing the branch.
 
-You now have:
+The checked-in skills produce Git branches. This tutorial does not configure Notion or gist output.
 
-- A VPS running Multica as the agent control plane
-- Claude Code and Hermes Agent as runners
-- Specialized agents with one skill file each
-- Git as the artifact store
-- Team-accessible via authenticated URL
+## Final Checklist
 
-Cost: ~$5-10/month for the VPS plus your API usage.
-
-## Where to go from here
-
-- **Add more skills.** Every mechanical, verifiable task is a candidate. Audit your weekly work for things that fit.
-- **Schedule more automations.** Daily reports, weekly digests, post-publish repurposing. Multica's scheduled automations are underused.
-- **Don't over-delegate.** Re-read the [delegation framework](../../README.md#the-thesis-what-to-delegate-what-to-keep) in the main README. If you find yourself iterating on an agent's output more than fixing it once, take the task back.
+- Multica is reached through HTTPS.
+- Production email delivery works.
+- Signup restrictions match the intended team.
+- Every person has the minimum workspace role they need.
+- Every agent has an explicit Access scope.
+- A second account completed one reviewed Git-branch workflow.
+- Provider and VPS costs have been checked against current pricing.
 
 ## Go Deeper
 

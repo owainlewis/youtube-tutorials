@@ -31,13 +31,13 @@ Learn one language deeply. Python. Not because you'll write production code by h
 
 ## Resources
 
-- [CS50 (Harvard)](https://cs50.harvard.edu/) - Best free intro. Covers fundamentals across languages.
-- [Python Official Tutorial](https://docs.python.org/3/tutorial/) - Thorough and well-written.
-- [Exercism Python Track](https://exercism.org/tracks/python) - Practice problems with mentorship.
+- External: [CS50 from Harvard](https://www.edx.org/cs50)
+- External: [Python official tutorial](https://docs.python.org/3/tutorial/)
+- External: [Exercism Python track](https://exercism.org/tracks/python)
 
 ## The Test
 
-Can you read a 50-line Python function you've never seen and explain what it does? Can you spot the bug in AI-generated code that looks correct? If yes, you're ready for Branch 2.
+Can you read a 50-line Python function you've never seen and explain what it does? Can you spot the bug in AI-generated code that looks correct? If yes, move on to the system design guide.
 
 ## Go Deeper
 

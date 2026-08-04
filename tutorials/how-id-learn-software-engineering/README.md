@@ -5,9 +5,8 @@ This is the supporting material for the video: How I'd Learn Software Engineerin
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Browse code samples: [code/](./code/)
-- Browse resources: [resources/](./resources/)
-- Browse slides: [resources/slides/](./resources/slides/)
+- Work through the four checked-in guides: [resources/](./resources/)
+- Open the roadmap mind map: [resources/slides/mindmap.html](./resources/slides/mindmap.html)
 
 ## Go Deeper
 
