@@ -65,6 +65,10 @@ Run repository checks with:
 just check
 ```
 
+This runs the structural audits and the complete credential-free tutorial
+verification matrix. See [tutorial verification](./tutorials/VERIFICATION.md)
+for the classifications, commands, and tool requirements.
+
 The root tutorial list is generated from
 [`tutorials/catalog.json`](./tutorials/catalog.json). After changing catalog
 metadata, update the list with:
@@ -75,7 +79,9 @@ just update-tutorial-catalog
 
 ## About
 
-These tutorials demonstrate practical AI automation patterns. Each one is a complete, working example you can use and adapt.
+These tutorials explain practical AI engineering patterns. Some include
+runnable projects. Others contain focused snippets, templates, or
+infrastructure examples. The verification matrix states what each check proves.
 
 ## License
 

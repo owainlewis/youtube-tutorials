@@ -6,7 +6,13 @@ Each demo adds one memory idea.
 
 ## Setup
 
-Use Python 3.11 or newer.
+Use Python 3.11 or newer and install
+[`uv`](https://docs.astral.sh/uv/getting-started/installation/). From this
+directory, install the declared project dependencies:
+
+```bash
+uv sync
+```
 
 For real model calls, set an OpenAI API key:
 
@@ -48,7 +54,12 @@ Reset it with:
 
 ```bash
 uv run reset_demo.py
+rm -rf .venv uv.lock
+unset OPENAI_API_KEY MEM0_API_KEY AI_MEMORY_DEMO_FAKE_MODEL
 ```
+
+The cleanup command removes only generated files in this tutorial. The
+repository does not track the resolution file.
 
 ## Test
 

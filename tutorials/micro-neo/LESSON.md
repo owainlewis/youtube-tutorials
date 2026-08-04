@@ -86,6 +86,17 @@ the audience never has to jump between packages or reconstruct hidden code.
 The finished tests are included for people who want to verify the boundaries
 after the lesson.
 
+## Install the Requirements
+
+Install Go 1.23 or newer, then confirm the version from a terminal:
+
+```bash
+go version
+```
+
+Micro Neo uses only the Go standard library. There are no project packages to
+install and no lockfile to generate.
+
 ## See It Working
 
 Start with the finished agent before explaining the code.
@@ -131,6 +142,8 @@ OpenRouter exposes many models through one API, but the selected model must
 support tool calling. OpenRouter provides a
 [tool-support filter](https://openrouter.ai/models?supported_parameters=tools)
 for finding compatible models.
+
+## Reset the Demo
 
 To restore the demo after recording, run this from the repository root:
 

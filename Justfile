@@ -19,6 +19,7 @@ check:
     @just audit-syntax
     @just audit-data
     @just audit-terraform
+    @just test-offline
 
 update-tutorial-catalog:
     @python3 scripts/tutorial_catalog.py --write

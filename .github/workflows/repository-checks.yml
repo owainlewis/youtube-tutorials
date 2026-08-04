@@ -12,20 +12,7 @@ permissions:
 
 jobs:
   repository:
-    name: Repository structure and syntax
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-      - uses: extractions/setup-just@v4
-      - uses: hashicorp/setup-terraform@v4
-      - name: Run repository checks
-        run: just check
-
-  offline-tests:
-    name: Existing offline tutorial tests
+    name: Repository and offline tutorial checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -35,9 +22,14 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: "1.23"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
       - uses: astral-sh/setup-uv@v9.0.0
-      - name: Run offline tests
-        run: python3 scripts/run_offline_tests.py --kind offline
+      - uses: extractions/setup-just@v4
+      - uses: hashicorp/setup-terraform@v4
+      - name: Run repository checks
+        run: just check
 
   network-tests:
     name: Optional dependency-backed tutorial tests
@@ -49,7 +41,7 @@ jobs:
         with:
           python-version: "3.12"
       - uses: astral-sh/setup-uv@v9.0.0
-      - name: Run dependency-backed tests without a project lockfile
+      - name: Run isolated optional checks
         run: python3 scripts/run_offline_tests.py --kind network
 
   dependency-resolution:

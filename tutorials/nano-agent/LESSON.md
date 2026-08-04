@@ -8,17 +8,28 @@ The runnable project uses the Anthropic API, seven tools, an explicit tool regis
 
 You need Python 3.12 or newer, `uv`, and an Anthropic API key.
 
+### Install
+
 From this tutorial folder:
 
 ```bash
 cd code
 uv sync
 cp nano-agent.example.yml nano-agent.yml
+```
+
+### Run
+
+Set the key in the current shell, then start the agent:
+
+```bash
 export ANTHROPIC_API_KEY="sk-ant-..."
 uv run nano-agent
 ```
 
 The agent starts a terminal prompt. Ask it to inspect a file or make a small change. It will ask before each tool call unless `skip_approval` is enabled in the config file.
+
+### Test
 
 Run the full credential-free test suite from `code/`:
 
@@ -26,10 +37,14 @@ Run the full credential-free test suite from `code/`:
 uv run pytest
 ```
 
+### Reset
+
 Reset generated local files from `code/`:
 
 ```bash
 rm -f nano-agent.yml nano-agent.log nano-agent.log.*
+rm -rf .venv uv.lock
+unset ANTHROPIC_API_KEY
 ```
 
 ## The basic loop

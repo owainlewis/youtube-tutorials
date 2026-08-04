@@ -18,6 +18,7 @@ from urllib.parse import unquote
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "tutorials" / "catalog.json"
 VERIFICATION_PATH = ROOT / "scripts" / "tutorial_verification.json"
+DOCUMENTATION_ACTIONS = {"install", "run", "test", "reset"}
 ALLOWED_TUTORIAL_ROOT_ITEMS = {"README.md", "LESSON.md", "code", "resources"}
 REQUIRED_TUTORIAL_FILES = {"README.md", "LESSON.md"}
 REQUIRED_TUTORIAL_PREFIXES = {"code/", "resources/", "resources/slides/"}
@@ -240,18 +241,115 @@ def check_verification_manifest(
         errors.append(f"verification manifest has tutorials without code: {extra}")
 
     valid_kinds = {"offline", "network", "static", "integration-only"}
+    valid_classifications = {"runnable", "snippet-only", "infrastructure-only"}
+    tracked = {file.as_posix() for file in files}
     for slug, entry in sorted(entries.items()):
         if not isinstance(entry, dict):
             errors.append(f"{slug}: verification entry must be an object")
             continue
         kind = entry.get("kind")
+        tutorial_root = (root / "tutorials" / slug).resolve()
         if kind not in valid_kinds:
             errors.append(f"{slug}: unsupported verification kind {kind!r}")
+        classification = entry.get("classification")
+        if classification not in valid_classifications:
+            errors.append(
+                f"{slug}: unsupported code classification {classification!r}"
+            )
+        elif classification == "runnable":
+            if kind != "offline":
+                errors.append(f"{slug}: runnable tutorials need offline verification")
+            documentation = entry.get("documentation")
+            if not isinstance(documentation, dict):
+                errors.append(
+                    f"{slug}: runnable tutorials need install, run, test, and reset documentation"
+                )
+            else:
+                actions = set(documentation)
+                if actions != DOCUMENTATION_ACTIONS:
+                    errors.append(
+                        f"{slug}: documentation actions must be {sorted(DOCUMENTATION_ACTIONS)}"
+                    )
+                for action, reference in sorted(documentation.items()):
+                    if action not in DOCUMENTATION_ACTIONS:
+                        continue
+                    if not isinstance(reference, dict):
+                        errors.append(
+                            f"{slug}: {action} documentation must name a Markdown path and heading"
+                        )
+                        continue
+                    doc_path = reference.get("path")
+                    heading = reference.get("heading")
+                    if not isinstance(doc_path, str) or doc_path not in tracked:
+                        errors.append(
+                            f"{slug}: {action} documentation path is not tracked: {doc_path!r}"
+                        )
+                        continue
+                    try:
+                        (root / doc_path).resolve().relative_to(tutorial_root)
+                    except ValueError:
+                        errors.append(
+                            f"{slug}: {action} documentation must stay inside tutorials/{slug}"
+                        )
+                        continue
+                    if Path(doc_path).suffix.lower() != ".md":
+                        errors.append(
+                            f"{slug}: {action} documentation must be Markdown: {doc_path}"
+                        )
+                        continue
+                    if not isinstance(heading, str) or not heading.strip():
+                        errors.append(
+                            f"{slug}: {action} documentation needs a heading"
+                        )
+                        continue
+                    headings = {
+                        match.group(1).strip()
+                        for match in re.finditer(
+                            r"^#{1,6}\s+(.+?)\s*$",
+                            without_fenced_blocks(
+                                (root / doc_path).read_text(errors="replace")
+                            ),
+                            re.MULTILINE,
+                        )
+                    }
+                    if heading not in headings:
+                        errors.append(
+                            f"{slug}: {action} documentation heading {heading!r} not found in {doc_path}"
+                        )
+        elif classification in {"snippet-only", "infrastructure-only"}:
+            if not str(entry.get("reason", "")).strip():
+                errors.append(f"{slug}: {classification} entries need a reason")
+            if classification == "infrastructure-only" and kind != "static":
+                errors.append(
+                    f"{slug}: infrastructure-only tutorials need static verification"
+                )
         if kind == "integration-only":
             if not str(entry.get("reason", "")).strip():
                 errors.append(f"{slug}: integration-only entries need a reason")
         elif not isinstance(entry.get("commands"), list) or not entry["commands"]:
             errors.append(f"{slug}: {kind} entries need at least one command")
+        else:
+            for index, command in enumerate(entry["commands"], start=1):
+                if not isinstance(command, dict):
+                    errors.append(f"{slug}: command {index} must be an object")
+                    continue
+                cwd = command.get("cwd")
+                run = command.get("run")
+                if not isinstance(cwd, str) or not (root / cwd).is_dir():
+                    errors.append(f"{slug}: command {index} has invalid cwd {cwd!r}")
+                else:
+                    try:
+                        (root / cwd).resolve().relative_to(tutorial_root)
+                    except ValueError:
+                        errors.append(
+                            f"{slug}: command {index} cwd must stay inside tutorials/{slug}"
+                        )
+                if (
+                    not isinstance(run, list)
+                    or not run
+                    or any(not isinstance(argument, str) or not argument for argument in run)
+                ):
+                    errors.append(f"{slug}: command {index} needs a non-empty run list")
     return errors
 
 
