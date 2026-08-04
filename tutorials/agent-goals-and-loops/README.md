@@ -7,7 +7,6 @@ This is the supporting material for the video: Agent Goals and Loops Explained S
 - Read the lesson: [LESSON.md](./LESSON.md)
 - Copy the prompts: [resources/prompts.md](./resources/prompts.md)
 - Answer scheduling questions: [resources/scheduled-agents.md](./resources/scheduled-agents.md)
-- Browse slides: [resources/slides/](./resources/slides/)
 
 ## What This Covers
 

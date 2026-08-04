@@ -9,7 +9,6 @@ The lesson covers the sandbox boundary, direct and clone Git workflows, credenti
 - Read the lesson: [LESSON.md](./LESSON.md)
 - Run the demo: [code/](./code/)
 - Copy the agent prompts: [resources/prompts.md](./resources/prompts.md)
-- Browse slides: [resources/slides/](./resources/slides/)
 
 ## Go Deeper
 
