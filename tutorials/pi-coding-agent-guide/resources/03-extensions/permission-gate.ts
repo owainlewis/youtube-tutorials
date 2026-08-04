@@ -1,38 +1,42 @@
 /**
- * Permission Gate Extension
+ * Teaching example: ask before a small set of dangerous bash commands.
  *
- * Blocks dangerous bash commands before they execute.
- * This replicates the safety behavior that Claude Code provides by default.
- *
- * Drop this in ~/.pi/agent/extensions/ and it auto-loads.
+ * This is not a shell parser, permission system, or sandbox. Commands can be
+ * written in forms these patterns do not recognise.
  */
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const DANGEROUS_PATTERNS = [
-  /rm\s+(-rf|-fr)\s+[\/~]/,  // rm -rf with absolute/home paths
-  />\s*\/dev\/sd/,            // writing to block devices
-  /mkfs\./,                   // formatting filesystems
-  /dd\s+if=/,                 // raw disk writes
-  /chmod\s+777/,              // overly permissive permissions
-  /curl.*\|\s*(ba)?sh/,       // pipe curl to shell
+  /\brm\s+(-rf?|-fr)\s+[\/~]/i,
+  />\s*\/dev\/sd/i,
+  /\bmkfs\./i,
+  /\bdd\s+if=/i,
+  /\bchmod\s+777\b/i,
+  /\bcurl\b[^|]*\|\s*(ba)?sh\b/i,
 ];
 
 export default function (pi: ExtensionAPI) {
   pi.on("tool_call", async (event, ctx) => {
-    if (event.toolName !== "bash") return;
+    if (event.toolName !== "bash") return undefined;
 
     const command = event.input.command as string;
-
-    for (const pattern of DANGEROUS_PATTERNS) {
-      if (pattern.test(command)) {
-        if (ctx.hasUI) {
-          const allow = await ctx.ui.confirm(
-            `Blocked dangerous command:\n${command}\n\nAllow anyway?`
-          );
-          if (allow) return;
-        }
-        return { block: true, reason: `Blocked dangerous command: ${command}` };
-      }
+    if (!DANGEROUS_PATTERNS.some((pattern) => pattern.test(command))) {
+      return undefined;
     }
+
+    if (!ctx.hasUI) {
+      return { block: true, reason: "Blocked a dangerous command pattern without an interactive confirmation UI." };
+    }
+
+    const allow = await ctx.ui.confirm(
+      "Potentially dangerous command",
+      `${command}\n\nAllow this command?`,
+    );
+
+    if (!allow) {
+      return { block: true, reason: "Blocked by the user." };
+    }
+
+    return undefined;
   });
 }

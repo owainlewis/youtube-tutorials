@@ -1,8 +1,7 @@
 ## My Rules
 
-- Always explain your reasoning before making changes.
 - When you find a bug, explain what caused it before fixing it.
-- Run tests after every code change.
-- Never delete files without asking first.
+- Run the smallest relevant test after changing code.
+- Ask before deleting files.
 - Prefer small, focused changes over large rewrites.
-- If a task is ambiguous, ask for clarification before proceeding.
+- Follow the commands documented in this repository.

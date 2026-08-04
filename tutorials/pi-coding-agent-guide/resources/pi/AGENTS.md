@@ -10,6 +10,8 @@ You are working on a TypeScript project. Follow these rules:
 
 ## Project Context
 
-This is an example AGENTS.md file. Pi loads this automatically when you start a session in this directory. Put your project-specific instructions here.
+This is an example `AGENTS.md` file. Pi loads project instructions when you
+start a session in this directory. Replace these sample rules with commands and
+boundaries that are true for your project.
 
-You can also use CLAUDE.md instead. Pi reads both formats.
+Pi can also use `CLAUDE.md`. Check the loaded context in Pi's startup header.

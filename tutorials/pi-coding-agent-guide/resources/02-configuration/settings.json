@@ -1,8 +1,3 @@
 {
-  "theme": "dark",
-  "defaultModel": "claude-sonnet-4-20250514",
-  "compaction": {
-    "threshold": 0.8
-  },
-  "extensionPaths": []
+  "theme": "dark"
 }
