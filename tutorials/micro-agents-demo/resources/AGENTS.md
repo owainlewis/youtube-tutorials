@@ -11,15 +11,15 @@ You can use the following tools:
 
 Search YouTube for videos matching a query.
 
-    cd code && uv run tools/youtube.py search_videos "QUERY" --max 25 --json
+    cd code && .venv/bin/python tools/youtube.py search_videos "QUERY" --max 25 --json
 
 Options: `--max`, `--days`, `--order` (relevance, view_count, date)
 
 ### get_channel_videos
 
-Get videos from a channel. Calculates outlier scores — videos 2+ standard deviations above average are worth studying.
+Get videos from a channel. Calculates outlier scores so unusually high-view videos are easy to inspect.
 
-    cd code && uv run tools/youtube.py get_channel_videos @HANDLE --days 30 --json
+    cd code && .venv/bin/python tools/youtube.py get_channel_videos @HANDLE --days 30 --json
 
 Options: `--days`, `--max`
 
@@ -27,22 +27,22 @@ Options: `--days`, `--max`
 
 Get video transcript for analysis.
 
-    cd code && uv run tools/youtube.py get_transcript VIDEO_ID
+    cd code && .venv/bin/python tools/youtube.py get_transcript VIDEO_ID
 
 ### upload
 
 Upload video. Always upload as unlisted first.
 
-    cd code && uv run tools/youtube.py upload video.mp4 --metadata metadata.md
+    cd code && .venv/bin/python tools/youtube.py upload video.mp4 --metadata metadata.md
 
 
 ## Workspace
 
 Save files to `workspace/`:
 
-- `workspace/projects/` — Video projects (script.md, metadata.md, research.md)
-- `workspace/research/` — Topic research and competitive analysis
-- `workspace/transcripts/` — Downloaded transcripts as VIDEO_ID.md
+- `workspace/projects/`: Video projects (script.md, metadata.md, research.md)
+- `workspace/research/`: Topic research and competitive analysis
+- `workspace/transcripts/`: Downloaded transcripts as VIDEO_ID.md
 
 
 ## Workflows
@@ -58,7 +58,7 @@ Save files to `workspace/`:
 
 1. Read `resources/context/script-guide.md`
 2. Create folder `code/workspace/projects/<name>/`
-3. Write script.md — conversational, not heavy formatting
+3. Write script.md in a conversational style with light formatting
 
 ### Write Titles
 

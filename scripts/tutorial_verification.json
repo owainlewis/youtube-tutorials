@@ -73,8 +73,14 @@
       ]
     },
     "micro-agents-demo": {
-      "kind": "integration-only",
-      "reason": "The current example calls the YouTube API. Issue #31 adds focused offline tests."
+      "kind": "offline",
+      "commands": [
+        {
+          "name": "YouTube tool unit tests",
+          "cwd": "tutorials/micro-agents-demo/code",
+          "run": ["bash", "tests/run.sh"]
+        }
+      ]
     },
     "micro-neo": {
       "kind": "offline",

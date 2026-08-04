@@ -1,20 +1,12 @@
 #!/usr/bin/env python3
-# /// script
-# dependencies = [
-#   "google-api-python-client>=2.150.0",
-#   "google-auth-oauthlib>=1.0.0",
-#   "youtube-transcript-api>=0.6.0",
-#   "pyyaml>=6.0",
-# ]
-# ///
 """
 YouTube Tool - Research, search, and upload videos.
 
 Usage:
-    uv run youtube.py get_channel_videos @mkbhd --days 30
-    uv run youtube.py search_videos "AI agents" --max 20
-    uv run youtube.py get_transcript VIDEO_ID
-    uv run youtube.py upload video.mp4 --title "My Video" --description "..."
+    .venv/bin/python tools/youtube.py get_channel_videos @mkbhd --days 30
+    .venv/bin/python tools/youtube.py search_videos "AI agents" --max 20
+    .venv/bin/python tools/youtube.py get_transcript VIDEO_ID
+    .venv/bin/python tools/youtube.py upload video.mp4 --title "My Video"
 
 Environment:
     YOUTUBE_API_KEY - Required for research commands.
@@ -870,17 +862,17 @@ def cmd_upload(args: argparse.Namespace) -> None:
 # =============================================================================
 
 
-def main() -> None:
-    """Main entry point."""
+def build_parser() -> argparse.ArgumentParser:
+    """Build the command-line parser."""
     parser = argparse.ArgumentParser(
         description="YouTube Tool - Research and upload",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-    uv run youtube.py get_channel_videos @mkbhd --days 30
-    uv run youtube.py search_videos "AI agents" --max 20 --order view_count
-    uv run youtube.py get_transcript dQw4w9WgXcQ
-    uv run youtube.py upload video.mp4 --title "My Video" --privacy unlisted
+    .venv/bin/python tools/youtube.py get_channel_videos @mkbhd --days 30
+    .venv/bin/python tools/youtube.py search_videos "AI agents" --max 20 --order view_count
+    .venv/bin/python tools/youtube.py get_transcript dQw4w9WgXcQ
+    .venv/bin/python tools/youtube.py upload video.mp4 --title "My Video" --privacy unlisted
         """,
     )
     parser.add_argument("--json", action="store_true", help="Output as JSON")
@@ -937,6 +929,34 @@ Examples:
     p_upload.add_argument("--thumbnail", help="Path to thumbnail image")
     p_upload.add_argument("--json", action="store_true", help="Output as JSON")
 
+    return parser
+
+
+def dispatch_research_command(
+    args: argparse.Namespace,
+    service: YouTubeService,
+    commands: dict[str, Any] | None = None,
+) -> None:
+    """Dispatch a parsed research command to its handler."""
+    handlers = (
+        commands
+        if commands is not None
+        else {
+            "get_channel_videos": cmd_get_channel_videos,
+            "search_videos": cmd_search_videos,
+            "get_transcript": cmd_get_transcript,
+        }
+    )
+    handler = handlers.get(args.command)
+    if handler is None:
+        raise ValueError(f"Unknown research command: {args.command}")
+    handler(args, service)
+
+
+def main() -> None:
+    """Main entry point."""
+    parser = build_parser()
+
     args = parser.parse_args()
 
     # Upload command uses OAuth, not API key
@@ -952,19 +972,7 @@ Examples:
 
     service = YouTubeService(api_key)
 
-    # Dispatch to command handler
-    commands = {
-        "get_channel_videos": cmd_get_channel_videos,
-        "search_videos": cmd_search_videos,
-        "get_transcript": cmd_get_transcript,
-    }
-
-    handler = commands.get(args.command)
-    if handler:
-        handler(args, service)
-    else:
-        parser.print_help()
-        sys.exit(1)
+    dispatch_research_command(args, service)
 
 
 if __name__ == "__main__":
