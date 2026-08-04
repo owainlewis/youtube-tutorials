@@ -1,13 +1,15 @@
-# Codex Automations: Bug Fix and Bug Scan
+# Codex Scheduled Tasks: Bug Scan and Bug Fix
 
-This is the supporting material for the video: Codex Automations: Bug Fix and Bug Scan.
+Learn how to schedule a repeatable Codex workflow using the supported ChatGPT
+web and desktop app surfaces.
 
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Browse code samples: [code/](./code/)
-- Browse resources: [resources/](./resources/)
-- Browse slides: [resources/slides/](./resources/slides/)
+- Adapt the optional [scheduled task prompt examples](./resources/prompts.md)
+
+The prompts are copyable examples. They are not a documented Codex import
+format.
 
 ## Go Deeper
 
