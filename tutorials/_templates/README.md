@@ -5,7 +5,6 @@ This is the supporting material for the video: Tutorial Templates.
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Browse code samples: [code/](./code/)
 - Browse resources: [resources/](./resources/)
 - Browse slides: [resources/slides/](./resources/slides/)
 
@@ -24,6 +23,9 @@ Keep the main teaching in `LESSON.md`.
 Use `resources/` for prompts, checklists, images, slides, and references.
 
 Use `code/` for runnable examples.
+
+New tutorial READMEs link only `LESSON.md`. Add code, resource, prompt, or slide
+links only after those folders contain real material.
 
 ## Go Deeper
 

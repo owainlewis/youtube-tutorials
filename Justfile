@@ -4,15 +4,7 @@ default:
     @just --list
 
 new-tutorial slug title:
-    @case "{{slug}}" in *[!a-z0-9-]*|"") echo "Slug must use lowercase letters, numbers, and hyphens only."; exit 1 ;; esac
-    @dir="tutorials/{{slug}}"; \
-      if [ -e "$dir" ]; then echo "$dir already exists."; exit 1; fi; \
-      mkdir -p "$dir/code" "$dir/resources" "$dir/resources/slides"; \
-      cp tutorials/_templates/LESSON.md "$dir/LESSON.md"; \
-      cp tutorials/_templates/resources/prompts.md "$dir/resources/prompts.md"; \
-      touch "$dir/code/.gitkeep" "$dir/resources/.gitkeep" "$dir/resources/slides/.gitkeep"; \
-      python3 -c 'from pathlib import Path; import sys; d=Path(sys.argv[1]); title=sys.argv[2]; readme=f"# {title}\n\nThis is the supporting material for the video: {title}.\n\n## Start Here\n\n- Read the lesson: [LESSON.md](./LESSON.md)\n- Browse code samples: [code/](./code/)\n- Browse resources: [resources/](./resources/)\n- Browse slides: [resources/slides/](./resources/slides/)\n\n## Go Deeper\n\nTo go deeper on AI engineering, join my AI engineering community: [aiengineer.co](https://aiengineer.co).\n"; (d/"README.md").write_text(readme); lesson=d/"LESSON.md"; lesson.write_text(lesson.read_text().replace("# Lesson Title", "# "+title, 1))' "$dir" "{{title}}"; \
-      echo "Created $dir"
+    @python3 scripts/scaffold_tutorial.py {{quote(slug)}} {{quote(title)}}
 
 check:
     @git diff --check

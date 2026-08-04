@@ -79,9 +79,14 @@ Include:
 - likely failure point
 - what the failure teaches
 
-```bash
-TODO
-```
+When runnable code is included, document one exact setup path:
+
+- install command
+- run command and expected result
+- test or verification command
+- reset or cleanup command
+
+Remove this section when the tutorial has no runnable demo.
 
 ## Tradeoffs
 
@@ -100,6 +105,8 @@ Link only to supporting material.
 - Prompts: `resources/prompts.md`
 - Slides: `resources/slides/`
 - Code: `code/`
+
+Link only the items that contain real material. Do not advertise empty folders.
 
 ## Summary
 
