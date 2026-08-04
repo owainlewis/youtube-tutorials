@@ -90,8 +90,22 @@
       ]
     },
     "pi-agent-workflow": {
-      "kind": "integration-only",
-      "reason": "The harness requires a configured model provider. Issue #21 adds a safe offline smoke check."
+      "kind": "offline",
+      "commands": [
+        {
+          "name": "nano harness unit tests",
+          "cwd": "tutorials/pi-agent-workflow/code",
+          "run": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-v"
+          ]
+        }
+      ]
     },
     "postgresql-only-database-ai": {
       "kind": "integration-only",

@@ -2,7 +2,7 @@
 
 This is the supporting material for the video: nano-harness.
 
-A teaching-scale coding agent harness in a single Python file (~250 lines).
+A teaching-scale coding agent harness in a single Python file (about 300 lines).
 
 Claude Code, Codex, Cursor, and Pi are all elaborate versions of the same loop.
 This file is that loop, stripped to the smallest version that still teaches the
@@ -11,7 +11,8 @@ real shape.
 ## Run it
 
 ```bash
-echo "ANTHROPIC_API_KEY=sk-..." > .env
+cp .env.example .env
+# Edit .env and replace the placeholder API key.
 uv run nano-harness.py
 ```
 
@@ -35,9 +36,9 @@ bottom - each section is one concept.
 
 ### 1. System prompt
 
-The single highest-leverage thing in the harness. Without it the model has no
-identity, no environment, no idea what its tools mean. With 20 lines of
-context - cwd, OS, tool guidance - behavior changes dramatically.
+The system prompt gives the model an identity, environment, and tool guidance.
+Add focused context such as the working directory, operating system, and tool
+rules so it can make grounded decisions.
 
 Real harnesses assemble this dynamically per turn: cwd, git status, open files,
 project conventions (`CLAUDE.md`), recently edited files. nano-harness keeps it
@@ -81,30 +82,29 @@ terminal, no half-rendered output, no cursor jitter.
 
 ### 5. Prompt caching
 
-A one-line change for ~90% cost reduction on multi-turn sessions.
-
-`cache_control: {type: "ephemeral"}` marks a *boundary* in the request:
-everything up to and including that marker is cached for ~5 minutes. nano-harness
-marks two boundaries:
+`cache_control: {type: "ephemeral"}` marks a *boundary* in the request.
+Stable content up to that boundary can be reused according to the provider's
+cache policy. nano-harness marks two boundaries:
 
 - the end of the system prompt
 - the end of the tools array
 
-From turn 2 onward, system + tools are served from cache. Real harnesses also
-cache stable message prefixes (early turns, loaded files) for big wins on
-long sessions.
+Later turns may reuse the system prompt and tool definitions. Real harnesses
+can also cache stable message prefixes. Measure the result for the provider,
+model, and request shape you use.
 
 ### 6. The agent loop
 
-The whole harness, in eight lines of control flow:
+The whole harness can be described in eight steps:
 
-1. Ask the model what to do.
-2. If it's done talking (`end_turn`), return.
-3. For each tool call the model requested:
-   - emit `pre_tool` (listeners may veto)
-   - run the tool
-   - emit `post_tool`
-4. Send tool results back as a user message. Repeat.
+1. Send the current messages to the model.
+2. Store the assistant response.
+3. Display any text blocks.
+4. Return when the model reports `end_turn`.
+5. Inspect each requested tool call.
+6. Ask pre-tool listeners whether it is allowed.
+7. Run the tool and record its result.
+8. Add all tool results to the messages and repeat.
 
 That's the loop every coding agent runs. Everything else - context management,
 sub-agents, streaming, permissions models - is layered around it.
@@ -120,8 +120,8 @@ Real coding harnesses add a lot around the same bones. The honest list:
 
 - **Context management.** The message list grows unboundedly here. Real
   harnesses compact / summarize old turns when approaching the context window.
-- **Permissions model.** y/n on every call is unusable past five minutes. Real
-  harnesses have allow rules, deny rules, session approvals, sandboxing.
+- **Permissions model.** Repeated y/n approval quickly becomes noisy. Real
+  harnesses have allow rules, deny rules, session approvals, and sandboxing.
 - **Sub-agents.** Spawning isolated child loops with their own context and
   tool subset (e.g. for "go explore this codebase" without polluting the main
   thread).
@@ -139,9 +139,19 @@ with.
 ```
 code/
 ├── nano-harness.py    # the whole thing
-├── .env               # ANTHROPIC_API_KEY=...
+├── .env.example       # configuration template
 ├── .gitignore
+├── tests/
 └── README.md
+```
+
+## Test it offline
+
+The tests replace the model SDK with local stubs. They do not use an API key or
+make a network request.
+
+```bash
+python3 -m unittest discover -s tests -v
 ```
 
 ## Go Deeper

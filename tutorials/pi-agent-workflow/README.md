@@ -5,9 +5,9 @@ This is the supporting material for the video: Harness Engineering: Building a C
 ## Start Here
 
 - Read the lesson: [LESSON.md](./LESSON.md)
-- Browse code samples: [code/](./code/)
-- Browse resources: [resources/](./resources/)
-- Browse slides: [resources/slides/](./resources/slides/)
+- Run the teaching harness: [code/nano-harness.py](./code/nano-harness.py)
+- Open the slide deck: [resources/slides/index.html](./resources/slides/index.html)
+- Read the optional technical reference: [resources/docs/harness-engineering-reference.md](./resources/docs/harness-engineering-reference.md)
 
 ## Go Deeper
 

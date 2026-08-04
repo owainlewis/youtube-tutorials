@@ -16,7 +16,7 @@ two sentences. Claude Code, Codex, Cursor, and Pi are all elaborate
 versions of this same loop.
 
 Usage:
-    echo "ANTHROPIC_API_KEY=sk-..." > .env
+    cp .env.example .env
     uv run nano-harness.py
 """
 import os
@@ -33,13 +33,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 client = Anthropic()
-MODEL = "claude-sonnet-4-6"
+MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 
 
 # ── System prompt ─────────────────────────────────────────────────────
-# The single highest-leverage thing in the harness. Without it the model
-# has no identity, no environment, no idea what tools mean. With 20
-# lines of context, behavior changes dramatically.
+# The system prompt gives the model an identity, environment, and tool
+# guidance. Focused context helps it make grounded decisions.
 #
 # Real harnesses (Claude Code, Codex) assemble this dynamically per
 # turn: cwd, git status, open files, project conventions (CLAUDE.md),
@@ -176,7 +175,7 @@ def emit(event: str, **payload) -> bool:
 # ── Spinner ───────────────────────────────────────────────────────────
 # Claude Code's UX trick: don't stream tokens, show a spinner while the
 # model thinks. Cleaner terminal, no half-rendered output, no cursor
-# jitter. The model still appears to "respond instantly" once done.
+# jitter. The completed response is printed as one block.
 
 class Spinner:
     def __init__(self, label: str = "thinking"):
@@ -197,15 +196,16 @@ class Spinner:
 
 
 # ── Model call + prompt caching ───────────────────────────────────────
-# Caching is a one-line change with ~90% cost reduction on multi-turn.
 # `cache_control: {type: "ephemeral"}` marks a *boundary*: everything up
-# to and including that marker is cached for ~5 minutes. We mark:
+# to and including that marker can be reused according to the provider's
+# cache policy. We mark:
 #   • the end of the system prompt
 #   • the end of the tools array (see TOOLS above)
-# So from turn 2 onward, system + tools are served from cache.
+# Later turns may reuse the eligible system and tool content, depending
+# on the provider's cache policy.
 #
-# Real harnesses also cache long-lived message prefixes (early turns,
-# loaded files) for big wins on long sessions.
+# Real harnesses may also cache stable message prefixes such as early
+# turns and loaded files.
 
 def call_model(messages: list):
     with Spinner():
