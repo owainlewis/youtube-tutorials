@@ -395,7 +395,7 @@
       <span class="pill pill-s">4 Layers</span>
     </div>
     <h1 class="display title reveal d2" style="font-size:72px;">How I Review<br>AI-Generated Code</h1>
-    <p class="sub reveal d3">Four layers of review. Each one filters out a category of problems so the next layer sees less noise. By the time a human looks at the code, the only things left require human judgement.</p>
+    <p class="sub reveal d3">Four layers of review. Each layer adds a different kind of evidence before a human decides whether the change is ready.</p>
   </div>
   <div class="slide-divider"></div>
 </section>
@@ -407,29 +407,29 @@
   <div class="orb orb-2" style="top:20%;left:60%;width:500px;height:400px;"></div>
   <div class="inner">
     <div class="num reveal d1">The Problem</div>
-    <h2 class="display title reveal d2" style="font-size:50px;max-width:700px;">Bad code in production is expensive. AI agents are generating more of it than we can review.</h2>
-    <p class="sub reveal d3" style="max-width:560px;">Amazon loses an estimated $13M for every hour of downtime. A single bad CrowdStrike update in 2024 grounded airlines worldwide. Code review is our last line of defense. Now AI agents generate 10x more code with the same number of reviewers, and that code has measurably more problems.</p>
+    <h2 class="display title reveal d2" style="font-size:50px;max-width:700px;">Fast code generation does not prove that a change is safe to ship.</h2>
+    <p class="sub reveal d3" style="max-width:560px;">AI coding agents can produce changes faster than developers can review them. Code review is how we prove those changes are correct, safe, and worth shipping.</p>
 
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px;" class="reveal d4">
       <div class="card" style="text-align:center;padding:24px 16px;border-top:3px solid var(--signal);">
-        <div style="font-family:'Instrument Serif',serif;font-size:48px;color:var(--signal);line-height:1;">1.7x</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;">More bugs in AI code</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:3px;">Including critical issues</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;color:var(--signal);line-height:1;">Correctness</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;">Check changed behaviour</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:3px;">Tests, edge cases, regressions</div>
       </div>
       <div class="card" style="text-align:center;padding:24px 16px;border-top:3px solid var(--signal);">
-        <div style="font-family:'Instrument Serif',serif;font-size:48px;color:var(--signal);line-height:1;">45%</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;">Contain security flaws</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:3px;">SQL injection, XSS, secrets</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;color:var(--signal);line-height:1;">Security</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;">Check trust boundaries</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:3px;">Inputs, auth, secrets</div>
       </div>
       <div class="card" style="text-align:center;padding:24px 16px;border-top:3px solid var(--cobalt);">
-        <div style="font-family:'Instrument Serif',serif;font-size:48px;color:var(--cobalt);line-height:1;">75%</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;">More logic errors</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:3px;">vs human-written code</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;color:var(--cobalt);line-height:1;">Scope</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;">Check the intended change</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:3px;">No unrelated behaviour</div>
       </div>
       <div class="card" style="text-align:center;padding:24px 16px;border-top:3px solid var(--cobalt);">
-        <div style="font-family:'Instrument Serif',serif;font-size:48px;color:var(--cobalt);line-height:1;">62%</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;">Need modifications</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:3px;">to fix bugs post-generation</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;color:var(--cobalt);line-height:1;">Maintenance</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;">Check project fit</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:3px;">Patterns, clarity, operations</div>
       </div>
     </div>
 
@@ -457,7 +457,7 @@
     </div>
 
     <div class="meta reveal d6" style="margin-top:24px;">
-      <p>AI agents let us move faster. That's a good thing. But we still need a review process, and humans can't review 10x more code. <strong>We need to figure that out.</strong></p>
+      <p>AI agents let us produce changes quickly. But faster output does not prove that a change is safe. <strong>We still need a review process.</strong></p>
     </div>
   </div>
   <div class="slide-divider"></div>
@@ -472,7 +472,7 @@
   <div class="inner">
     <div class="num reveal d1">01</div>
     <h2 class="display title reveal d2">AI Review vs Human Review</h2>
-    <p class="sub reveal d3">We need both. AI catches things tired engineers miss. Humans have context AI doesn't. The goal: minimize the cost of human review.</p>
+    <p class="sub reveal d3">Automated review and human review do different jobs. Tools can apply repeatable checks. Humans own intent, context, and the final decision.</p>
     <div class="grid-2 reveal d4" style="margin-top:36px;">
       <div class="card cmp">
         <div class="card-label">AI Review</div>
@@ -481,10 +481,10 @@
           <li>Security scans (OWASP, injection, secrets)</li>
           <li>Bug detection (logic, null, races)</li>
           <li>Style guide adherence</li>
-          <li>Scales to any volume</li>
-          <li>Never gets tired</li>
+          <li>Repeats the same checks across diffs</li>
+          <li>Applies the same prompt consistently</li>
         </ul>
-        <div class="bottom">Handles mechanical checks at machine speed</div>
+        <div class="bottom">Surfaces patterns for a reviewer to assess</div>
       </div>
       <div class="card cmp human">
         <div class="card-label">Human Review</div>
@@ -496,7 +496,7 @@
           <li>Will this cause problems in 3 months?</li>
           <li>Should we even build this?</li>
         </ul>
-        <div class="bottom">5 min focused > 30 min line-by-line</div>
+        <div class="bottom">Owns the final shipping decision</div>
       </div>
     </div>
   </div>
@@ -528,13 +528,13 @@
       <div class="pipe-node reveal d5">
         <div class="p-label">Layer 3</div>
         <div class="p-title">Review on CI</div>
-        <div class="p-desc">Automatic on every PR. Safety net for what you forgot.</div>
+        <div class="p-desc">Repeat the important proof in a clean environment.</div>
       </div>
       <div class="pipe-line reveal d6"></div>
       <div class="pipe-node l4 reveal d6">
         <div class="p-label">Layer 4</div>
         <div class="p-title">Human Review</div>
-        <div class="p-desc">Architecture, business logic, judgement. Everything else is handled.</div>
+        <div class="p-desc">Use the prior evidence to judge intent, architecture, and risk.</div>
       </div>
       <div class="pipe-line reveal d7"></div>
       <div class="pipe-node merge reveal d7">
@@ -585,15 +585,15 @@
           <ol>
             <li>Claude writes code</li>
             <li>Hooks enforce checks automatically</li>
-            <li>You review clean code</li>
-            <li>CI passes first time</li>
+            <li>You review the check output and diff</li>
+            <li>You push for clean-environment CI</li>
           </ol>
-          <div class="count" style="color:var(--cobalt);">One pass</div>
+          <div class="count" style="color:var(--cobalt);">Earlier feedback</div>
         </div>
       </div>
     </div>
     <div class="meta reveal d5">
-      <p>The same checks that run in CI now run locally before Claude can finish. <strong>Reviewers focus on logic and design</strong> instead of catching lint errors.</p>
+      <p>Configured hooks run selected checks before Claude can finish. <strong>Reviewers still inspect the results and the change.</strong></p>
     </div>
   </div>
   <div class="slide-divider"></div>
@@ -619,7 +619,7 @@
         <div class="card">
           <div class="card-label" style="color:var(--signal);">Step 2</div>
           <h4>Read the diff</h4>
-          <p>What files were touched? Does the scope match? AI's #1 issue: silent side effects.</p>
+          <p>What files were touched? Does the scope match? Look for unintended side effects.</p>
         </div>
       </div>
     </div>
@@ -630,17 +630,17 @@
         <div class="card opt rec">
           <div class="card-label">What I use</div>
           <h4>Custom Command</h4>
-          <p>Review prompt + REVIEW.md. Portable across any agent.</p>
+          <p>Review prompt + REVIEW.md. Adapt it for your chosen agent.</p>
         </div>
         <div class="card opt">
-          <div class="card-label">Best UX</div>
+          <div class="card-label">Built-in option</div>
           <h4>Codex /review</h4>
-          <p>4 presets, P0-P3 priorities. Cross-model review.</p>
+          <p>Use the built-in review workflow on a defined diff.</p>
         </div>
         <div class="card opt">
           <div class="card-label">Deep scanning</div>
           <h4>CodeRabbit</h4>
-          <p>40+ SAST scanners. Purpose-built for review.</p>
+          <p>Optional local and pull request review workflows.</p>
         </div>
       </div>
     </div>
@@ -656,7 +656,7 @@
   <div class="inner">
     <div class="num reveal d1">Layer 3</div>
     <h2 class="display title reveal d2">Review on CI</h2>
-    <p class="sub reveal d3">Automatic on every PR. Safety net for when you forget Layer 2.</p>
+    <p class="sub reveal d3">Run required checks on the pull request before human approval.</p>
 
     <div class="xflow reveal d4">
       <div class="card xcard">
@@ -681,22 +681,22 @@
       <div class="card">
         <div class="card-label">Option 1</div>
         <h4>Codex on GitHub</h4>
-        <p>Full repo access. Tests its hypotheses. Included with ChatGPT.</p>
+        <p>Automated findings configured for the repository.</p>
       </div>
       <div class="card">
         <div class="card-label">Option 2</div>
         <h4>CodeRabbit CI</h4>
-        <p>Inline PR comments. 40+ scanners. Free for open source.</p>
+        <p>Optional automated findings on pull requests.</p>
       </div>
       <div class="card">
         <div class="card-label">Option 3</div>
         <h4>Anthropic Security</h4>
-        <p>Open source GitHub Action. Security focused. Uses Opus.</p>
+        <p>Security-focused GitHub Action.</p>
       </div>
     </div>
 
     <div class="meta reveal d6">
-      <p>Different models catch different things. <strong>Write with one model, review with another.</strong> You're probably already paying for both.</p>
+      <p>A fresh reviewer can question assumptions from implementation. <strong>Treat its findings as evidence to assess, not as approval.</strong></p>
     </div>
   </div>
   <div class="slide-divider"></div>
@@ -710,12 +710,12 @@
   <div class="inner">
     <div class="num reveal d1">Layer 4</div>
     <h2 class="display title reveal d2">Human Review</h2>
-    <p class="sub reveal d3">Three layers of checks have already run. The human focuses entirely on judgement.</p>
+    <p class="sub reveal d3">Three layers of checks have already run. The human reviews that evidence and owns the final decision.</p>
 
     <table class="ltable reveal d4">
       <thead>
         <tr>
-          <th style="width:50%;">Already handled</th>
+          <th style="width:50%;">Checks already run</th>
           <th>What the human reviews</th>
         </tr>
       </thead>
@@ -744,7 +744,7 @@
     </table>
 
     <div class="meta reveal d5">
-      <p><strong>5 minutes of focused human review</strong> on architecture and business logic is worth more than 30 minutes of line-by-line reading.</p>
+      <p><strong>Human review should focus on intent, architecture, risk, and business logic</strong> after deterministic checks have run.</p>
     </div>
   </div>
   <div class="slide-divider"></div>
@@ -761,28 +761,28 @@
     <h2 class="display reveal d2" style="font-size:48px;max-width:720px;color:var(--frost);line-height:1.2;margin-bottom:14px;">
       There is no perfect tool.<br><span style="color:var(--cobalt);">The value is in layering them.</span>
     </h2>
-    <p class="sub reveal d3" style="max-width:520px;">Start with Layer 1. Add layers as you need them. Every issue you catch becomes a rule. The system gets better over time.</p>
+    <p class="sub reveal d3" style="max-width:520px;">Start with Layer 1. Add layers when they solve a specific gap. Turn repeated, provable findings into project rules.</p>
 
     <div class="reveal d4" style="display:flex;gap:56px;margin-top:56px;">
       <div style="text-align:center;">
         <div class="big-num s">1</div>
         <div style="font-size:14px;color:var(--muted);margin-top:8px;font-weight:500;">Automate</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:2px;">Free. Set it once.</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:2px;">Deterministic project checks.</div>
       </div>
       <div style="text-align:center;">
         <div class="big-num c">2</div>
         <div style="font-size:14px;color:var(--muted);margin-top:8px;font-weight:500;">Review locally</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:2px;">5 min. Before push.</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:2px;">Fresh context before push.</div>
       </div>
       <div style="text-align:center;">
         <div class="big-num c">3</div>
         <div style="font-size:14px;color:var(--muted);margin-top:8px;font-weight:500;">Review on CI</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:2px;">Automatic safety net.</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:2px;">Clean-environment checks.</div>
       </div>
       <div style="text-align:center;">
         <div class="big-num f">4</div>
         <div style="font-size:14px;color:var(--muted);margin-top:8px;font-weight:500;">Human review</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:2px;">Judgement only.</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:2px;">Final shipping decision.</div>
       </div>
     </div>
   </div>

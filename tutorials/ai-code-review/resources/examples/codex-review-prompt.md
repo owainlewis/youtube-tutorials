@@ -2,7 +2,7 @@
 
 Source: https://github.com/openai/codex/blob/main/codex-rs/core/review_prompt.md
 
-One of the best code review prompts available. Open source (MIT). Study it and adapt it for your own review commands.
+This is an MIT-licensed prompt used by Codex. The notes below extract ideas you can adapt for your own review commands.
 
 ## Key Principles
 

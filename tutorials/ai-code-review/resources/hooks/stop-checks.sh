@@ -7,7 +7,7 @@ cd "$(git rev-parse --show-toplevel)" || exit 0
 
 errors=""
 
-# ── Linting (only changed files, keeps it fast) ──
+# Linting for changed files
 changed_rb=$(git diff --name-only --diff-filter=ACMR HEAD -- '*.rb' 2>/dev/null)
 if [ -n "$changed_rb" ]; then
   output=$(bundle exec rubocop --force-exclusion $changed_rb 2>&1)
@@ -24,7 +24,7 @@ if [ -n "$changed_py" ]; then
   fi
 fi
 
-# ── Security scanning (full app, intentional) ──
+# Security scanning for the full app
 if [ -f "Gemfile" ]; then
   output=$(bundle exec brakeman --no-pager -q 2>&1)
   if [ $? -ne 0 ]; then
@@ -32,13 +32,13 @@ if [ -f "Gemfile" ]; then
   fi
 fi
 
-# ── Tests (optional, uncomment if you want tests in the gate) ──
+# Tests are optional. Uncomment this block to add tests to the gate.
 # output=$(python -m pytest --tb=short 2>&1)
 # if [ $? -ne 0 ]; then
 #   errors+="## Test failures\n$output\n\n"
 # fi
 
-# ── Debugging artifacts ──
+# Debugging artifacts
 found=$(grep -rn 'binding\.pry\|binding\.irb\|debugger\|byebug\|breakpoint()' app/ lib/ --include='*.rb' --include='*.py' 2>/dev/null)
 if [ -n "$found" ]; then
   errors+="## Debugging statements left in code\n$found\n\n"

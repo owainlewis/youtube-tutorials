@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "agent",
-            "prompt": "Review the changes made in this session. Check for bugs, security issues, and violations of project conventions. If you find a REVIEW.md in the project root, check against those rules too. If you find high-confidence issues, respond with exit code 2 to block and describe what needs to be fixed.",
+            "prompt": "Review the changes made in this session. Check for bugs, security issues, and violations of project conventions. If REVIEW.md exists in the project root, check against those rules too. Use this hook input as context: $ARGUMENTS. Respond with {\"ok\": true} when there are no high-confidence issues. Respond with {\"ok\": false, \"reason\": \"a concise description of the issues\"} to block stopping when issues remain.",
             "timeout": 120
           }
         ]

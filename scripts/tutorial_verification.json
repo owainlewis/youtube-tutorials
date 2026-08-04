@@ -13,6 +13,15 @@
         }
       ]
     },
+    "ai-code-review": {
+      "kind": "offline",
+      "commands": [
+        {
+          "cwd": "tutorials/ai-code-review",
+          "run": ["python", "code/verify_templates.py"]
+        }
+      ]
+    },
     "deploy-ai-on-gcp": {
       "kind": "static",
       "commands": [
