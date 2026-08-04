@@ -41,8 +41,13 @@
       ]
     },
     "intent-based-classification": {
-      "kind": "integration-only",
-      "reason": "The current example calls OpenAI. Issue #20 adds a credential-free verification path."
+      "kind": "offline",
+      "commands": [
+        {
+          "cwd": "tutorials/intent-based-classification/code",
+          "run": ["python", "-m", "unittest", "-v", "test_offline.py"]
+        }
+      ]
     },
     "micro-agents-demo": {
       "kind": "integration-only",
