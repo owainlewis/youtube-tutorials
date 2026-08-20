@@ -78,6 +78,13 @@
       "last_verified": "2026-08-04"
     },
     {
+      "slug": "deepseek-harness-setup",
+      "title": "Set Up DeepSeek Harness",
+      "status": "published",
+      "video_url": "",
+      "last_verified": "2026-08-20"
+    },
+    {
       "slug": "deploy-ai-on-gcp",
       "title": "Deploy AI Systems on Google Cloud With OpenAI Codex",
       "status": "published",

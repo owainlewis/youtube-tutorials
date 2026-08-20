@@ -12,7 +12,7 @@ Each tutorial uses the same public shape:
 - `resources/` - prompts, slides, configs, references, images, and other loose assets.
 
 <!-- tutorial-catalog:start -->
-31 published tutorials:
+32 published tutorials:
 
 - [6 Types of RAG, Clearly Explained](./tutorials/6-types-of-rag/)
 - [Agent Goals and Loops Explained Simply](./tutorials/agent-goals-and-loops/)
@@ -25,6 +25,7 @@ Each tutorial uses the same public shape:
 - [Codex Scheduled Tasks: Bug Scan and Bug Fix](./tutorials/codex-automations/)
 - [OpenAI Codex For Developers](./tutorials/codex-for-developers/)
 - [7 Codex Skills I Use As An AI Engineer](./tutorials/codex-skills-i-use/)
+- [Set Up DeepSeek Harness](./tutorials/deepseek-harness-setup/)
 - [Deploy AI Systems on Google Cloud With OpenAI Codex](./tutorials/deploy-ai-on-gcp/)
 - [Docker Sandboxes for Developers](./tutorials/docker-sandboxes-for-developers/)
 - [GitHub AI Workflow](./tutorials/github-ai-workflow/)
