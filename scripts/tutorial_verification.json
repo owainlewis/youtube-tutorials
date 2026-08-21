@@ -68,6 +68,23 @@
         }
       ]
     },
+    "deepseek-harness-setup": {
+      "classification": "snippet-only",
+      "reason": "The browser plugin runs inside DeepSeek Harness and is not a standalone application.",
+      "kind": "static",
+      "commands": [
+        {
+          "name": "DeepSeek Harness Kanban plugin syntax",
+          "cwd": "tutorials/deepseek-harness-setup/code/dsh-client-ui-ds-kanban",
+          "run": ["node", "--check", "lib/index.js"]
+        },
+        {
+          "name": "DeepSeek Harness Kanban client syntax",
+          "cwd": "tutorials/deepseek-harness-setup/code/dsh-client-ui-ds-kanban",
+          "run": ["node", "--check", "lib/client.js"]
+        }
+      ]
+    },
     "deploy-ai-on-gcp": {
       "classification": "infrastructure-only",
       "reason": "The primary artifact is Terraform for an opt-in cloud deployment. Default checks format the module and test the classifier without deploying it.",
