@@ -106,7 +106,9 @@ window.__ModuleLoader__.load({
 			if (t.active == null) return t.settledMs;
 			const since = typeof t.active.since === "number" ? t.active.since : undefined;
 			if (since === undefined) return t.settledMs;
-			const end = s.running === true ? now : (typeof t.active.through === "number" ? t.active.through : now);
+			const through = typeof t.active.through === "number" ? t.active.through : undefined;
+			if (s.running !== true && through === undefined) return undefined;
+			const end = s.running === true ? now : through;
 			return t.settledMs + Math.max(0, end - since);
 		}
 		function tokensOf(s) {
@@ -292,8 +294,12 @@ window.__ModuleLoader__.load({
 					const ws = workspaces.list.getSnapshot();
 					const archivedSet = new Set(ws.archivedSessionIds || []);
 					const titleBySession = new Map();
+					const projectKeyBySession = new Map();
 					for (const w of ws.items || []) {
-						for (const sid of w.sessionIds || []) titleBySession.set(sid, w.title);
+						for (const sid of w.sessionIds || []) {
+							titleBySession.set(sid, w.title);
+							projectKeyBySession.set(sid, w.workspaceId || w.title);
+						}
 					}
 					const batches = new Map();
 					const ensure = (s) => {
@@ -339,6 +345,7 @@ window.__ModuleLoader__.load({
 							.map((s) => { const r = activity.get(s.id); return r ? r.lastChangeAt : 0; });
 						b.lastChangeAt = changes.length ? Math.max.apply(null, changes) : 0;
 						b.project = projectOf(b.coordinator, titleBySession) || "No project";
+						b.projectKey = projectKeyBySession.get(b.coordinator.id) || b.coordinator.cwd || b.project;
 						rows.push(b);
 					}
 					rows.sort((a, b) => {
@@ -353,8 +360,8 @@ window.__ModuleLoader__.load({
 					// most urgent work leads, so the top of the page stays actionable.
 					const byProject = new Map();
 					for (const r of rows) {
-						let g = byProject.get(r.project);
-						if (g == null) { g = { project: r.project, rows: [], counts: {}, lastChangeAt: 0 }; byProject.set(r.project, g); }
+						let g = byProject.get(r.projectKey);
+						if (g == null) { g = { key: r.projectKey, project: r.project, rows: [], counts: {}, lastChangeAt: 0 }; byProject.set(r.projectKey, g); }
 						g.rows.push(r);
 						g.counts[r.state] = (g.counts[r.state] || 0) + 1;
 						if (r.lastChangeAt > g.lastChangeAt) g.lastChangeAt = r.lastChangeAt;
@@ -513,8 +520,8 @@ window.__ModuleLoader__.load({
 				const show = (r) => states[r.state] === true;
 				const visible = snap.rows.filter(show);
 				const sections = grouped
-					? snap.groups.map((g) => ({ project: g.project, counts: g.counts, rows: g.rows.filter(show) })).filter((g) => g.rows.length > 0)
-					: visible.length > 0 ? [{ project: undefined, counts: snap.counts, rows: visible }] : [];
+					? snap.groups.map((g) => ({ key: g.key, project: g.project, counts: g.counts, rows: g.rows.filter(show) })).filter((g) => g.rows.length > 0)
+					: visible.length > 0 ? [{ key: "__all__", project: undefined, counts: snap.counts, rows: visible }] : [];
 				/** One toggle per state, always showing its true total even while filtered out. */
 				const filters = FILTER_ORDER.map((k) => {
 					const n = snap.counts[k] || 0;
@@ -652,7 +659,7 @@ window.__ModuleLoader__.load({
 							sections.length === 0
 								? React.createElement("div", { style: { color: TOK.dim, ...T13, padding: "12px 2px" } },
 									snap.batchCount === 0 ? "No sessions yet." : "Nothing matches the selected states.")
-								: sections.map((g, i) => React.createElement("div", { key: g.project || "__all__", style: grouped ? undefined : { height: "100%" } }, sectionHead(g), laneGrid(g, true)))),
+								: sections.map((g) => React.createElement("div", { key: g.key, style: grouped ? undefined : { height: "100%" } }, sectionHead(g), laneGrid(g, true)))),
 						React.createElement("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginTop: "10px", flexWrap: "wrap", flex: "none", ...T11, color: TOK.label3 } },
 							React.createElement("span", null, visible.length + " of " + snap.batchCount + " batches shown"),
 							React.createElement("span", { style: { flex: 1 } }),
