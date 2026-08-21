@@ -377,6 +377,7 @@ window.__ModuleLoader__.load({
 				const onKeyActivate = (activate) => (e) => {
 					if (e.key !== "Enter" && e.key !== " ") return;
 					e.preventDefault();
+					if (e.repeat) return;
 					activate(e);
 				};
 				const button = React.createElement(
