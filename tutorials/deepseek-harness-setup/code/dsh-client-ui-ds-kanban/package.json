@@ -1,6 +1,6 @@
 {
   "name": "dsh-client-ui-ds-kanban",
-  "description": "DS Kanban: a kanban board across all sessions and projects for DeepSeek Harness — Running / Needs attention / Done / New / Idle / Archived.",
+  "description": "DS Kanban shows coordinator and worker sessions across DeepSeek Harness projects.",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
       "inject": [
         "@deepseek-ai/dsh-client-locale",
         "@deepseek-ai/dsh-client-runtime",
-        "@deepseek-ai/dsh-client-ui-conversation"
+        "@deepseek-ai/dsh-client-ui-sidebar"
       ],
       "platform": "web"
     }

@@ -374,6 +374,11 @@ window.__ModuleLoader__.load({
 				};
 				const jump = (id) => { setOpen(false); openSession(id); };
 				const isOpenRow = (b) => override[b.coordinator.id] !== undefined ? override[b.coordinator.id] : b.blockedCount > 0;
+				const onKeyActivate = (activate) => (e) => {
+					if (e.key !== "Enter" && e.key !== " ") return;
+					e.preventDefault();
+					activate(e);
+				};
 				const button = React.createElement(
 					"button",
 					{
@@ -409,6 +414,10 @@ window.__ModuleLoader__.load({
 					return React.createElement("div", {
 						key: s.id,
 						onClick: () => jump(s.id),
+						onKeyDown: onKeyActivate(() => jump(s.id)),
+						role: "button",
+						tabIndex: 0,
+						"aria-label": "Open " + labelOf(s),
 						title: s.id,
 						style: { display: "flex", alignItems: "center", gap: "8px", padding: "6px 8px", cursor: "pointer", userSelect: "none", ...T12, borderRadius: "8px", transition: "background " + TOK.ease },
 						onMouseEnter: (e) => { e.currentTarget.style.background = TOK.bgInset; },
@@ -434,10 +443,16 @@ window.__ModuleLoader__.load({
 					if (totalMs > 0) metrics.push(fmtMs(totalMs) + " active");
 					if (totalSteps > 0) metrics.push(totalSteps + " steps");
 					if (totalTok > 0) metrics.push(fmtTokens(totalTok) + " tok");
+					const toggleExpanded = () => setOverride((p) => { const n = { ...p }; n[c.id] = !expanded; return n; });
+					const openWorker = (w) => (e) => { e.stopPropagation(); jump(w.summary.id); };
 					const dots = b.workers.slice(0, 14).map((w, i) => React.createElement("span", {
 						key: w.summary.id || i,
-						title: labelOf(w.summary) + " — " + STATE_TEXT[w.state],
-						onClick: (e) => { e.stopPropagation(); jump(w.summary.id); },
+						title: labelOf(w.summary) + ": " + STATE_TEXT[w.state],
+						onClick: openWorker(w),
+						onKeyDown: onKeyActivate(openWorker(w)),
+						role: "button",
+						tabIndex: 0,
+						"aria-label": "Open " + labelOf(w.summary),
 						style: { width: "7px", height: "7px", borderRadius: "50%", flex: "none", cursor: "pointer", background: LIVE_STATE[w.state] ? STATE_COLOR[w.state] : "transparent", border: LIVE_STATE[w.state] ? "none" : "1.5px solid " + TOK.border3 }
 					}));
 					return React.createElement("div", {
@@ -450,19 +465,27 @@ window.__ModuleLoader__.load({
 							React.createElement("div", { style: { display: "flex", alignItems: "flex-start", gap: "8px" } },
 								b.workers.length > 0
 									? React.createElement("span", {
-										onClick: () => setOverride((p) => { const n = { ...p }; n[c.id] = !expanded; return n; }),
+										onClick: toggleExpanded,
+										onKeyDown: onKeyActivate(toggleExpanded),
+										role: "button",
+										tabIndex: 0,
+										"aria-label": expanded ? "Collapse workers" : "Expand workers",
 										title: expanded ? "Collapse workers" : "Expand workers",
 										style: { cursor: "pointer", color: TOK.label3, ...T11, flex: "none", userSelect: "none" }
 									}, expanded ? "▾" : "▸")
 									: React.createElement("span", { style: { width: "9px", flex: "none" } }),
 								React.createElement("span", {
 									onClick: () => jump(c.id),
+									onKeyDown: onKeyActivate(() => jump(c.id)),
+									role: "button",
+									tabIndex: 0,
+									"aria-label": "Open " + labelOf(c),
 									title: c.id,
 									style: { ...T12, fontWeight: 500, color: TOK.label, cursor: "pointer", overflowWrap: "anywhere", flex: 1, minWidth: 0 }
 								}, labelOf(c))),
 							!grouped && proj0
 								? React.createElement("div", { style: { marginTop: "5px" } },
-									React.createElement("span", { style: { background: TOK.hover, color: TOK.label2, borderRadius: "999px", padding: "2px 8px", ...T11, fontWeight: 500 } }, proj0))
+									React.createElement("span", { style: { background: TOK.bgInset, color: TOK.label2, borderRadius: "999px", padding: "2px 8px", ...T11, fontWeight: 500 } }, proj0))
 								: null,
 							b.state === "blocked" || tool
 								? React.createElement("div", { style: { marginTop: "5px", ...T11, fontWeight: 500, color: b.state === "blocked" ? TOK.error : TOK.label3 } },
@@ -490,7 +513,7 @@ window.__ModuleLoader__.load({
 				const visible = snap.rows.filter(show);
 				const sections = grouped
 					? snap.groups.map((g) => ({ project: g.project, counts: g.counts, rows: g.rows.filter(show) })).filter((g) => g.rows.length > 0)
-					: [{ project: undefined, counts: snap.counts, rows: visible }];
+					: visible.length > 0 ? [{ project: undefined, counts: snap.counts, rows: visible }] : [];
 				/** One toggle per state, always showing its true total even while filtered out. */
 				const filters = FILTER_ORDER.map((k) => {
 					const n = snap.counts[k] || 0;
