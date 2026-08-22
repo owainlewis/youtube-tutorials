@@ -1,6 +1,6 @@
 # Tutorial Verification
 
-The repository has 14 tutorials with tracked files under `code/`.
+The repository has 15 tutorials with tracked files under `code/`.
 
 Each one belongs to one class:
 
@@ -23,6 +23,7 @@ also verify that runnable documentation headings still exist.
 | 6 Types of RAG | Runnable | Unit tests cover the six retrieval strategies with fake model and database boundaries. |
 | AI Agent Memory | Runnable | Standard-library unit tests cover local memory utilities. |
 | AI Code Review | Snippet-only | A temporary Git repository proves the template install and deterministic stop hook. |
+| DeepSeek Harness | Snippet-only | Node syntax checks validate the host and browser plugin modules without starting the harness. |
 | Deploy AI on GCP | Infrastructure-only | Terraform formatting and classifier dry-run unit tests run without a deployment. |
 | Docker Sandboxes | Runnable | A local HTTP server unit test runs without Docker. |
 | Herdr Agent Workflow | Snippet-only | Shell parsing and the setup helper's usage path run without installing integrations. |
