@@ -61,6 +61,8 @@ gcloud auth login
 python3 deploy.py --project personal-infrastructure-505708
 ```
 
+The script records resources it creates in `code/.software-factory-state.json`. Keep that local file for redeployment and cleanup; it is excluded from Git and cloud build uploads. An existing resource with the same name but no ownership record stops deployment before resource changes. Use a separate tutorial checkout for each project and region.
+
 The script creates three Cloud Run services in `europe-west2`, dedicated service identities, a named Firestore database, a Pub/Sub notification channel and subscription, an Artifact Registry repository and a metric alert policy. It prints the API and dashboard URLs. It uses existing gcloud authentication; there is no committed key or model API key. Gemini defaults to `gemini-2.5-flash`; use `--model` to choose an available Vertex model.
 
 Deployments, builds, model calls, stored logs and Firestore operations can incur charges. Cloud Run scales to zero and each service is capped at two instances. The scripts do not change a project’s billing account or disable unrelated resources.
@@ -95,7 +97,7 @@ python3 demo.py recover --project personal-infrastructure-505708
 python3 demo.py traffic --project personal-infrastructure-505708 --seconds 300
 ```
 
-Alternatively restore traffic to a known healthy revision in the Cloud Run console. Keep traffic running to give Monitoring fresh data. Closed notifications move incidents into history. The policy treats missing error samples as inactive after its evaluation window, so closure can lag recovery by several minutes. Closed means the error alert cleared, not proof that every endpoint works; verify the successful checkout responses too. The dashboard stays open until Monitoring sends closure.
+Alternatively restore traffic to a known healthy revision in the Cloud Run console. Keep traffic running to give Monitoring fresh data. Closed notifications move incidents into history. Allow additional time for Monitoring to close an incident; this is not an instant UI state change. The policy treats missing error samples as inactive after its evaluation window, so closure can lag recovery by several minutes. Closed means the error alert cleared, not proof that every endpoint works; verify the successful checkout responses too. The dashboard stays open until Monitoring sends closure.
 
 The fault is a controlled simulation, not a naturally discovered regression. Show the configuration change explicitly. Measure actual alert-to-report time during your recording rather than promising a fixed latency.
 
@@ -126,11 +128,11 @@ Use `demo.py recover` to restore the API between recordings. Keep incident histo
 python3 cleanup.py --project personal-infrastructure-505708 --confirm
 ```
 
-Cleanup removes only the resources named by this tutorial, including stored incident history and container images. It does not disable APIs or delete the project. Stop any local traffic process and local server with Ctrl-C. Remove the temporary environment with `rm -rf /tmp/software-factory-venv` when no longer needed.
+Cleanup requires the matching local ownership manifest and removes only its recorded resource IDs, including stored incident history and container images. If that file is lost, inspect and remove resources manually in the Cloud Console; the script will not adopt resources by name. It does not disable APIs or delete the project. Stop any local traffic process and local server with Ctrl-C. Remove the temporary environment with `rm -rf /tmp/software-factory-venv` when no longer needed.
 
 ## Limits
 
-This is a small demo, not an on-call replacement. Worker retries last up to the subscription’s one-hour retention. A failed investigation stays visible and deliveries retry; there is no paging escalation or dead-letter queue. Each investigation has a three-minute deadline and bounded model calls. In-memory ADK sessions are per investigation; durable incident state is stored in Firestore.
+This is a small demo, not an on-call replacement. Worker retries last up to the subscription’s one-hour retention. A failed investigation stays visible and deliveries retry; there is no paging escalation or dead-letter queue. Each investigation has a three-minute deadline and bounded model calls. Each attempt reads up to 30 minutes of evidence through the current time, so a retry can see new errors. In-memory ADK sessions are per investigation; durable incident state is stored in Firestore.
 
 The next useful experiment is a different failure with the same interface: keep the tools unchanged and check whether the agent reaches a different explanation from different evidence.
 

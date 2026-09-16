@@ -1,7 +1,50 @@
 #!/usr/bin/env python3
-"""Remove only this tutorial's named demo resources. Requires explicit --confirm."""
+"""Remove resources recorded by this deployment. Requires explicit --confirm."""
 import argparse
 import deploy
+
+
+def cleanup():
+    state = deploy.load_state(required=True)
+    existing = deploy.inventory()
+    cli, api = deploy.cli, deploy.api
+    for kind in ['alertPolicies', 'notificationChannels', 'subscriptions', 'topics',
+                 'services', 'databases', 'repositories', 'accounts']:
+        for resource in list(state['resources'].get(kind, [])):
+            present = (any(item['name'] == resource for item in existing[kind])
+                       if kind in ('alertPolicies', 'notificationChannels')
+                       else resource in existing[kind])
+            if present:
+                if kind in ('alertPolicies', 'notificationChannels'):
+                    api('DELETE', kind + '/' + resource.split('/')[-1])
+                elif kind in ('subscriptions', 'topics'):
+                    cli('pubsub', kind, 'delete', resource)
+                elif kind == 'services':
+                    cli('run', 'services', 'delete', resource, '--region', deploy.REGION)
+                elif kind == 'databases':
+                    cli('firestore', 'databases', 'delete', '--database', resource.split('/')[-1])
+                elif kind == 'repositories':
+                    cli('artifacts', 'repositories', 'delete', resource, '--location', deploy.REGION)
+                elif kind == 'accounts':
+                    member = 'serviceAccount:' + resource
+                    policy = cli('projects', 'get-iam-policy', deploy.PROJECT, json_output=True)
+                    for binding in policy.get('bindings', []):
+                        if member in binding.get('members', []) and not binding.get('condition'):
+                            cli('projects', 'remove-iam-policy-binding', deploy.PROJECT,
+                                '--member', member, '--role', binding['role'], '--condition=None')
+                    if resource == f'{deploy.PREFIX}-build@{deploy.PROJECT}.iam.gserviceaccount.com':
+                        bucket = f'gs://{deploy.PROJECT}_cloudbuild'
+                        buckets = cli('storage', 'buckets', 'list', json_output=True)
+                        if any(b['name'] == deploy.PROJECT + '_cloudbuild' for b in buckets):
+                            policy = cli('storage', 'buckets', 'get-iam-policy', bucket, json_output=True)
+                            if any(b['role'] == 'roles/storage.objectViewer' and member in b.get('members', [])
+                                   for b in policy.get('bindings', [])):
+                                cli('storage', 'buckets', 'remove-iam-policy-binding', bucket,
+                                    '--member', member, '--role', 'roles/storage.objectViewer')
+                    cli('iam', 'service-accounts', 'delete', resource)
+            state['resources'][kind].remove(resource)
+            deploy.save_state(state)
+    print('Recorded demo resources removed. Shared APIs, build bucket, build history and billing remain unchanged.')
 
 
 def main():
@@ -12,44 +55,8 @@ def main():
     args = parser.parse_args()
     if not args.confirm:
         parser.error('--confirm is required; this deletes demo history and container images')
-    deploy.PROJECT = args.project
-    cli, api = deploy.cli, deploy.api
-    prefix = deploy.PREFIX
-    for item in api('GET', 'alertPolicies').get('alertPolicies', []):
-        if item['displayName'] == prefix + ' / Checkout errors':
-            api('DELETE', 'alertPolicies/' + item['name'].split('/')[-1])
-    for item in api('GET', 'notificationChannels').get('notificationChannels', []):
-        if item.get('displayName') == prefix:
-            api('DELETE', 'notificationChannels/' + item['name'].split('/')[-1])
-    for kind, name in [('subscriptions', prefix + '-triage'), ('topics', prefix + '-alerts')]:
-        items = cli('pubsub', kind, 'list', json_output=True)
-        if any(item['name'].endswith('/' + name) for item in items):
-            cli('pubsub', kind, 'delete', name)
-    services = cli('run', 'services', 'list', '--region', args.region, json_output=True)
-    for name in [prefix + '-api', prefix + '-triage', prefix + '-dashboard']:
-        if any(item['metadata']['name'] == name for item in services):
-            cli('run', 'services', 'delete', name, '--region', args.region)
-    for database in cli('firestore', 'databases', 'list', json_output=True):
-        if database['name'].endswith('/' + prefix):
-            cli('firestore', 'databases', 'delete', '--database', prefix)
-    for repository in cli('artifacts', 'repositories', 'list', '--location', args.region, json_output=True):
-        if repository['name'].endswith('/' + prefix):
-            cli('artifacts', 'repositories', 'delete', prefix, '--location', args.region)
-    accounts = cli('iam', 'service-accounts', 'list', json_output=True)
-    for suffix in ['api', 'triage', 'dashboard', 'push', 'build']:
-        email = f'{prefix}-{suffix}@{args.project}.iam.gserviceaccount.com'
-        member = 'serviceAccount:' + email
-        policy = cli('projects', 'get-iam-policy', args.project, json_output=True)
-        for binding in policy.get('bindings', []):
-            if member in binding['members'] and not binding.get('condition'):
-                cli('projects', 'remove-iam-policy-binding', args.project,
-                    '--member', member, '--role', binding['role'], '--condition=None')
-        if suffix == 'build' and any(item['email'] == email for item in accounts):
-            cli('storage', 'buckets', 'remove-iam-policy-binding', f'gs://{args.project}_cloudbuild',
-                '--member', member, '--role', 'roles/storage.objectViewer')
-        if any(item['email'] == email for item in accounts):
-            cli('iam', 'service-accounts', 'delete', email)
-    print('Demo removed. Shared APIs, build history and project billing remain unchanged.')
+    deploy.PROJECT, deploy.REGION = args.project, args.region
+    cleanup()
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import urllib.request
 import urllib.error
+from urllib.parse import urlencode
 
 PREFIX = 'software-factory'
 
@@ -29,11 +30,87 @@ def api(method, path, body=None):
         return json.loads(data) if data else {}
 
 
+def monitoring_list(kind):
+    """Read every page before making ownership or deletion decisions."""
+    items, token, seen = [], None, set()
+    while True:
+        path = kind + ('?' + urlencode({'pageToken': token}) if token else '')
+        page = api('GET', path)
+        items.extend(page.get(kind, []))
+        token = page.get('nextPageToken')
+        if not token:
+            return items
+        if token in seen:
+            raise RuntimeError('Monitoring returned a repeated pagination token')
+        seen.add(token)
+
+
+STATE_PATH = Path(__file__).with_name('.software-factory-state.json')
+
+
+def load_state(required=False):
+    if not STATE_PATH.exists():
+        if required:
+            raise RuntimeError('Ownership manifest missing; refusing cleanup.')
+        return {'version': 1, 'project': PROJECT, 'region': REGION, 'resources': {}}
+    state = json.loads(STATE_PATH.read_text())
+    if (state.get('version'), state.get('project'), state.get('region')) != (1, PROJECT, REGION):
+        raise RuntimeError('Ownership manifest does not match this project and region.')
+    return state
+
+
+def save_state(state):
+    temporary = STATE_PATH.with_suffix('.tmp')
+    temporary.write_text(json.dumps(state, indent=2) + '\n')
+    temporary.replace(STATE_PATH)
+
+
+def remember(kind, resource):
+    resources = STATE['resources'].setdefault(kind, [])
+    if resource not in resources:
+        resources.append(resource)
+        save_state(STATE)
+
+
+def inventory():
+    return {
+        'accounts': [a['email'] for a in cli('iam', 'service-accounts', 'list', json_output=True)],
+        'databases': [d['name'] for d in cli('firestore', 'databases', 'list', json_output=True)],
+        'repositories': [r['name'] for r in cli('artifacts', 'repositories', 'list', '--location', REGION, json_output=True)],
+        'services': [s['metadata']['name'] for s in cli('run', 'services', 'list', '--region', REGION, json_output=True)],
+        'topics': [t['name'] for t in cli('pubsub', 'topics', 'list', json_output=True)],
+        'subscriptions': [s['name'] for s in cli('pubsub', 'subscriptions', 'list', json_output=True)],
+        'notificationChannels': monitoring_list('notificationChannels'),
+        'alertPolicies': monitoring_list('alertPolicies'),
+    }
+
+
+def preflight(state, existing):
+    expected = {
+        'accounts': [f'{PREFIX}-{suffix}@{PROJECT}.iam.gserviceaccount.com'
+                     for suffix in ('api', 'triage', 'dashboard', 'push', 'build')],
+        'databases': [f'projects/{PROJECT}/databases/{PREFIX}'],
+        'repositories': [f'projects/{PROJECT}/locations/{REGION}/repositories/{PREFIX}'],
+        'services': [PREFIX + '-' + suffix for suffix in ('api', 'triage', 'dashboard')],
+        'topics': [f'projects/{PROJECT}/topics/{PREFIX}-alerts'],
+        'subscriptions': [f'projects/{PROJECT}/subscriptions/{PREFIX}-triage'],
+    }
+    for kind, names in expected.items():
+        for name in names:
+            if name in existing[kind] and name not in state['resources'].get(kind, []):
+                raise RuntimeError(f'Unowned {kind} collision: {name}. Refusing deployment.')
+    for kind, display in [('notificationChannels', PREFIX), ('alertPolicies', PREFIX + ' / Checkout errors')]:
+        for item in existing[kind]:
+            if item.get('displayName') == display and item['name'] not in state['resources'].get(kind, []):
+                raise RuntimeError(f"Unowned {kind} collision: {item['name']}. Refusing deployment.")
+
+
 def ensure_account(name):
     email = f'{name}@{PROJECT}.iam.gserviceaccount.com'
     accounts = cli('iam', 'service-accounts', 'list', json_output=True)
     if not any(a['email'] == email for a in accounts):
         cli('iam', 'service-accounts', 'create', name, '--display-name', name)
+        remember('accounts', email)
     return email
 
 
@@ -43,9 +120,13 @@ def role(email, name):
 
 
 def deploy():
+    global STATE
+    STATE = load_state()
     cli('services', 'enable', 'run.googleapis.com', 'cloudbuild.googleapis.com',
         'artifactregistry.googleapis.com', 'monitoring.googleapis.com', 'logging.googleapis.com',
         'pubsub.googleapis.com', 'firestore.googleapis.com', 'aiplatform.googleapis.com', 'iam.googleapis.com')
+    preflight(STATE, inventory())
+    save_state(STATE)
     number = str(cli('projects', 'describe', PROJECT, json_output=True)['projectNumber'])
     api_sa = ensure_account(PREFIX + '-api')
     worker_sa = ensure_account(PREFIX + '-triage')
@@ -58,9 +139,11 @@ def deploy():
     databases = cli('firestore', 'databases', 'list', json_output=True)
     if not any(d['name'].endswith('/' + PREFIX) for d in databases):
         cli('firestore', 'databases', 'create', '--database', PREFIX, '--location', REGION, '--type', 'firestore-native')
+        remember('databases', f'projects/{PROJECT}/databases/{PREFIX}')
     repositories = cli('artifacts', 'repositories', 'list', '--location', REGION, json_output=True)
     if not any(r['name'].endswith('/' + PREFIX) for r in repositories):
         cli('artifacts', 'repositories', 'create', PREFIX, '--location', REGION, '--repository-format', 'docker')
+        remember('repositories', f'projects/{PROJECT}/locations/{REGION}/repositories/{PREFIX}')
     image = f'{REGION}-docker.pkg.dev/{PROJECT}/{PREFIX}/demo:latest'
     build_sa = ensure_account(PREFIX + '-build')
     role(build_sa, 'roles/logging.logWriter')
@@ -92,18 +175,21 @@ def deploy():
             '--cpu', '1', '--min-instances', '0', '--max-instances', '2',
             '--concurrency', '4' if mode == 'worker' else '40', '--timeout', '240',
             '--no-allow-unauthenticated')
+        remember('services', name)
         urls[mode] = cli('run', 'services', 'describe', name, '--region', REGION, json_output=True)['status']['url']
     cli('run', 'services', 'add-iam-policy-binding', PREFIX + '-triage', '--region', REGION,
         '--member', 'serviceAccount:' + push_sa, '--role', 'roles/run.invoker')
     topics = cli('pubsub', 'topics', 'list', json_output=True)
     if not any(t['name'].endswith('/' + PREFIX + '-alerts') for t in topics):
         cli('pubsub', 'topics', 'create', PREFIX + '-alerts')
+        remember('topics', f'projects/{PROJECT}/topics/{PREFIX}-alerts')
     topic = f'projects/{PROJECT}/topics/{PREFIX}-alerts'
-    channels = api('GET', 'notificationChannels').get('notificationChannels', [])
-    channel = next((c for c in channels if c.get('displayName') == PREFIX), None)
+    channels = monitoring_list('notificationChannels')
+    channel = next((c for c in channels if c['name'] in STATE['resources'].get('notificationChannels', [])), None)
     if channel is None:
         channel = api('POST', 'notificationChannels', {'type': 'pubsub', 'displayName': PREFIX,
                                                       'labels': {'topic': topic}})
+        remember('notificationChannels', channel['name'])
     cli('pubsub', 'topics', 'add-iam-policy-binding', PREFIX + '-alerts',
         '--member', f'serviceAccount:service-{number}@gcp-sa-monitoring-notification.iam.gserviceaccount.com',
         '--role', 'roles/pubsub.publisher')
@@ -119,6 +205,7 @@ def deploy():
     cli(*sub_args, '--push-endpoint', urls['worker'] + '/events', '--push-auth-service-account', push_sa,
         '--push-auth-token-audience', urls['worker'], '--ack-deadline', '240',
         '--min-retry-delay', '30s', '--max-retry-delay', '300s', '--message-retention-duration', '1h')
+    remember('subscriptions', f'projects/{PROJECT}/subscriptions/{PREFIX}-triage')
     metric_filter = (f'resource.type="cloud_run_revision" AND resource.labels.service_name="{PREFIX}-api" '
                      'AND metric.type="run.googleapis.com/request_count" AND metric.labels.response_code_class="5xx"')
     policy = {'displayName': PREFIX + ' / Checkout errors', 'combiner': 'OR', 'enabled': True,
@@ -131,13 +218,14 @@ def deploy():
             'aggregations': [{'alignmentPeriod': '60s', 'perSeriesAligner': 'ALIGN_SUM',
                 'crossSeriesReducer': 'REDUCE_SUM',
                 'groupByFields': ['resource.label.service_name', 'resource.label.project_id', 'resource.label.location']}]}}]}
-    policies = api('GET', 'alertPolicies').get('alertPolicies', [])
-    existing = next((p for p in policies if p['displayName'] == policy['displayName']), None)
+    policies = monitoring_list('alertPolicies')
+    existing = next((p for p in policies if p['name'] in STATE['resources'].get('alertPolicies', [])), None)
     if existing:
         policy['name'] = existing['name']
         policy = api('PATCH', 'alertPolicies/' + existing['name'].split('/')[-1], policy)
     else:
         policy = api('POST', 'alertPolicies', policy)
+        remember('alertPolicies', policy['name'])
     print(json.dumps({'project': PROJECT, 'region': REGION, 'model': MODEL, 'urls': urls,
                       'policy': policy['name']}, indent=2))
 
