@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light"><title>Incident desk · Software Factory</title>
+<style>
+:root{--paper:#fff;--ink:#202124;--muted:#62666d;--line:#e7e8eb;--green:#27704c;--amber:#875816;--red:#aa3030;--blue:#2457a7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;caret-color:var(--ink)}
+::selection{background:#dfe8f6;color:var(--ink)}
+html{scrollbar-color:#c8cbd0 var(--paper)}
+a{color:var(--ink);text-underline-offset:3px;overflow-wrap:anywhere}
+a:hover{color:var(--blue)}
+button{font:inherit}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
+header{border-bottom:1px solid var(--line)}
+.bar{max-width:1104px;margin:auto;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-size:13px;font-weight:600}
+.quiet{color:var(--muted);font-size:12px}
+.connection{display:flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
+.dot{width:6px;height:6px;background:var(--muted);border-radius:50%;flex:none}
+.dot.live{background:var(--green)}
+.dot.warn{background:var(--amber)}
+main{max-width:1104px;margin:auto;padding:40px 32px 56px}
+.intro{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:36px}
+h1{font-size:24px;font-weight:600;line-height:1.3;letter-spacing:-.025em;margin:0}
+p{margin:0;max-width:72ch}
+button{border:1px solid #d9dce0;border-radius:5px;background:#fff;padding:6px 12px;color:var(--ink);cursor:pointer;white-space:nowrap;font-size:13px}
+button:hover{background:#f5f6f7;border-color:#b6bac1}
+button:disabled{opacity:.55;cursor:wait}
+.banner{padding:12px 16px;margin:0 0 24px;background:#fff7e8;color:#794b0b;border-radius:4px;font-size:13px}
+.section-top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:12px;gap:16px}
+h2{font-size:13px;font-weight:600;margin:0}
+.count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.empty{padding:28px 0 32px}
+.empty h3{font-size:14px;font-weight:500;margin:0 0 4px}
+.empty p{color:var(--muted);font-size:13px}
+.incident{padding:24px 0 28px;border-bottom:1px solid var(--line)}
+.incident-heading{display:flex;justify-content:space-between;align-items:start;gap:24px}
+.incident h3{font-size:16px;line-height:1.4;font-weight:600;margin:0 0 6px;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.meta a{color:var(--muted)}
+.badge{display:inline-flex;align-items:center;gap:6px;color:var(--amber);font-size:12px;font-weight:500;white-space:nowrap}
+.badge::before{content:"";width:6px;height:6px;flex:none;border-radius:50%;background:currentColor}
+.badge.triaged{color:var(--ink)}
+.badge.recovered{color:var(--green)}
+.badge.failed{color:var(--red)}
+.brief{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(240px,1fr);gap:48px;margin-top:24px}
+.primary{min-width:0}
+.field+.field{margin-top:20px}
+.field h4{margin:0 0 6px;font-size:12px;font-weight:500;color:var(--muted)}
+.cause{font-size:17px;line-height:1.55;font-weight:500;letter-spacing:-.01em}
+.field p{white-space:pre-wrap;overflow-wrap:anywhere}
+.confidence{font-size:12px;color:var(--muted);margin-top:8px}
+.evidence{padding:0;margin:0;list-style:none}
+.evidence li{margin-bottom:16px}
+.evidence strong{font-size:13px;font-weight:500;display:block}
+.evidence p{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.evidence a{font-size:12px;display:inline-block;margin-top:4px}
+.details{margin-top:20px}
+.details summary{cursor:pointer;color:var(--muted);font-size:12px;width:fit-content;padding:4px 0}
+.steps{list-style:none;margin:8px 0 0;padding:0}
+.steps li{font-size:12px;padding:6px 0;display:flex;gap:16px;align-items:baseline}
+.steps time{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.steps span{overflow-wrap:anywhere}
+.pending{margin-top:20px;color:var(--muted);max-width:65ch}
+.failure{color:var(--red)}
+#history-section{margin-top:24px}
+.history-item{border-bottom:1px solid var(--line)}
+.history-item>summary{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:16px 0;cursor:pointer;list-style:none}
+.history-item>summary:hover .history-title{text-decoration:underline;text-underline-offset:3px}
+.history-item>summary::-webkit-details-marker{display:none}
+.history-title{font-size:13px;font-weight:500;overflow-wrap:anywhere}
+.history-meta{display:flex;align-items:center;gap:24px;flex:none;font-size:12px;color:var(--muted)}
+.history-item[open]>summary{margin-bottom:8px}
+.history-item .incident{padding:0 0 24px;border:0}
+.history-item .incident-heading{display:none}
+.history-item .brief{margin-top:0}
+.arrow{width:14px;height:14px;flex:none}
+.history-item[open] .arrow{transform:rotate(90deg)}
+footer{margin-top:32px;display:flex;justify-content:space-between;gap:20px;font-size:12px;color:var(--muted)}
+[hidden]{display:none!important}
+@media(max-width:700px){
+ .bar{padding:14px 20px}
+ main{padding:28px 20px 40px}
+ .intro{margin-bottom:28px}
+ h1{font-size:22px}
+ .brief{grid-template-columns:1fr;gap:28px}
+ .brief>div+div{border-top:1px solid var(--line);padding-top:20px}
+ .incident-heading{gap:12px;flex-wrap:wrap}
+ .history-item>summary{align-items:start;gap:12px}
+ .history-meta{gap:12px}
+ .history-meta time{display:none}
+ .steps li{flex-wrap:wrap;gap:0 12px}
+ footer{flex-direction:column;gap:4px}
+}
+</style>
+</head>
+<body>
+<header><div class="bar"><div class="brand">Software Factory</div><div class="connection quiet"><span id="connection-dot" class="dot"></span><span id="connection">Connecting</span></div></div></header>
+<main>
+<div class="intro"><div><h1>Incident desk</h1></div><button id="refresh" type="button">Refresh</button></div>
+<div id="notice" class="banner" role="status" hidden></div>
+<section aria-labelledby="active-heading"><div class="section-top"><h2 id="active-heading">Active incidents</h2><span id="active-count" class="count"></span></div><div id="active"><div class="empty"><h3>Loading incidents</h3><p>Connecting to the incident service.</p></div></div></section>
+<section id="history-section" aria-labelledby="history-heading" hidden><div class="section-top"><h2 id="history-heading">Incident history</h2><span id="history-count" class="count"></span></div><div id="history"></div></section>
+<footer><span id="service">Monitoring notifications initiate each investigation.</span><span>Triage only · Human-led recovery</span></footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+let lastSuccess=0, lastSignature='', busy=false;
+const label={investigating:'Investigating',triaged:'Triaged',failed:'Triage failed',recovered:'Recovered'};
+function el(tag,text,cls){const node=document.createElement(tag);if(text!==undefined&&text!==null)node.textContent=String(text);if(cls)node.className=cls;return node;}
+function date(value){const d=new Date(value);return value&&!isNaN(d)?new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}).format(d):'Time unavailable';}
+function time(value){const node=el('time',date(value));if(value)node.dateTime=value;return node;}
+function cloudLink(url,text){try{const u=new URL(url);if(u.protocol!=='https:'||u.hostname!=='console.cloud.google.com'||u.username||u.password)return null;const a=el('a',text);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';return a;}catch{return null;}}
+function field(title,value,cls){const box=el('div',null,'field');box.append(el('h4',title),el('p',value||'Not established.',cls));return box;}
+function badge(item){const status=item.state==='closed'?'recovered':item.status;return el('span',label[status]||'Investigating','badge '+(Object.hasOwn(label,status)?status:'investigating'));}
+function incident(item){const article=el('article',null,'incident');const heading=el('div',null,'incident-heading');const title=el('div');title.append(el('h3',item.title||'Monitoring incident'));const meta=el('div',null,'meta');const started=el('span','Opened ');started.append(time(item.started_at));meta.append(started);const updated=el('span','Updated ');updated.append(time(item.updated_at));meta.append(updated);const link=cloudLink(item.url,'View in Cloud Monitoring');if(link)meta.append(link);title.append(meta);heading.append(title,badge(item));article.append(heading);
+if(item.report){const r=item.report,brief=el('div',null,'brief'),primary=el('div',null,'primary');primary.append(field('Likely cause',r.likely_cause,'cause'));if(['low','medium','high'].includes(r.confidence))primary.append(el('p',r.confidence[0].toUpperCase()+r.confidence.slice(1)+' confidence','confidence'));primary.append(field('Impact',r.impact),field('Recommended action',r.recommended_action),field('How to verify',r.verification));const supporting=el('div');const evidence=el('div',null,'field');evidence.append(el('h4','Evidence'));const list=el('ul',null,'evidence');for(const entry of Array.isArray(r.evidence)?r.evidence:[]){const li=el('li');li.append(el('strong',entry.source||'Source'),el('p',entry.detail||'No detail provided.'));const a=cloudLink(entry.url,'Open evidence');if(a)li.append(a);list.append(li);}if(!list.children.length)list.append(el('li','No supporting evidence was recorded.'));evidence.append(list);supporting.append(evidence,field('What remains uncertain',r.uncertainty));brief.append(primary,supporting);article.append(brief);
+}else{article.append(el('p',item.status==='failed'?'The investigation could not be completed. Review the incident in Cloud Monitoring.':item.state==='closed'?'Monitoring reported recovery before a triage brief was available.':'The agent is gathering logs, metrics and deployment details. Its findings will appear here.','pending'+(item.status==='failed'?' failure':'')));}
+if(Array.isArray(item.steps)&&item.steps.length){const details=el('details',null,'details');details.append(el('summary','Investigation activity'));const list=el('ol',null,'steps');for(const step of item.steps){const li=el('li');li.append(time(step.at),el('span',(step.tool||'Investigation')+' · '+(step.status||'Recorded')));list.append(li);}details.append(list);article.append(details);}return article;}
+function render(data){const openDetails=new Set([...document.querySelectorAll('#history details.history-item[open]')].map(n=>n.dataset.id));const active=data.incidents.filter(i=>i.state!=='closed'),closed=data.incidents.filter(i=>i.state==='closed');$('active').replaceChildren();$('active-count').textContent=active.length?active.length+' open':'';if(active.length){for(const i of active)$('active').append(incident(i));}else{const empty=el('div',null,'empty');empty.append(el('h3','No active incidents'),el('p','New alerts and investigation findings will appear here.'));$('active').append(empty);}$('history').replaceChildren();$('history-section').hidden=!closed.length;$('history-count').textContent=closed.length+' recovered';for(const i of closed){const details=el('details',null,'history-item');details.dataset.id=String(i.id);details.open=openDetails.has(String(i.id));const summary=el('summary');const title=el('div');title.append(el('div',i.title||'Monitoring incident','history-title'));const meta=el('div',null,'history-meta');meta.append(time(i.ended_at||i.updated_at),badge(i));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 20 20');arrow.setAttribute('class','arrow');arrow.setAttribute('aria-hidden','true');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','m7 4 6 6-6 6');path.setAttribute('fill','none');path.setAttribute('stroke','currentColor');path.setAttribute('stroke-width','1.5');arrow.append(path);meta.append(arrow);summary.append(title,meta);details.append(summary,incident(i));$('history').append(details);}$('service').textContent=data.service||'Monitoring notifications initiate each investigation.';}
+async function refresh(){if(busy)return;busy=true;$('refresh').disabled=true;const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);try{const response=await fetch('/api/incidents',{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(!data||!Array.isArray(data.incidents))throw new Error('Invalid incident response');const signature=JSON.stringify(data);if(signature!==lastSignature){render(data);lastSignature=signature;}lastSuccess=Date.now();$('notice').hidden=true;$('connection').textContent='Updated '+new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(lastSuccess);$('connection-dot').className='dot live';}catch(error){$('notice').hidden=false;$('notice').textContent=lastSuccess?'Updates are unavailable. Showing the last successful response from '+new Date(lastSuccess).toLocaleTimeString()+'. Retrying automatically.':'Unable to load incidents. Check the service connection or sign in again. Retrying automatically.';$('connection').textContent=lastSuccess?'Updates delayed':'Connection unavailable';$('connection-dot').className='dot warn';if(!lastSuccess){const empty=el('div',null,'empty');empty.append(el('h3','Incident status unavailable'),el('p','An unavailable connection does not mean the service is healthy. Select Refresh to try again.'));$('active').replaceChildren(empty);}}finally{clearTimeout(timeout);busy=false;$('refresh').disabled=false;}}
+$('refresh').addEventListener('click',refresh);refresh();setInterval(refresh,5000);
+</script>
+</body>
+</html>

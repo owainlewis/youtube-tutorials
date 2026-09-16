@@ -1,0 +1,8 @@
+__pycache__
+.pytest_cache
+.venv
+*.pyc
+.env*
+
+.software-factory-state.json
+.software-factory-state.tmp

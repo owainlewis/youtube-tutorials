@@ -204,6 +204,13 @@
       "last_verified": "2026-08-04"
     },
     {
+      "slug": "software-factory",
+      "title": "OpenAI’s Agentic Software Factory",
+      "status": "draft",
+      "video_url": "",
+      "last_verified": "2026-09-16"
+    },
+    {
       "slug": "spec-driven-development",
       "title": "Spec-Driven Development",
       "status": "published",
