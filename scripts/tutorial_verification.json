@@ -1,5 +1,44 @@
 {
   "tutorials": {
+    "software-factory": {
+      "classification": "runnable",
+      "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/software-factory/LESSON.md",
+          "heading": "Install and run locally"
+        },
+        "run": {
+          "path": "tutorials/software-factory/LESSON.md",
+          "heading": "Record the incident demo"
+        },
+        "test": {
+          "path": "tutorials/software-factory/LESSON.md",
+          "heading": "Test without credentials"
+        },
+        "reset": {
+          "path": "tutorials/software-factory/LESSON.md",
+          "heading": "Reset and remove resources"
+        }
+      },
+      "commands": [
+        {
+          "name": "incident lifecycle tests",
+          "cwd": "tutorials/software-factory/code",
+          "run": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_domain.py",
+            "-v"
+          ]
+        }
+      ]
+    },
     "6-types-of-rag": {
       "classification": "runnable",
       "kind": "offline",

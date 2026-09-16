@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">From alert to investigation</title><desc id="desc">Cloud Monitoring sends an incident to Pub/Sub. An ADK agent reads logs, metrics and revisions and publishes a brief. A human handles recovery.</desc>
+<rect width="1600" height="900" fill="#f8f6ef"/>
+<g font-family="sans-serif" fill="#17251f"><text x="100" y="150" font-size="68">From alert to investigation</text><text x="100" y="225" font-size="28">The agent gathers evidence. A human handles recovery.</text></g>
+<g fill="none" stroke="#596d60" stroke-width="3"><path d="M350 420H440m270 0h80m270 0h80"/><path d="M930 480v140H440"/></g>
+<g fill="#e8eee7" stroke="#596d60" stroke-width="2"><rect x="100" y="350" width="250" height="140" rx="12"/><rect x="440" y="350" width="270" height="140" rx="12"/><rect x="790" y="350" width="270" height="140" rx="12"/><rect x="1140" y="350" width="360" height="140" rx="12"/></g>
+<g font-family="sans-serif" fill="#17251f" text-anchor="middle" font-size="30"><text x="225" y="430">Monitoring</text><text x="575" y="430">Pub/Sub</text><text x="925" y="430">ADK + Gemini</text><text x="1320" y="430">Incident dashboard</text></g>
+<g font-family="sans-serif" fill="#17251f"><text x="100" y="630" font-size="32">Read-only tools</text><text x="100" y="685" font-size="28">Error logs · Request metrics · Recent revisions</text><text x="100" y="805" font-size="27">Likely cause · Evidence · Recommended action · Uncertainty</text></g>
+</svg>
