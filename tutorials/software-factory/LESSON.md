@@ -4,6 +4,8 @@ An agent can write a change quickly. Someone still has to decide whether it shou
 
 The examples are inspired by [The Pragmatic Engineer’s reporting](https://newsletter.pragmaticengineer.com/p/openai-software-factory). They are teaching implementations, not OpenAI’s internal tools.
 
+For recording, use the [screen-share guide](resources/walkthrough.md) or its [browser export](resources/walkthrough.html). The guide contains short talking points, diagrams and demo handoffs. This lesson contains the setup instructions.
+
 ## Decide which changes can merge
 
 Use the [Assembler prompt](resources/prompts.md) in a Codex task attached to your Assembler checkout. It starts in dry-run mode. It reads open PRs, checks the current commit and CI, and explains which changes meet a deliberately narrow policy. Switch to live mode only when you want it to label and merge eligible PRs.
@@ -61,7 +63,7 @@ gcloud auth login
 python3 deploy.py --project personal-infrastructure-505708
 ```
 
-The script records resources it creates in `code/.software-factory-state.json`. Keep that local file for redeployment and cleanup; it is excluded from Git and cloud build uploads. An existing resource with the same name but no ownership record stops deployment before resource changes. Use a separate tutorial checkout for each project and region.
+The script records resources it creates in `code/.software-factory-state.json`. Keep that local file for redeployment and cleanup; it is excluded from Git and cloud build uploads. The script first enables the APIs needed to inspect the project. It then refuses to create or update demo resources if a matching resource has no ownership record. API enablement can remain after a refused deployment. Use a separate tutorial checkout for each project and region.
 
 The script creates three Cloud Run services in `europe-west2`, dedicated service identities, a named Firestore database, a Pub/Sub notification channel and subscription, an Artifact Registry repository and a metric alert policy. It prints the API and dashboard URLs. It uses existing gcloud authentication; there is no committed key or model API key. Gemini defaults to `gemini-2.5-flash`; use `--model` to choose an available Vertex model.
 
