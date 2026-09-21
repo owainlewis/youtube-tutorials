@@ -52,7 +52,7 @@ async def investigate(incident, store):
     project = os.environ['GOOGLE_CLOUD_PROJECT']
     service = os.getenv('TARGET_SERVICE', 'software-factory-api')
     region = os.getenv('CLOUD_RUN_REGION', 'europe-west2')
-    model = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
+    model = os.getenv('GEMINI_MODEL', 'gemini-3.8-flash')
     # Tools cannot select another project/service or issue arbitrary queries.
     start, end = evidence_window(incident['started_at'])
     since = datetime.fromtimestamp(start, timezone.utc).isoformat()
