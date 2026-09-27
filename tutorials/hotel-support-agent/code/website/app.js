@@ -9,32 +9,17 @@ document.addEventListener('click',e=>{let b=e.target.closest('[data-theme]');if(
 const villaData=[{title:'The Forest<br>Suite',meta:'ONE BEDROOM · TWO GUESTS · PRIVATE POOL',image:'assets/suite.png',description:'Warm plaster, natural linen, and a view that carries on beyond the glass. A quiet place to rest between slow swims and afternoons in the shade.'},{title:'Your Private<br>Pool Terrace',meta:'FOREST VIEWS · OPEN AIR · ROOM TO UNWIND',image:'assets/forest-pool.png',description:'Follow the pool to the edge of the green. Settle into a daybed beneath the teak pergola, with the forest as your only agenda.'},{title:'Breakfast<br>Among the Trees',meta:'YOUR TERRACE · YOUR PACE · REQUEST WITH YOUR HOST',image:'assets/breakfast.png',description:'Fresh fruit, warm pastries, and coffee on your terrace. Ask your host to arrange a breakfast time; availability and any charges require confirmation.'}];let villaIndex=0;function villaStep(n){villaIndex=(villaIndex+n+villaData.length)%villaData.length;const v=villaData[villaIndex];$('#villaImage').src=v.image;$('#villaImage').alt=v.title.replace('<br>',' ');$('#villaTitle').innerHTML=v.title;$('#villaMeta').textContent=v.meta;$('#villaDescription').textContent=v.description;$('#villaNumber').textContent='0'+(villaIndex+1)+' / 03';}$('#previousVilla').onclick=()=>villaStep(-1);$('#nextVilla').onclick=()=>villaStep(1);
 $('#menuButton').onclick=()=>{const opened=$('#menu').hidden;$('#menu').hidden=!opened;$('#menuButton').setAttribute('aria-expanded',String(opened));$('#menuButton').setAttribute('aria-label',opened?'Close navigation':'Open navigation');document.body.classList.toggle('menu-open',opened)};$('#menu').onclick=e=>{if(e.target.closest('a,button')){$('#menu').hidden=true;document.body.classList.remove('menu-open');$('#menuButton').setAttribute('aria-expanded','false');$('#menuButton').setAttribute('aria-label','Open navigation')}};
 
-// Load motion only when permitted, or when the visitor explicitly presses Play.
+// Keep the still image for visitors who prefer reduced motion.
 const heroVideo = $('#heroVideo');
-const heroMotion = $('#heroMotion');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-function updateHeroMotion() {
-  heroMotion.textContent = heroVideo.paused ? 'Play video' : 'Pause video';
-  heroMotion.setAttribute('aria-label', heroVideo.paused ? 'Play background video' : 'Pause background video');
-}
 async function playHero() {
   if (!heroVideo.getAttribute('src')) heroVideo.src = 'assets/forest-pool.mp4';
   heroVideo.muted = true;
-  try { await heroVideo.play(); } catch { /* The still remains if autoplay is blocked. */ }
-  updateHeroMotion();
+  try { await heroVideo.play(); } catch { /* Keep the poster if autoplay is blocked. */ }
 }
-heroVideo.addEventListener('play', updateHeroMotion);
-heroVideo.addEventListener('pause', updateHeroMotion);
-heroVideo.addEventListener('error', () => {
-  heroVideo.hidden = true;
-  heroMotion.hidden = true;
-});
-heroMotion.addEventListener('click', () => {
-  if (heroVideo.paused) playHero();
-  else heroVideo.pause();
-});
+heroVideo.addEventListener('error', () => { heroVideo.hidden = true; });
 reducedMotion.addEventListener('change', event => {
   if (event.matches) heroVideo.pause();
+  else playHero();
 });
-heroMotion.hidden = false;
 if (!reducedMotion.matches) playHero();

@@ -56,8 +56,7 @@ required at runtime. Preserve the demo notices when reusing this prototype.
 
 The local `website/assets/forest-pool.mp4` hero was generated from the pool image
 with Seedance 2.5 through Higgsfield. It is an eight-second, silent 1080p clip.
-Playback loops with a Play/Pause control; reduced-motion visitors see the still
-unless they choose Play. If playback fails, the still remains visible.
+Playback loops without a visible video control; reduced-motion visitors see the still. If playback fails, the still remains visible.
 
 ## Connecting the real agent
 
