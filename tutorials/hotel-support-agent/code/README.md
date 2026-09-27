@@ -23,7 +23,7 @@ If the port is occupied, stop your earlier preview or choose another local port.
 Do not expose Python's development server as a production service.
 
 Google Fonts supplies Jost and Cormorant Garamond. Without internet access the
-site uses fallback fonts. All photographs, JavaScript, and CSS are local.
+site uses fallback fonts. All photographs, the hero video, JavaScript, and CSS are local.
 
 ## Test
 
@@ -53,6 +53,11 @@ storage to clear. Stop the local server with Ctrl-C.
 for the fictional Canopy House concept during the design exploration. They are
 illustrations, not photographs of an actual property. No reference-site image is
 required at runtime. Preserve the demo notices when reusing this prototype.
+
+The local `website/assets/forest-pool.mp4` hero was generated from the pool image
+with Seedance 2.5 through Higgsfield. It is an eight-second, silent 1080p clip.
+Playback loops with a Play/Pause control; reduced-motion visitors see the still
+unless they choose Play. If playback fails, the still remains visible.
 
 ## Connecting the real agent
 
