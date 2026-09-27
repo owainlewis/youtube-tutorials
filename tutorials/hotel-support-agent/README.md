@@ -3,12 +3,14 @@
 A planned tutorial about adding an AI support widget to a fictional hotel website,
 then deploying, testing, and operating it on Google Cloud.
 
-**Status:** draft lesson and project scaffold. No working agent or deployment is
-included yet.
+**Status:** runnable website prototype and draft lesson. Concierge replies and
+requests are simulated. No working agent or cloud deployment is included yet.
 
 ## Start Here
 
 - [Scripted opening, architecture, and 30-minute outline](./LESSON.md)
+- [Saved hotel website and preview instructions](./code/README.md)
+- [Step-by-step CLI setup and build guide](./resources/setup-guide.md)
 - [Implementation prompt](./resources/prompts.md)
 
 ## Go Deeper

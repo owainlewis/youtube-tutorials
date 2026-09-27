@@ -1,7 +1,8 @@
 # Build and Deploy an AI Hotel Support Agent on Google Cloud
 
 Working draft: scripted opening and a 30-minute video outline. The application
-and demonstrations described below are planned, not implemented in this folder.
+backend and cloud demonstrations described below are planned. The saved website
+prototype is runnable, with simulated concierge responses.
 
 ## Opening Script
 
@@ -37,6 +38,14 @@ for this fictional property, clearly identified as illustrative demo imagery.
 Use fictional guest data and a dedicated demo calendar. Do not connect this
 public demonstration to a real guest directory or reservations system.
 
+## Start with the saved website
+
+The Canopy House design is preserved in [code/website/](./code/website/), including
+all three generated images. Follow the [preview instructions](./code/README.md)
+to run it locally. The [setup guide](./resources/setup-guide.md) covers Google
+Cloud CLI, credentials, Agents CLI, and the ordered build workflow. The diagrams
+below describe the proposed backend, not the current scripted mockup.
+
 ## Proposed Architecture
 
 The initial deployment design uses one Cloud Run service for the website,
@@ -68,6 +77,80 @@ cloud setup; this outline does not claim both deployment paths are demonstrated.
 
 Google documents [ADK deployment to Cloud Run](https://adk.dev/deploy/cloud-run/).
 This diagram is our proposed application design, not a verified implementation.
+
+### How we build and deliver the system
+
+```mermaid
+flowchart LR
+    Design[Architecture and acceptance cases] --> Assistant[Coding assistant]
+    Assistant --> CLI[Agents CLI and installed skills]
+    CLI --> Local[Local ADK agent and tool tests]
+    Local --> Eval[Fixed evaluation cases]
+    Eval --> Review[Review code and deployment config]
+    Review --> Cloud[Deploy to Cloud Run]
+    Cloud --> Verify[Cloud smoke test and failure drill]
+    Verify --> Operate[Logs, traces, metrics]
+    Operate --> Design
+    Gcloud[Google Cloud CLI and credentials] --> Review
+```
+
+Agents CLI helps the coding assistant build and operate the agent. It is a
+**development tool**, not a service sitting between the guest and Gemini.
+
+### One guest question
+
+```mermaid
+sequenceDiagram
+    participant Guest as Guest widget
+    participant API as Cloud Run API
+    participant Agent as ADK agent + Gemini
+    participant Tool as Guide or calendar tool
+    participant DB as PostgreSQL
+    Guest->>API: Question and session cookie
+    API->>DB: Verify session ownership; load history
+    API->>Agent: Question and scoped context
+    Agent->>Tool: Bounded lookup
+    alt Lookup succeeds
+        Tool-->>Agent: Evidence and source
+        Agent-->>API: Answer grounded in evidence
+    else Lookup unavailable
+        Tool-->>Agent: Explicit unavailable result
+        Agent-->>API: Honest fallback; offer host request
+    end
+    API->>DB: Save conversation events
+    API-->>Guest: Stream answer and source links
+```
+
+The service can stream partial output during a turn; the diagram groups the
+messages for clarity. Persist completed turns and useful failure events without
+logging private guest content by default. No queue is required for this flow.
+
+### A confirmed request to the host
+
+```mermaid
+sequenceDiagram
+    participant Guest as Guest widget
+    participant API as Application API
+    participant DB as PostgreSQL
+    participant Staff as Staff request list
+    API-->>Guest: Proposed request and server-issued action ID
+    Guest->>API: Confirm action ID
+    API->>API: Verify session and confirmation
+    API->>DB: Insert pending request with unique action ID
+    alt First submission
+        DB-->>API: New request reference
+    else Retry after a lost response
+        DB-->>API: Existing request reference
+    end
+    API-->>Guest: Pending; not a confirmed booking
+    Staff->>API: Authenticated request-list read
+    API->>DB: Load pending requests
+    DB-->>API: Pending requests
+    API-->>Staff: Display work to follow up
+```
+
+The current prototype only shows a simulated reference. In the implemented
+version, this write must be durable before the UI claims it was received.
 
 ### Three narrow tools
 
