@@ -54,9 +54,13 @@ for the fictional Sanctuary Hotel concept during the design exploration. They ar
 illustrations, not photographs of an actual property. No reference-site image is
 required at runtime. Preserve the demo notices when reusing this prototype.
 
-The local `website/assets/forest-pool.mp4` hero was generated from the pool image
-with Seedance 2.5 through Higgsfield. It is an eight-second, silent 1080p clip.
-Playback loops without a visible video control; reduced-motion visitors see the still. If playback fails, the still remains visible.
+The active `website/assets/hero-rotation.mp4` hero is an 18-second silent loop
+of three AI-generated stills: the original pool, a daylight bedroom, and the
+restaurant at dusk. Each scene holds for four seconds with two-second
+crossfades, including the return to the pool. There is no camera movement.
+The earlier Seedance clip remains in `forest-pool.mp4` for reference.
+Playback loops without visible controls; reduced-motion visitors see the
+original pool still. If playback fails, the still remains visible.
 
 ## Connecting the real agent
 

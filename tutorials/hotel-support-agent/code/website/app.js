@@ -13,7 +13,7 @@ $('#menuButton').onclick=()=>{const opened=$('#menu').hidden;$('#menu').hidden=!
 const heroVideo = $('#heroVideo');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 async function playHero() {
-  if (!heroVideo.getAttribute('src')) heroVideo.src = 'assets/forest-pool.mp4';
+  if (!heroVideo.getAttribute('src')) heroVideo.src = 'assets/hero-rotation.mp4';
   heroVideo.muted = true;
   try { await heroVideo.play(); } catch { /* Keep the poster if autoplay is blocked. */ }
 }
