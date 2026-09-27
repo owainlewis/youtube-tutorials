@@ -1,5 +1,46 @@
 {
   "tutorials": {
+    "hotel-support-agent": {
+      "classification": "runnable",
+      "kind": "offline",
+      "documentation": {
+        "install": {
+          "path": "tutorials/hotel-support-agent/code/README.md",
+          "heading": "Install"
+        },
+        "run": {
+          "path": "tutorials/hotel-support-agent/code/README.md",
+          "heading": "Run"
+        },
+        "test": {
+          "path": "tutorials/hotel-support-agent/code/README.md",
+          "heading": "Test"
+        },
+        "reset": {
+          "path": "tutorials/hotel-support-agent/code/README.md",
+          "heading": "Reset"
+        }
+      },
+      "commands": [
+        {
+          "name": "Website asset checks",
+          "cwd": "tutorials/hotel-support-agent/code",
+          "run": [
+            "python3",
+            "verify_website.py"
+          ]
+        },
+        {
+          "name": "Website JavaScript syntax",
+          "cwd": "tutorials/hotel-support-agent/code",
+          "run": [
+            "node",
+            "--check",
+            "website/app.js"
+          ]
+        }
+      ]
+    },
     "software-factory": {
       "classification": "runnable",
       "kind": "offline",
