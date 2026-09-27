@@ -1,4 +1,4 @@
-# Canopy House website prototype
+# Sanctuary Hotel website prototype
 
 The saved hotel design, with its original AI-generated images, carousel, guest
 guide, and scripted concierge interactions. No model, database, calendar, booking,
@@ -18,7 +18,7 @@ From `tutorials/hotel-support-agent/code`:
 python3 -m http.server 8773 --bind 127.0.0.1 --directory website
 ```
 
-Open http://127.0.0.1:8773/. Expect the forest-pool hero and the Canopy House name.
+Open http://127.0.0.1:8773/. Expect the forest-pool hero and the Sanctuary Hotel name.
 If the port is occupied, stop your earlier preview or choose another local port.
 Do not expose Python's development server as a production service.
 
@@ -50,7 +50,7 @@ storage to clear. Stop the local server with Ctrl-C.
 ## Image provenance
 
 `website/assets/forest-pool.png`, `suite.png`, and `breakfast.png` were generated
-for the fictional Canopy House concept during the design exploration. They are
+for the fictional Sanctuary Hotel concept during the design exploration. They are
 illustrations, not photographs of an actual property. No reference-site image is
 required at runtime. Preserve the demo notices when reusing this prototype.
 

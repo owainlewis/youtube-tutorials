@@ -10,7 +10,7 @@ Today I'm going to show you how to build and deploy an AI hotel support agent on
 
 ## Before We Build
 
-The example is Canopy House, a fictional resort with a website and an embedded
+The example is Sanctuary Hotel, a fictional resort with a website and an embedded
 Ask AI widget. The intended audience is developers and freelancers who can build
 a web application and want to understand how to deploy and operate an agent.
 
@@ -40,7 +40,7 @@ public demonstration to a real guest directory or reservations system.
 
 ## Start with the saved website
 
-The Canopy House design is preserved in [code/website/](./code/website/), including
+The Sanctuary Hotel design is preserved in [code/website/](./code/website/), including
 all three generated images. Follow the [preview instructions](./code/README.md)
 to run it locally. The [setup guide](./resources/setup-guide.md) covers Google
 Cloud CLI, credentials, Agents CLI, and the ordered build workflow. The diagrams

@@ -4,7 +4,7 @@ Use this after choosing the deployment target described in the lesson.
 
 ```text
 Read LESSON.md and the repository instructions. Build the first local slice of
-Canopy House, a fictional hotel's support assistant, using Python and Google ADK.
+Sanctuary Hotel, a fictional hotel's support assistant, using Python and Google ADK.
 Use Agents CLI through the coding assistant where supported by the installed
 version. Explain the generated code and check the commands before using them.
 
