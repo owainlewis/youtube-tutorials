@@ -113,6 +113,13 @@
       "last_verified": "2026-08-04"
     },
     {
+      "slug": "hotel-support-agent",
+      "title": "Build and Deploy an AI Hotel Support Agent on Google Cloud",
+      "status": "draft",
+      "video_url": "",
+      "last_verified": ""
+    },
+    {
       "slug": "how-id-learn-software-engineering",
       "title": "How I'd Learn Software Engineering (When AI Writes the Code)",
       "status": "published",
